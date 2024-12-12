@@ -1,5 +1,6 @@
 ﻿using ECommerce.API.Data;
 using ECommerce.API.Models.Domain;
+using ECommerce.API.Models.DTO.Product;
 using ECommerce.API.Repositories.Interface;
 using Microsoft.EntityFrameworkCore;
 
@@ -40,10 +41,46 @@ namespace ECommerce.API.Repositories.Impemention
             return existing;
         }
 
-        public async Task<IEnumerable<Products>> GetAllAsync()
+        public async Task<PagedResult<Products>> GetAllAsync(string? productName, bool isDESC = false, int page = 1, int itemInPage = 20, string sortBy = "CreatedAt", int? categryId = null)
         {
-            var products = await dbContext.Products.ToListAsync();
-            return products;
+            var query = dbContext.Products.AsQueryable();
+            if (!string.IsNullOrEmpty(productName))
+            {
+                query = query.Where(p => p.ProductName.Contains(productName));
+            }
+
+            if(categryId.HasValue)
+            {
+                query = query.Where(p => p.CategoryID == categryId.Value);
+            }
+
+            if (!string.IsNullOrEmpty(sortBy))
+            {
+                switch (sortBy.ToLower())
+                {
+                    case "price":
+                        query = isDESC ? query.OrderByDescending(x => x.Price) : query.OrderBy(x => x.Price);
+                        break;
+                    case "name":
+                        query = isDESC ? query.OrderByDescending(x => x.ProductName) : query.OrderBy(x => x.ProductName);
+                        break;
+                    default:
+                        query = isDESC ? query.OrderByDescending(x => x.CreatedAt) : query.OrderBy(x => x.CreatedAt);
+                        break;
+                }
+            }
+
+            int totalCounts = await query.CountAsync();
+            var  products = await query.Skip((page - 1) * itemInPage).Take(itemInPage).ToListAsync();
+            int pageSize = totalCounts % itemInPage != 0 ? totalCounts / itemInPage + 1 : totalCounts / itemInPage;
+
+            return new PagedResult<Products>
+            {
+                Items = products,
+                TotalCount = totalCounts,
+                Page = page,
+                PageSize = pageSize
+            };
         }
 
         public async Task<Products?> GetByIdAsync(int id)
@@ -53,6 +90,7 @@ namespace ECommerce.API.Repositories.Impemention
             {
                 return null;
             }
+
             return existing;
         }
 

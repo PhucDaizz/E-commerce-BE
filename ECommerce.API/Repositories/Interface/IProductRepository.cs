@@ -1,4 +1,6 @@
 ﻿using ECommerce.API.Models.Domain;
+using ECommerce.API.Models.DTO.Product;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace ECommerce.API.Repositories.Interface
 {
@@ -8,7 +10,6 @@ namespace ECommerce.API.Repositories.Interface
         Task<Products?> UpdateAsync(Products products);
         Task<Products?> DeleteAsync(int id);
         Task<Products?> GetByIdAsync(int id);
-        Task<IEnumerable<Products>> GetAllAsync();
-
+        Task<PagedResult<Products>> GetAllAsync(string? productName, bool isDESC = false, int page = 1, int itemInPage = 20, string sortBy = "CreatedAt", int? categryId = null);
     }
 }

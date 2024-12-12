@@ -3,6 +3,7 @@ using ECommerce.API.Data;
 using ECommerce.API.Models.Domain;
 using ECommerce.API.Models.DTO.Product;
 using ECommerce.API.Repositories.Interface;
+using ECommerce.API.Services.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,16 +16,18 @@ namespace ECommerce.API.Controllers
         private readonly ECommerceDbContext dbContext;
         private readonly IProductRepository productRepository;
         private readonly IMapper mapper;
+        private readonly IProductServices productServices;
 
-        public ProductController(ECommerceDbContext dbContext, IProductRepository productRepository, IMapper mapper)
+        public ProductController(ECommerceDbContext dbContext, IProductRepository productRepository, IMapper mapper, IProductServices productServices)
         {
             this.dbContext = dbContext;
             this.productRepository = productRepository;
             this.mapper = mapper;
+            this.productServices = productServices;
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody]CreateProductDTO productDTO)
+        public async Task<IActionResult> Create([FromBody] CreateProductDTO productDTO)
         {
             var product = mapper.Map<Products>(productDTO);
             product.CreatedAt = DateTime.Now;
@@ -35,7 +38,7 @@ namespace ECommerce.API.Controllers
 
         [HttpGet]
         [Route("{id:int}")]
-        public async Task<IActionResult> GetById([FromRoute]int id)
+        public async Task<IActionResult> GetById([FromRoute] int id)
         {
             var products = await productRepository.GetByIdAsync(id);
             if (products == null)
@@ -46,15 +49,15 @@ namespace ECommerce.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] string? productName, [FromQuery] bool isDESC = false, [FromQuery] int page = 1, [FromQuery] int itemInPage = 20, [FromQuery] string sortBy = "CreatedAt", [FromQuery] int? categryId = null)
         {
-            var products = await productRepository.GetAllAsync();
+            var products = await productRepository.GetAllAsync(productName, isDESC, page, itemInPage, sortBy, categryId);
             return Ok(products);
         }
 
         [HttpPut]
         [Route("{id:int}")]
-        public async Task<IActionResult> Edit([FromRoute]int id, [FromBody]EditProductDTO productDTO)
+        public async Task<IActionResult> Edit([FromRoute] int id, [FromBody] EditProductDTO productDTO)
         {
             var product = mapper.Map<Products>(productDTO);
             product.ProductID = id;
@@ -69,14 +72,26 @@ namespace ECommerce.API.Controllers
 
         [HttpDelete]
         [Route("{id:int}")]
-        public async Task<IActionResult> Delete([FromRoute]int id)
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
             var product = await productRepository.DeleteAsync(id);
-            if(product == null)
+            if (product == null)
             {
                 return BadRequest("Id is not existing!");
             }
             return Ok(product);
+        }
+
+        [HttpGet]
+        [Route("Detail/{id:int}")]
+        public async Task<IActionResult> GetDetailById([FromRoute] int id)
+        {
+            var existing = await productServices.GetProductDetailAsync(id);
+            if ( existing == null)
+            {
+                return BadRequest("Id is not existing!");
+            }
+            return Ok(existing);
         }
     }
 }

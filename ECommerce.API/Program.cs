@@ -2,6 +2,8 @@ using ECommerce.API.Data;
 using ECommerce.API.Mapping;
 using ECommerce.API.Repositories.Impemention;
 using ECommerce.API.Repositories.Interface;
+using ECommerce.API.Services.Impemention;
+using ECommerce.API.Services.Interface;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +24,10 @@ builder.Services.AddDbContext<ECommerceDbContext>(options =>
 
 builder.Services.AddScoped<ICategoryRepository,CategoryRepository>();
 builder.Services.AddScoped<IProductRepository,ProductRepository>();
+builder.Services.AddScoped<IProductColorRepository,ProductColorRepository>();
+builder.Services.AddScoped<IProductSizeRepository, ProductSizeRepository>();
+
+builder.Services.AddScoped<IProductServices,ProductServices>();
 
 var app = builder.Build();
 

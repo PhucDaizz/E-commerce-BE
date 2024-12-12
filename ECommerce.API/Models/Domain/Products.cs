@@ -17,7 +17,7 @@ namespace ECommerce.API.Models.Domain
         // Navigation Properties
         [ForeignKey("CategoryID")]
         public Categories Categories { get; set; }
-        public ProductColors ProductColors { get; set; }
+        public ICollection<ProductColors> ProductColors { get; set; }
         public ICollection<ProductImages> ProductImages { get; set; }
         public ICollection<ProductReviews> ProductReviews { get; set; }
     }
