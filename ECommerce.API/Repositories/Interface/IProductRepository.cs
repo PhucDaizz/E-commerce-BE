@@ -11,5 +11,6 @@ namespace ECommerce.API.Repositories.Interface
         Task<Products?> DeleteAsync(int id);
         Task<Products?> GetByIdAsync(int id);
         Task<PagedResult<Products>> GetAllAsync(string? productName, bool isDESC = false, int page = 1, int itemInPage = 20, string sortBy = "CreatedAt", int? categryId = null);
+        Task<bool> ExistsAsync(int id);
     }
 }

@@ -106,5 +106,10 @@ namespace ECommerce.API.Repositories.Impemention
             await dbContext.SaveChangesAsync();
             return existing;
         }
+
+        public async Task<bool> ExistsAsync(int id)
+        {
+            return await dbContext.Products.AnyAsync(x => x.ProductID == id);
+        }
     }
 }

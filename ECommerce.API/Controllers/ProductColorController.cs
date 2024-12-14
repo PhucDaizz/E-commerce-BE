@@ -93,7 +93,7 @@ namespace ECommerce.API.Controllers
             var existing = await productColorRepository.GetAllByProductAsync(id);
             if(existing == null)
             {
-                return NotFound("Id is not existing");
+                return NotFound("Product not found or does not have any colors.");
             }
             var result = mapper.Map<IEnumerable<ProductColorDTO>>(existing);
             return Ok(result);
