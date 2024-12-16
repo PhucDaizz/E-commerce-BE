@@ -5,7 +5,7 @@ namespace ECommerce.API.Data
 {
     public class ECommerceDbContext : DbContext
     {
-        public ECommerceDbContext(DbContextOptions options) : base(options)
+        public ECommerceDbContext(DbContextOptions<ECommerceDbContext> options) : base(options)
         {
         }
 
