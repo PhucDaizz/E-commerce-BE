@@ -8,7 +8,7 @@ namespace ECommerce.API.Models.DTO.Product
     {
         public ProductDTO? Product { get; set; }
         public CategoryDTO? Category { get; set; }
-        public IEnumerable<ProductColorSizeDTO>? Color { get; set; }
+        public IEnumerable<ProductColorDTO>? Color { get; set; }
         public IEnumerable<ProductImageDTO> Images { get; set; }
     }
 }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ECommerce.API.Migrations.AuthDb
 {
     [DbContext(typeof(AuthDbContext))]
-    [Migration("20241216140156_initial User")]
-    partial class initialUser
+    [Migration("20241217093447_initialDatabase")]
+    partial class initialDatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -169,15 +169,15 @@ namespace ECommerce.API.Migrations.AuthDb
                         {
                             Id = "808e47f5-a733-42ab-8e31-b6af349bfd90",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "7752218c-d63d-4125-9b22-a75153197bdc",
+                            ConcurrencyStamp = "f65ab9be-f225-4513-a07e-c389e8195254",
                             Email = "superadmin@ecommerce.com",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "SUPERADMIN@ECOMMERCE.COM",
                             NormalizedUserName = "SUPERADMIN@ECOMMERCE.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEMveGp17tgDtMYRGdHfzjzH2p/GzEqoA+hZJ/pHxFtfWaJIAABN6TUN5uEz1ZSTzFg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEKkR8tlCwgPxuiqqeP5yK1dn39gkWrigDzFFtCafZyauPjagNmk9ggtT8O8NnFuHtw==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "3c963c56-6fa9-4c00-ba57-4887a985b02b",
+                            SecurityStamp = "c83c94f6-063e-4c4f-af31-7fef0b62c7be",
                             TwoFactorEnabled = false,
                             UserName = "superadmin@ecommerce.com"
                         });

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ECommerce.API.Migrations.AuthDb
 {
     /// <inheritdoc />
-    public partial class initialUser : Migration
+    public partial class initialDatabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -171,7 +171,7 @@ namespace ECommerce.API.Migrations.AuthDb
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { "808e47f5-a733-42ab-8e31-b6af349bfd90", 0, "7752218c-d63d-4125-9b22-a75153197bdc", "superadmin@ecommerce.com", false, false, null, "SUPERADMIN@ECOMMERCE.COM", "SUPERADMIN@ECOMMERCE.COM", "AQAAAAIAAYagAAAAEMveGp17tgDtMYRGdHfzjzH2p/GzEqoA+hZJ/pHxFtfWaJIAABN6TUN5uEz1ZSTzFg==", null, false, "3c963c56-6fa9-4c00-ba57-4887a985b02b", false, "superadmin@ecommerce.com" });
+                values: new object[] { "808e47f5-a733-42ab-8e31-b6af349bfd90", 0, "f65ab9be-f225-4513-a07e-c389e8195254", "superadmin@ecommerce.com", false, false, null, "SUPERADMIN@ECOMMERCE.COM", "SUPERADMIN@ECOMMERCE.COM", "AQAAAAIAAYagAAAAEKkR8tlCwgPxuiqqeP5yK1dn39gkWrigDzFFtCafZyauPjagNmk9ggtT8O8NnFuHtw==", null, false, "c83c94f6-063e-4c4f-af31-7fef0b62c7be", false, "superadmin@ecommerce.com" });
 
             migrationBuilder.InsertData(
                 table: "AspNetUserRoles",

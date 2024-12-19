@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using ECommerce.API.Models.Domain;
+using ECommerce.API.Models.DTO.CartItem;
 using ECommerce.API.Models.DTO.Category;
 using ECommerce.API.Models.DTO.Product;
 using ECommerce.API.Models.DTO.ProductColor;
@@ -27,7 +28,9 @@ namespace ECommerce.API.Mapping
             // ProductColor
             CreateMap<CreateProductColorDTO, ProductColors>().ReverseMap();
             CreateMap<EditProductColorDTO, ProductColors>().ReverseMap();
-            CreateMap<ProductColorDTO, ProductColors>().ReverseMap();
+            CreateMap<ProductColors, ProductColorDTO>().ForMember(dest => dest.ProductSizes, opt => opt.MapFrom(src => src.ProductSizes));
+            CreateMap<ProductColorDTO, ProductColors>();
+
 
             // ProductSize
             CreateMap<CreateProductSizeDTO, ProductSizes>().ReverseMap();
@@ -37,6 +40,12 @@ namespace ECommerce.API.Mapping
             // ProductImage
             CreateMap<CreateProductImageDTO, ProductImages>().ReverseMap();
             CreateMap<ProductImageDTO, ProductImages>().ReverseMap();
+
+            // CartItem
+            CreateMap<CreateCartItemDTO, CartItems>().ReverseMap(); 
+            CreateMap<AddCartItemDTO, CartItems>().ReverseMap();
+            CreateMap<EditCartItemDTO, CartItems>().ReverseMap();
+            CreateMap<CartItemDTO, CartItems>().ReverseMap();
         }
     }
 }

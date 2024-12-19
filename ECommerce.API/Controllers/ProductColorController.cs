@@ -87,10 +87,10 @@ namespace ECommerce.API.Controllers
         }
 
         [HttpGet]
-        [Route("GetAllByProduct/{id:int}")]
-        public async Task<IActionResult> GetAllByProduct(int id)
+        [Route("GetAllByProductId/{ProductId:int}")]
+        public async Task<IActionResult> GetAllByProduct(int ProductId)
         {
-            var existing = await productColorRepository.GetAllByProductAsync(id);
+            var existing = await productColorRepository.GetProductColorSizeAsync(ProductId);
             if(existing == null)
             {
                 return NotFound("Product not found or does not have any colors.");

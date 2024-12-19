@@ -43,13 +43,13 @@ namespace ECommerce.API.Services.Impemention
             var productMap = mapper.Map<ProductDTO>(product);
             var categoryMap = mapper.Map<CategoryDTO>(category);
             var imageMap = mapper.Map<IEnumerable<ProductImageDTO>>(image);
-            /*var colorMap = mapper.Map<IEnumerable<ProductColorDTO>>(color);*/
+            var colorMap = mapper.Map<IEnumerable<ProductColorDTO>>(color);
 
             return new DetailProductDTO
             {
                 Product = productMap,
                 Category = categoryMap,
-                Color = color,
+                Color = colorMap,
                 Images = imageMap
             };
         }

@@ -47,10 +47,11 @@ namespace ECommerce.API.Data
                 .OnDelete(DeleteBehavior.NoAction); // Tránh các vấn đề xóa cascade 
 
             modelBuilder.Entity<CartItems>()
-                .HasOne(ci => ci.Products)
-                .WithMany()
-                .HasForeignKey(ci => ci.ProductID)
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasOne(ci => ci.Products)  // CartItems có 1 Products
+                .WithMany(p => p.CartItems) // Products có nhiều CartItems
+                .HasForeignKey(ci => ci.ProductID) // Khóa ngoại là ProductID
+                .OnDelete(DeleteBehavior.Restrict); // Tránh việc cascade delete
+
             // Cấu hình mối quan hệ giữa OrderDetails và Products
             /*modelBuilder.Entity<OrderDetails>() 
                 .HasOne(od => od.Products) 
@@ -58,6 +59,18 @@ namespace ECommerce.API.Data
                 .HasForeignKey(od => od.ProductID) 
                 .OnDelete(DeleteBehavior.Restrict); */ // Tránh các vấn đề xóa cascade
 
+            // Quan hệ CartItems -> ProductSizes
+            modelBuilder.Entity<CartItems>()
+                .HasOne(c => c.ProductSizes)
+                .WithMany(ps => ps.CartItems)
+                .HasForeignKey(c => c.ProductSizeID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ProductSizes>()
+                .HasOne(ps => ps.ProductColors)
+                .WithMany(pc => pc.ProductSizes)
+                .HasForeignKey(ps => ps.ProductColorID)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }   
 }

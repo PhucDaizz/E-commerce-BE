@@ -39,11 +39,13 @@ builder.Services.AddScoped<IProductColorRepository,ProductColorRepository>();
 builder.Services.AddScoped<IProductSizeRepository, ProductSizeRepository>();
 builder.Services.AddScoped<IProductImageRepository, ProductImageRepository>();
 builder.Services.AddScoped<ITokenRepository, TokenRepository>();
+builder.Services.AddScoped<ICartItemRepository, CartItemRepository>();
 
 // services
 builder.Services.AddScoped<IProductServices,ProductServices>();
 builder.Services.AddScoped<IProductColorServices,ProductColorServices>();
 builder.Services.AddScoped<IProductImageServices,ProductImageServices>();
+builder.Services.AddScoped<ICartItemServices, CartItemServices>();
 
 builder.Services.AddCors(options =>
 {

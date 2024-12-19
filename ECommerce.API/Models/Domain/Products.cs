@@ -20,5 +20,6 @@ namespace ECommerce.API.Models.Domain
         public ICollection<ProductColors> ProductColors { get; set; }
         public ICollection<ProductImages> ProductImages { get; set; }
         public ICollection<ProductReviews> ProductReviews { get; set; }
+        public ICollection<CartItems> CartItems { get; set; }
     }
 }

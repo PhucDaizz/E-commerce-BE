@@ -10,8 +10,7 @@ namespace ECommerce.API.Repositories.Interface
         Task<ProductColors?> UpdateAsync(ProductColors productColors);
         Task<ProductColors?> DeleteAsync(int id);
         Task<IEnumerable<ProductColors>> GetAllAsync();
-        Task<IEnumerable<ProductColors>?> GetAllByProductAsync(int productId);
-        Task<IEnumerable<ProductColorSizeDTO>> GetProductColorSizeAsync(int productId);
+        Task<IEnumerable<ProductColors>> GetProductColorSizeAsync(int productId);
 
     }
 }

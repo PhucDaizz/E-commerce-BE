@@ -1,4 +1,6 @@
-﻿namespace ECommerce.API.Models.DTO.ProductColor
+﻿using ECommerce.API.Models.DTO.ProductSize;
+
+namespace ECommerce.API.Models.DTO.ProductColor
 {
     public class ProductColorDTO
     {
@@ -8,6 +10,8 @@
         public string ColorHex { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+
+        public IEnumerable<ProductSizeDTO> ProductSizes { get; set; }
 
     }
 }

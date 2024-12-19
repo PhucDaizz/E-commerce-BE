@@ -81,6 +81,8 @@ namespace ECommerce.API.Controllers
                     }
                 }
             }
+
+            // Account has been created
             else
             {
                 if (identityResult.Errors.Any())
@@ -93,5 +95,43 @@ namespace ECommerce.API.Controllers
             }
             return ValidationProblem(ModelState);
         }
+
+        [HttpPost]
+        [Route("RegisterAdmin")]
+        [Authorize(Roles = "SuperAdmin")]
+        public async Task<IActionResult> RegisterAdmin([FromBody]RegisterAdminDTO registerAdminDTO)
+        {
+            var admin = new IdentityUser
+            {
+                UserName = registerAdminDTO.Email?.Trim(),
+                Email = registerAdminDTO.Email?.Trim(),
+                PhoneNumber = registerAdminDTO.PhoneNumber?.Trim(),
+            };
+
+            var identityResult =  await userManager.CreateAsync(admin, registerAdminDTO.Password);
+
+            if (identityResult.Succeeded)
+            {
+                string[] roles = ["Admin", "User"];
+                identityResult = await userManager.AddToRolesAsync(admin, roles);
+
+                if (identityResult.Succeeded)
+                {
+                    return Ok("Your account have been created");
+                }
+            }
+            else
+            {
+                if (identityResult.Errors.Any())
+                {
+                    foreach (var error in identityResult.Errors)
+                    {
+                        ModelState.AddModelError("", error.Description);
+                    }
+                }
+            }
+            return ValidationProblem(ModelState);
+        }
+
     }
 }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ECommerce.API.Migrations
 {
     [DbContext(typeof(ECommerceDbContext))]
-    [Migration("20241209073603_Fix conflict")]
-    partial class Fixconflict
+    [Migration("20241217083637_initial database")]
+    partial class initialdatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -36,6 +36,12 @@ namespace ECommerce.API.Migrations
                     b.Property<int>("ProductID")
                         .HasColumnType("int");
 
+                    b.Property<int>("ProductSizeID")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ProductsProductID")
+                        .HasColumnType("int");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
@@ -43,6 +49,12 @@ namespace ECommerce.API.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("CartItemID");
+
+                    b.HasIndex("ProductID");
+
+                    b.HasIndex("ProductSizeID");
+
+                    b.HasIndex("ProductsProductID");
 
                     b.ToTable("CartItems");
                 });
@@ -156,7 +168,7 @@ namespace ECommerce.API.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("DiscountsDiscountID")
+                    b.Property<int>("DiscountID")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("OrderDate")
@@ -164,9 +176,6 @@ namespace ECommerce.API.Migrations
 
                     b.Property<int>("PaymentMethodID")
                         .HasColumnType("int");
-
-                    b.Property<Guid>("ShippingID")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -182,11 +191,9 @@ namespace ECommerce.API.Migrations
 
                     b.HasKey("OrderID");
 
-                    b.HasIndex("DiscountsDiscountID");
+                    b.HasIndex("DiscountID");
 
                     b.HasIndex("PaymentMethodID");
-
-                    b.HasIndex("ShippingID");
 
                     b.ToTable("Orders");
                 });
@@ -206,12 +213,7 @@ namespace ECommerce.API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("OrdersOrderID")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("PaymentMethodID");
-
-                    b.HasIndex("OrdersOrderID");
 
                     b.ToTable("PaymentMethods");
                 });
@@ -243,8 +245,7 @@ namespace ECommerce.API.Migrations
 
                     b.HasKey("ProductColorID");
 
-                    b.HasIndex("ProductID")
-                        .IsUnique();
+                    b.HasIndex("ProductID");
 
                     b.ToTable("ProductColors");
                 });
@@ -270,12 +271,9 @@ namespace ECommerce.API.Migrations
                     b.Property<int>("ProductID")
                         .HasColumnType("int");
 
-                    b.Property<int>("ProductsProductID")
-                        .HasColumnType("int");
-
                     b.HasKey("ImageID");
 
-                    b.HasIndex("ProductsProductID");
+                    b.HasIndex("ProductID");
 
                     b.ToTable("ProductImages");
                 });
@@ -298,9 +296,6 @@ namespace ECommerce.API.Migrations
                     b.Property<int>("ProductID")
                         .HasColumnType("int");
 
-                    b.Property<int>("ProductsProductID")
-                        .HasColumnType("int");
-
                     b.Property<double>("Rating")
                         .HasColumnType("float");
 
@@ -312,7 +307,7 @@ namespace ECommerce.API.Migrations
 
                     b.HasKey("ReviewID");
 
-                    b.HasIndex("ProductsProductID");
+                    b.HasIndex("ProductID");
 
                     b.ToTable("ProductReviews");
                 });
@@ -331,9 +326,6 @@ namespace ECommerce.API.Migrations
                     b.Property<int>("ProductColorID")
                         .HasColumnType("int");
 
-                    b.Property<int>("ProductColorsProductColorID")
-                        .HasColumnType("int");
-
                     b.Property<string>("Size")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -346,7 +338,7 @@ namespace ECommerce.API.Migrations
 
                     b.HasKey("ProductSizeID");
 
-                    b.HasIndex("ProductColorsProductColorID");
+                    b.HasIndex("ProductColorID");
 
                     b.ToTable("ProductSizes");
                 });
@@ -358,9 +350,6 @@ namespace ECommerce.API.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductID"));
-
-                    b.Property<int?>("CartItemsCartItemID")
-                        .HasColumnType("int");
 
                     b.Property<int>("CategoryID")
                         .HasColumnType("int");
@@ -382,8 +371,6 @@ namespace ECommerce.API.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("ProductID");
-
-                    b.HasIndex("CartItemsCartItemID");
 
                     b.HasIndex("CategoryID");
 
@@ -408,9 +395,6 @@ namespace ECommerce.API.Migrations
                     b.Property<Guid>("OrderID")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("OrdersOrderID")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("ShippingAddress")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -432,9 +416,32 @@ namespace ECommerce.API.Migrations
 
                     b.HasKey("ShippingID");
 
-                    b.HasIndex("OrdersOrderID");
+                    b.HasIndex("OrderID");
 
                     b.ToTable("Shippings");
+                });
+
+            modelBuilder.Entity("ECommerce.API.Models.Domain.CartItems", b =>
+                {
+                    b.HasOne("ECommerce.API.Models.Domain.Products", "Products")
+                        .WithMany()
+                        .HasForeignKey("ProductID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ECommerce.API.Models.Domain.ProductSizes", "ProductSizes")
+                        .WithMany("CartItems")
+                        .HasForeignKey("ProductSizeID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ECommerce.API.Models.Domain.Products", null)
+                        .WithMany("CartItems")
+                        .HasForeignKey("ProductsProductID");
+
+                    b.Navigation("ProductSizes");
+
+                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("ECommerce.API.Models.Domain.OrderDetails", b =>
@@ -442,13 +449,13 @@ namespace ECommerce.API.Migrations
                     b.HasOne("ECommerce.API.Models.Domain.Orders", "Orders")
                         .WithMany("OrderDetails")
                         .HasForeignKey("OrderID")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("ECommerce.API.Models.Domain.Products", "Products")
-                        .WithMany("OrderDetails")
+                        .WithMany()
                         .HasForeignKey("ProductID")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Orders");
@@ -460,45 +467,26 @@ namespace ECommerce.API.Migrations
                 {
                     b.HasOne("ECommerce.API.Models.Domain.Discounts", "Discounts")
                         .WithMany("Orders")
-                        .HasForeignKey("DiscountsDiscountID")
+                        .HasForeignKey("DiscountID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ECommerce.API.Models.Domain.PaymentMethods", "PaymentMethods")
-                        .WithMany()
+                        .WithMany("Orders")
                         .HasForeignKey("PaymentMethodID")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("ECommerce.API.Models.Domain.Shippings", "Shippings")
-                        .WithMany()
-                        .HasForeignKey("ShippingID")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Discounts");
 
                     b.Navigation("PaymentMethods");
-
-                    b.Navigation("Shippings");
-                });
-
-            modelBuilder.Entity("ECommerce.API.Models.Domain.PaymentMethods", b =>
-                {
-                    b.HasOne("ECommerce.API.Models.Domain.Orders", "Orders")
-                        .WithMany()
-                        .HasForeignKey("OrdersOrderID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("ECommerce.API.Models.Domain.ProductColors", b =>
                 {
                     b.HasOne("ECommerce.API.Models.Domain.Products", "Products")
-                        .WithOne("ProductColors")
-                        .HasForeignKey("ECommerce.API.Models.Domain.ProductColors", "ProductID")
+                        .WithMany("ProductColors")
+                        .HasForeignKey("ProductID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -509,7 +497,7 @@ namespace ECommerce.API.Migrations
                 {
                     b.HasOne("ECommerce.API.Models.Domain.Products", "Products")
                         .WithMany("ProductImages")
-                        .HasForeignKey("ProductsProductID")
+                        .HasForeignKey("ProductID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -520,7 +508,7 @@ namespace ECommerce.API.Migrations
                 {
                     b.HasOne("ECommerce.API.Models.Domain.Products", "Products")
                         .WithMany("ProductReviews")
-                        .HasForeignKey("ProductsProductID")
+                        .HasForeignKey("ProductID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -531,8 +519,8 @@ namespace ECommerce.API.Migrations
                 {
                     b.HasOne("ECommerce.API.Models.Domain.ProductColors", "ProductColors")
                         .WithMany("ProductSizes")
-                        .HasForeignKey("ProductColorsProductColorID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("ProductColorID")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("ProductColors");
@@ -540,10 +528,6 @@ namespace ECommerce.API.Migrations
 
             modelBuilder.Entity("ECommerce.API.Models.Domain.Products", b =>
                 {
-                    b.HasOne("ECommerce.API.Models.Domain.CartItems", null)
-                        .WithMany("Products")
-                        .HasForeignKey("CartItemsCartItemID");
-
                     b.HasOne("ECommerce.API.Models.Domain.Categories", "Categories")
                         .WithMany("Products")
                         .HasForeignKey("CategoryID")
@@ -556,17 +540,12 @@ namespace ECommerce.API.Migrations
             modelBuilder.Entity("ECommerce.API.Models.Domain.Shippings", b =>
                 {
                     b.HasOne("ECommerce.API.Models.Domain.Orders", "Orders")
-                        .WithMany()
-                        .HasForeignKey("OrdersOrderID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .WithMany("Shippings")
+                        .HasForeignKey("OrderID")
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Orders");
-                });
-
-            modelBuilder.Entity("ECommerce.API.Models.Domain.CartItems", b =>
-                {
-                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("ECommerce.API.Models.Domain.Categories", b =>
@@ -582,6 +561,13 @@ namespace ECommerce.API.Migrations
             modelBuilder.Entity("ECommerce.API.Models.Domain.Orders", b =>
                 {
                     b.Navigation("OrderDetails");
+
+                    b.Navigation("Shippings");
+                });
+
+            modelBuilder.Entity("ECommerce.API.Models.Domain.PaymentMethods", b =>
+                {
+                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("ECommerce.API.Models.Domain.ProductColors", b =>
@@ -589,12 +575,16 @@ namespace ECommerce.API.Migrations
                     b.Navigation("ProductSizes");
                 });
 
+            modelBuilder.Entity("ECommerce.API.Models.Domain.ProductSizes", b =>
+                {
+                    b.Navigation("CartItems");
+                });
+
             modelBuilder.Entity("ECommerce.API.Models.Domain.Products", b =>
                 {
-                    b.Navigation("OrderDetails");
+                    b.Navigation("CartItems");
 
-                    b.Navigation("ProductColors")
-                        .IsRequired();
+                    b.Navigation("ProductColors");
 
                     b.Navigation("ProductImages");
 

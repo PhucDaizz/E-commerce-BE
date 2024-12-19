@@ -40,7 +40,7 @@ namespace ECommerce.API.Repositories.Impemention
 
         public async Task<IEnumerable<ProductColors>> GetAllAsync()
         {
-            var prductColors = await dbContext.ProductColors.ToListAsync();
+            var prductColors = await dbContext.ProductColors.Include(x => x.ProductSizes).ToListAsync();
             return prductColors;
         }
 
@@ -67,45 +67,17 @@ namespace ECommerce.API.Repositories.Impemention
             return existing;
         }
 
-        public async Task<IEnumerable<ProductColors>?> GetAllByProductAsync(int productId)
+        public async Task<IEnumerable<ProductColors>> GetProductColorSizeAsync(int productId)
         {
-            var colorsOfProduct = await dbContext.ProductColors.Where(x => x.ProductID == productId).ToListAsync();
-            if (!colorsOfProduct.Any())
-            {
-                return null ;
-            }
-            return colorsOfProduct;
-        }
+            var productColorSizes = await dbContext.ProductColors.Include(x => x.ProductSizes)
+                                        .Where(x => x.ProductID == productId)
+                                        .ToListAsync();
 
-        public async Task<IEnumerable<ProductColorSizeDTO>> GetProductColorSizeAsync(int productId)
-        {
-            var productColorSizes = await dbContext.ProductColors
-                .Where(pc => pc.ProductID == productId)
-                .Select(pc => new ProductColorSizeDTO
-                {
-                    ProductColor = new ProductColorDTO
-                    {
-                        ProductColorID = pc.ProductColorID,
-                        ProductID = pc.ProductID,
-                        ColorName = pc.ColorName,
-                        ColorHex = pc.ColorHex,
-                        CreatedAt = pc.CreatedAt,
-                        UpdatedAt = pc.UpdatedAt
-                    },
-                    ProductSize = pc.ProductSizes.Select(ps => new ProductSizeDTO
-                    {
-                        ProductSizeID = ps.ProductSizeID,
-                        ProductColorID = ps.ProductColorID,
-                        Size = ps.Size,
-                        Stock = ps.Stock,
-                        CreatedAt = ps.CreatedAt,
-                        UpdatedAt = ps.UpdatedAt
-                    }).ToList()
-                }).ToListAsync();
-            if(!productColorSizes.Any())
+            if (!productColorSizes.Any())
             {
                 return null;
             }
+
             return productColorSizes;
         }
     }

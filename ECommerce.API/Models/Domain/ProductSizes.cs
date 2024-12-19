@@ -17,5 +17,6 @@ namespace ECommerce.API.Models.Domain
         // Navigation Properties
         [ForeignKey("ProductColorID")]
         public ProductColors ProductColors { get; set; }
+        public ICollection<CartItems> CartItems { get; set; }
     }
 }

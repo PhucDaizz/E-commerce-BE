@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ECommerce.API.Migrations
 {
     [DbContext(typeof(ECommerceDbContext))]
-    [Migration("20241212025621_fix relationship Product and ProductColor")]
-    partial class fixrelationshipProductandProductColor
+    [Migration("20241217093346_fixRelationship")]
+    partial class fixRelationship
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -36,6 +36,9 @@ namespace ECommerce.API.Migrations
                     b.Property<int>("ProductID")
                         .HasColumnType("int");
 
+                    b.Property<int>("ProductSizeID")
+                        .HasColumnType("int");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
@@ -45,6 +48,8 @@ namespace ECommerce.API.Migrations
                     b.HasKey("CartItemID");
 
                     b.HasIndex("ProductID");
+
+                    b.HasIndex("ProductSizeID");
 
                     b.ToTable("CartItems");
                 });
@@ -414,10 +419,18 @@ namespace ECommerce.API.Migrations
             modelBuilder.Entity("ECommerce.API.Models.Domain.CartItems", b =>
                 {
                     b.HasOne("ECommerce.API.Models.Domain.Products", "Products")
-                        .WithMany()
+                        .WithMany("CartItems")
                         .HasForeignKey("ProductID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("ECommerce.API.Models.Domain.ProductSizes", "ProductSizes")
+                        .WithMany("CartItems")
+                        .HasForeignKey("ProductSizeID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ProductSizes");
 
                     b.Navigation("Products");
                 });
@@ -498,7 +511,7 @@ namespace ECommerce.API.Migrations
                     b.HasOne("ECommerce.API.Models.Domain.ProductColors", "ProductColors")
                         .WithMany("ProductSizes")
                         .HasForeignKey("ProductColorID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("ProductColors");
@@ -553,8 +566,15 @@ namespace ECommerce.API.Migrations
                     b.Navigation("ProductSizes");
                 });
 
+            modelBuilder.Entity("ECommerce.API.Models.Domain.ProductSizes", b =>
+                {
+                    b.Navigation("CartItems");
+                });
+
             modelBuilder.Entity("ECommerce.API.Models.Domain.Products", b =>
                 {
+                    b.Navigation("CartItems");
+
                     b.Navigation("ProductColors");
 
                     b.Navigation("ProductImages");
