@@ -40,6 +40,7 @@ builder.Services.AddScoped<IProductSizeRepository, ProductSizeRepository>();
 builder.Services.AddScoped<IProductImageRepository, ProductImageRepository>();
 builder.Services.AddScoped<ITokenRepository, TokenRepository>();
 builder.Services.AddScoped<ICartItemRepository, CartItemRepository>();
+builder.Services.AddScoped<IDiscountRepository, DiscountRepository>();
 
 // services
 builder.Services.AddScoped<IProductServices,ProductServices>();

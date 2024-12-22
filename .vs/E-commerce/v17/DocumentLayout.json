@@ -3,24 +3,36 @@
   "WorkspaceRootPath": "C:\\Workspace\\c#\\E-commerce\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|c:\\workspace\\c#\\e-commerce\\ecommerce.api\\controllers\\cartitemcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|solutionrelative:ecommerce.api\\controllers\\cartitemcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|c:\\workspace\\c#\\e-commerce\\ecommerce.api\\controllers\\discountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|solutionrelative:ecommerce.api\\controllers\\discountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|c:\\workspace\\c#\\e-commerce\\ecommerce.api\\models\\domain\\cartitems.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|solutionrelative:ecommerce.api\\models\\domain\\cartitems.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|c:\\workspace\\c#\\e-commerce\\ecommerce.api\\repositories\\interface\\idiscountrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|solutionrelative:ecommerce.api\\repositories\\interface\\idiscountrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|c:\\workspace\\c#\\e-commerce\\ecommerce.api\\repositories\\impemention\\productsizerepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|solutionrelative:ecommerce.api\\repositories\\impemention\\productsizerepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|c:\\workspace\\c#\\e-commerce\\ecommerce.api\\repositories\\impemention\\discountrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|solutionrelative:ecommerce.api\\repositories\\impemention\\discountrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|c:\\workspace\\c#\\e-commerce\\ecommerce.api\\controllers\\productcolorcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|solutionrelative:ecommerce.api\\controllers\\productcolorcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|c:\\workspace\\c#\\e-commerce\\ecommerce.api\\models\\dto\\discount\\listdiscountdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|solutionrelative:ecommerce.api\\models\\dto\\discount\\listdiscountdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|c:\\workspace\\c#\\e-commerce\\ecommerce.api\\repositories\\impemention\\productrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|solutionrelative:ecommerce.api\\repositories\\impemention\\productrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|c:\\workspace\\c#\\e-commerce\\ecommerce.api\\models\\domain\\discounts.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|solutionrelative:ecommerce.api\\models\\domain\\discounts.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|c:\\workspace\\c#\\e-commerce\\ecommerce.api\\mapping\\automapperprofie.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|solutionrelative:ecommerce.api\\mapping\\automapperprofie.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|c:\\workspace\\c#\\e-commerce\\ecommerce.api\\models\\dto\\discount\\editdiscountdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|solutionrelative:ecommerce.api\\models\\dto\\discount\\editdiscountdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -30,7 +42,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 337,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 6,
           "Children": [
             {
               "$type": "Bookmark",
@@ -42,68 +54,106 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "CartItemController.cs",
-              "DocumentMoniker": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Controllers\\CartItemController.cs",
-              "RelativeDocumentMoniker": "ECommerce.API\\Controllers\\CartItemController.cs",
-              "ToolTip": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Controllers\\CartItemController.cs",
-              "RelativeToolTip": "ECommerce.API\\Controllers\\CartItemController.cs",
-              "ViewState": "AQIAAHUAAAAAAAAAAAAowBEAAAA0AAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-19T14:13:31.879Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "CartItems.cs",
-              "DocumentMoniker": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Models\\Domain\\CartItems.cs",
-              "RelativeDocumentMoniker": "ECommerce.API\\Models\\Domain\\CartItems.cs",
-              "ToolTip": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Models\\Domain\\CartItems.cs",
-              "RelativeToolTip": "ECommerce.API\\Models\\Domain\\CartItems.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-19T14:13:18.574Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "ProductSizeRepository.cs",
-              "DocumentMoniker": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Repositories\\Impemention\\ProductSizeRepository.cs",
-              "RelativeDocumentMoniker": "ECommerce.API\\Repositories\\Impemention\\ProductSizeRepository.cs",
-              "ToolTip": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Repositories\\Impemention\\ProductSizeRepository.cs",
-              "RelativeToolTip": "ECommerce.API\\Repositories\\Impemention\\ProductSizeRepository.cs",
-              "ViewState": "AQIAACsAAAAAAAAAAAAkwDsAAABmAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-19T08:52:36.711Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "ProductColorController.cs",
-              "DocumentMoniker": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Controllers\\ProductColorController.cs",
-              "RelativeDocumentMoniker": "ECommerce.API\\Controllers\\ProductColorController.cs",
-              "ToolTip": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Controllers\\ProductColorController.cs",
-              "RelativeToolTip": "ECommerce.API\\Controllers\\ProductColorController.cs",
-              "ViewState": "AQIAAEwAAAAAAAAAAAAswGYAAAAAAAAA",
+              "Title": "ListDiscountDTO.cs",
+              "DocumentMoniker": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Models\\DTO\\Discount\\ListDiscountDTO.cs",
+              "RelativeDocumentMoniker": "ECommerce.API\\Models\\DTO\\Discount\\ListDiscountDTO.cs",
+              "ToolTip": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Models\\DTO\\Discount\\ListDiscountDTO.cs",
+              "RelativeToolTip": "ECommerce.API\\Models\\DTO\\Discount\\ListDiscountDTO.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAkAAAABAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-19T08:48:28.64Z",
+              "WhenOpened": "2024-12-21T03:34:14.808Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 4,
+              "Title": "ProductRepository.cs",
+              "DocumentMoniker": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Repositories\\Impemention\\ProductRepository.cs",
+              "RelativeDocumentMoniker": "ECommerce.API\\Repositories\\Impemention\\ProductRepository.cs",
+              "ToolTip": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Repositories\\Impemention\\ProductRepository.cs",
+              "RelativeToolTip": "ECommerce.API\\Repositories\\Impemention\\ProductRepository.cs",
+              "ViewState": "AQIAADEAAAAAAAAAAAAkwE8AAAApAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-21T02:58:00.626Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Discounts.cs",
+              "DocumentMoniker": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Models\\Domain\\Discounts.cs",
+              "RelativeDocumentMoniker": "ECommerce.API\\Models\\Domain\\Discounts.cs",
+              "ToolTip": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Models\\Domain\\Discounts.cs",
+              "RelativeToolTip": "ECommerce.API\\Models\\Domain\\Discounts.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAcAAAArAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-21T02:23:35.232Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
               "Title": "AutoMapperProfie.cs",
               "DocumentMoniker": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Mapping\\AutoMapperProfie.cs",
               "RelativeDocumentMoniker": "ECommerce.API\\Mapping\\AutoMapperProfie.cs",
               "ToolTip": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Mapping\\AutoMapperProfie.cs",
               "RelativeToolTip": "ECommerce.API\\Mapping\\AutoMapperProfie.cs",
-              "ViewState": "AQIAABAAAAAAAAAAAAAQwCEAAAAAAAAA",
+              "ViewState": "AQIAAB0AAAAAAAAAAAAmwDUAAAAlAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-19T03:59:05.588Z",
+              "WhenOpened": "2024-12-19T14:28:23.464Z",
               "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "DiscountController.cs",
+              "DocumentMoniker": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Controllers\\DiscountController.cs",
+              "RelativeDocumentMoniker": "ECommerce.API\\Controllers\\DiscountController.cs",
+              "ToolTip": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Controllers\\DiscountController.cs",
+              "RelativeToolTip": "ECommerce.API\\Controllers\\DiscountController.cs",
+              "ViewState": "AQIAADwAAAAAAAAAAAAowFAAAAA7AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-19T14:24:31.201Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "DiscountRepository.cs",
+              "DocumentMoniker": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Repositories\\Impemention\\DiscountRepository.cs",
+              "RelativeDocumentMoniker": "ECommerce.API\\Repositories\\Impemention\\DiscountRepository.cs",
+              "ToolTip": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Repositories\\Impemention\\DiscountRepository.cs",
+              "RelativeToolTip": "ECommerce.API\\Repositories\\Impemention\\DiscountRepository.cs",
+              "ViewState": "AQIAABAAAAAAAAAAAAAzwB4AAABBAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-19T14:20:49.652Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "IDiscountRepository.cs",
+              "DocumentMoniker": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Repositories\\Interface\\IDiscountRepository.cs",
+              "RelativeDocumentMoniker": "ECommerce.API\\Repositories\\Interface\\IDiscountRepository.cs",
+              "ToolTip": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Repositories\\Interface\\IDiscountRepository.cs",
+              "RelativeToolTip": "ECommerce.API\\Repositories\\Interface\\IDiscountRepository.cs",
+              "ViewState": "AQIAAAMAAAAAAAAAAAAAAA0AAAAFAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-19T14:18:37.131Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "EditDiscountDTO.cs",
+              "DocumentMoniker": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Models\\DTO\\Discount\\EditDiscountDTO.cs",
+              "RelativeDocumentMoniker": "ECommerce.API\\Models\\DTO\\Discount\\EditDiscountDTO.cs",
+              "ToolTip": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Models\\DTO\\Discount\\EditDiscountDTO.cs",
+              "RelativeToolTip": "ECommerce.API\\Models\\DTO\\Discount\\EditDiscountDTO.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAQAAAArAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-21T03:53:38.683Z"
             }
           ]
         }
