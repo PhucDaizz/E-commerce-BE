@@ -3,6 +3,7 @@ using ECommerce.API.Models.Domain;
 using ECommerce.API.Models.DTO.CartItem;
 using ECommerce.API.Models.DTO.Category;
 using ECommerce.API.Models.DTO.Discount;
+using ECommerce.API.Models.DTO.Order;
 using ECommerce.API.Models.DTO.Product;
 using ECommerce.API.Models.DTO.ProductColor;
 using ECommerce.API.Models.DTO.ProductImage;
@@ -52,6 +53,12 @@ namespace ECommerce.API.Mapping
             CreateMap<CreateDiscountDTO, Discounts>().ReverseMap();
             CreateMap<DiscountDTO, Discounts>().ReverseMap();
             CreateMap<EditDiscountDTO, Discounts>().ReverseMap();
+
+            // Order
+            CreateMap<CreateOrderDTO, Orders>().ReverseMap();
+            CreateMap<OrderDTO, Orders>().ReverseMap();
+            CreateMap<OrderDetailDTO, Orders>().ReverseMap();
+
         }
     }
 }
