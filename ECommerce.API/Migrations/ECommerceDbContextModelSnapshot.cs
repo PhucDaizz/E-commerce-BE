@@ -166,7 +166,7 @@ namespace ECommerce.API.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("DiscountID")
+                    b.Property<int?>("DiscountID")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("OrderDate")
@@ -214,6 +214,47 @@ namespace ECommerce.API.Migrations
                     b.HasKey("PaymentMethodID");
 
                     b.ToTable("PaymentMethods");
+                });
+
+            modelBuilder.Entity("ECommerce.API.Models.Domain.Payments", b =>
+                {
+                    b.Property<Guid>("PaymentID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double>("AmountPaid")
+                        .HasColumnType("float");
+
+                    b.Property<Guid>("OrderID")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PaymentDetails")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PaymentMethodID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PaymentStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TransactionID")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("UserID")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("PaymentID");
+
+                    b.HasIndex("OrderID")
+                        .IsUnique();
+
+                    b.HasIndex("PaymentMethodID");
+
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("ECommerce.API.Models.Domain.ProductColors", b =>
@@ -461,9 +502,7 @@ namespace ECommerce.API.Migrations
                 {
                     b.HasOne("ECommerce.API.Models.Domain.Discounts", "Discounts")
                         .WithMany("Orders")
-                        .HasForeignKey("DiscountID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DiscountID");
 
                     b.HasOne("ECommerce.API.Models.Domain.PaymentMethods", "PaymentMethods")
                         .WithMany("Orders")
@@ -472,6 +511,25 @@ namespace ECommerce.API.Migrations
                         .IsRequired();
 
                     b.Navigation("Discounts");
+
+                    b.Navigation("PaymentMethods");
+                });
+
+            modelBuilder.Entity("ECommerce.API.Models.Domain.Payments", b =>
+                {
+                    b.HasOne("ECommerce.API.Models.Domain.Orders", "Orders")
+                        .WithOne("Payments")
+                        .HasForeignKey("ECommerce.API.Models.Domain.Payments", "OrderID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ECommerce.API.Models.Domain.PaymentMethods", "PaymentMethods")
+                        .WithMany("Payments")
+                        .HasForeignKey("PaymentMethodID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Orders");
 
                     b.Navigation("PaymentMethods");
                 });
@@ -556,12 +614,17 @@ namespace ECommerce.API.Migrations
                 {
                     b.Navigation("OrderDetails");
 
+                    b.Navigation("Payments")
+                        .IsRequired();
+
                     b.Navigation("Shippings");
                 });
 
             modelBuilder.Entity("ECommerce.API.Models.Domain.PaymentMethods", b =>
                 {
                     b.Navigation("Orders");
+
+                    b.Navigation("Payments");
                 });
 
             modelBuilder.Entity("ECommerce.API.Models.Domain.ProductColors", b =>

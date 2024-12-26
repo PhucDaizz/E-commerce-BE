@@ -103,7 +103,7 @@ namespace ECommerce.API.Controllers
             {
                 return Ok("Your cart is empty");
             }
-            var result = mapper.Map<IEnumerable<CartItemDTO>>(cartList);
+            var result = mapper.Map<IEnumerable<CartItemListDTO>>(cartList);
             return Ok(result);
         }
 

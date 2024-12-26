@@ -150,3 +150,4 @@ C:\Workspace\c#\E-commerce\ECommerce.API\bin\Debug\net8.0\Microsoft.AspNetCore.C
 C:\Workspace\c#\E-commerce\ECommerce.API\bin\Debug\net8.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
 C:\Workspace\c#\E-commerce\ECommerce.API\bin\Debug\net8.0\Microsoft.Extensions.Identity.Core.dll
 C:\Workspace\c#\E-commerce\ECommerce.API\bin\Debug\net8.0\Microsoft.Extensions.Identity.Stores.dll
+C:\Workspace\c#\E-commerce\ECommerce.API\bin\Debug\net8.0\VNPAY.NET.dll

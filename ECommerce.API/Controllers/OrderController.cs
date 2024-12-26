@@ -29,7 +29,7 @@ namespace ECommerce.API.Controllers
             var order = mapper.Map<Orders>(createOrderDTO);
             
             order = await orderRepository.CreateAsync(order);
-            return Ok(mapper.Map<OrderDetails>(order));
+            return Ok(mapper.Map<OrderDetailDTO>(order));
         }
 
         [HttpGet]

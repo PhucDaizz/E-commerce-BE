@@ -8,7 +8,7 @@ namespace ECommerce.API.Models.Domain
         [Key]
         public Guid OrderID { get; set; }
         public Guid UserID { get; set; }
-        public int DiscountID { get; set; }
+        public int? DiscountID { get; set; }
         public DateTime OrderDate { get; set; }
         public double TotalAmount { get; set; }
         public int PaymentMethodID { get; set; } // 1 = Cash, 2 = CreditCard, 3 = PayPal, ...
@@ -26,6 +26,8 @@ namespace ECommerce.API.Models.Domain
 
         [ForeignKey("DiscountID")]
         public Discounts Discounts { get; set; }
+        public Payments Payments { get; set; }
+
 
     }
 }

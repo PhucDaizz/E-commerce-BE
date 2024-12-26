@@ -4,6 +4,7 @@ using ECommerce.API.Models.DTO.CartItem;
 using ECommerce.API.Models.DTO.Category;
 using ECommerce.API.Models.DTO.Discount;
 using ECommerce.API.Models.DTO.Order;
+using ECommerce.API.Models.DTO.PaymentMethod;
 using ECommerce.API.Models.DTO.Product;
 using ECommerce.API.Models.DTO.ProductColor;
 using ECommerce.API.Models.DTO.ProductImage;
@@ -48,6 +49,8 @@ namespace ECommerce.API.Mapping
             CreateMap<AddCartItemDTO, CartItems>().ReverseMap();
             CreateMap<EditCartItemDTO, CartItems>().ReverseMap();
             CreateMap<CartItemDTO, CartItems>().ReverseMap();
+            CreateMap<CartItems, CartItemListDTO>().ForMember(dest => dest.productDTO, opt => opt.MapFrom(src => src.Products));
+
 
             // Discount
             CreateMap<CreateDiscountDTO, Discounts>().ReverseMap();
@@ -59,6 +62,9 @@ namespace ECommerce.API.Mapping
             CreateMap<OrderDTO, Orders>().ReverseMap();
             CreateMap<OrderDetailDTO, Orders>().ReverseMap();
 
+            //PaymentMethod
+            CreateMap<CreatePaymentMethodDTO,PaymentMethods>().ReverseMap();
+            CreateMap<PaymentMethodDTO,PaymentMethods>().ReverseMap();
         }
     }
 }

@@ -11,5 +11,6 @@ namespace ECommerce.API.Models.Domain
 
         // Navigation Properties
         public IEnumerable<Orders> Orders { get; set; }
+        public IEnumerable<Payments> Payments { get; set; }
     }
 }

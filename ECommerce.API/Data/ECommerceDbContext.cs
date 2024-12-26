@@ -21,6 +21,7 @@ namespace ECommerce.API.Data
         public DbSet<ProductReviews> ProductReviews { get; set; }
         public DbSet<ProductSizes> ProductSizes { get; set; }
         public DbSet<Shippings> Shippings { get; set; }
+        public DbSet<Payments> Payments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -71,6 +72,12 @@ namespace ECommerce.API.Data
                 .WithMany(pc => pc.ProductSizes)
                 .HasForeignKey(ps => ps.ProductColorID)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Orders>()
+                .HasOne(o => o.Payments)
+                .WithOne(p => p.Orders)
+                .HasForeignKey<Payments>(p => p.OrderID)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }   
 }

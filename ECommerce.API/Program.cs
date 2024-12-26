@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using VNPAY.NET;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,12 +43,20 @@ builder.Services.AddScoped<ITokenRepository, TokenRepository>();
 builder.Services.AddScoped<ICartItemRepository, CartItemRepository>();
 builder.Services.AddScoped<IDiscountRepository, DiscountRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IPaymentMethodRepository, PaymentMethodRepository>();
+builder.Services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddSingleton<IVnpay, Vnpay>();
+
 
 // services
 builder.Services.AddScoped<IProductServices,ProductServices>();
 builder.Services.AddScoped<IProductColorServices,ProductColorServices>();
 builder.Services.AddScoped<IProductImageServices,ProductImageServices>();
 builder.Services.AddScoped<ICartItemServices, CartItemServices>();
+builder.Services.AddScoped<IPaymentServices, PaymentServices>();
+builder.Services.AddScoped<IDiscountServices, DiscountServices>();
+
 
 builder.Services.AddCors(options =>
 {

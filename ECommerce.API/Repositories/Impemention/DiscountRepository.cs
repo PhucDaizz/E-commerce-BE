@@ -19,6 +19,8 @@ namespace ECommerce.API.Repositories.Impemention
             this.dbContext = dbContext;
             this.mapper = mapper;
         }
+
+
         public async Task<Discounts> CreateAsync(Discounts discounts)
         {
             await dbContext.Discounts.AddAsync(discounts);
