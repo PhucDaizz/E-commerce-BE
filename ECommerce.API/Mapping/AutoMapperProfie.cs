@@ -8,7 +8,9 @@ using ECommerce.API.Models.DTO.PaymentMethod;
 using ECommerce.API.Models.DTO.Product;
 using ECommerce.API.Models.DTO.ProductColor;
 using ECommerce.API.Models.DTO.ProductImage;
+using ECommerce.API.Models.DTO.ProductReview;
 using ECommerce.API.Models.DTO.ProductSize;
+using ECommerce.API.Models.DTO.Shipping;
 
 namespace ECommerce.API.Mapping
 {
@@ -62,9 +64,17 @@ namespace ECommerce.API.Mapping
             CreateMap<OrderDTO, Orders>().ReverseMap();
             CreateMap<OrderDetailDTO, Orders>().ReverseMap();
 
-            //PaymentMethod
+            // PaymentMethod
             CreateMap<CreatePaymentMethodDTO,PaymentMethods>().ReverseMap();
             CreateMap<PaymentMethodDTO,PaymentMethods>().ReverseMap();
+
+            // ProductReview
+            CreateMap<CreateProductReviewDTO, ProductReviews>().ReverseMap();
+            CreateMap<ProductReviewDTO, ProductReviews>().ReverseMap();
+
+            // Shipping
+            CreateMap<CreateShippingDTO, Shippings>().ReverseMap();
+            CreateMap<ShippingDTO, Shippings>().ReverseMap();
         }
     }
 }

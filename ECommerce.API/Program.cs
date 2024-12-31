@@ -46,6 +46,7 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IPaymentMethodRepository, PaymentMethodRepository>();
 builder.Services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<IProductReviewRepository, ProductReviewRepository>();
 builder.Services.AddSingleton<IVnpay, Vnpay>();
 
 
@@ -56,6 +57,7 @@ builder.Services.AddScoped<IProductImageServices,ProductImageServices>();
 builder.Services.AddScoped<ICartItemServices, CartItemServices>();
 builder.Services.AddScoped<IPaymentServices, PaymentServices>();
 builder.Services.AddScoped<IDiscountServices, DiscountServices>();
+builder.Services.AddScoped<IProductReviewServices, ProductReviewServices>();
 
 
 builder.Services.AddCors(options =>
