@@ -12,7 +12,7 @@ namespace ECommerce.API.Data
         {
 
         }
-
+        public DbSet<ExtendedIdentityUser> ExtendedIdentityUsers { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -51,7 +51,7 @@ namespace ECommerce.API.Data
 
             // Initial SuperadminUser
             var superAdminId = "808e47f5-a733-42ab-8e31-b6af349bfd90";
-            var superAdminUser = new IdentityUser
+            var superAdminUser = new ExtendedIdentityUser
             {
                 Id = superAdminId,
                 UserName = "superadmin@ecommerce.com",
@@ -61,8 +61,8 @@ namespace ECommerce.API.Data
             };
 
             // Hash the password for the SuperAdmin user
-            superAdminUser.PasswordHash = new PasswordHasher<IdentityUser>().HashPassword(superAdminUser, "Superadmin@123");
-            builder.Entity<IdentityUser>().HasData(superAdminUser);
+            superAdminUser.PasswordHash = new PasswordHasher<ExtendedIdentityUser>().HashPassword(superAdminUser, "Superadmin@123");
+            builder.Entity<ExtendedIdentityUser>().HasData(superAdminUser);
 
             // Assign roles to SuperAdminUser
             var superAdminRole = new List<IdentityUserRole<string>>

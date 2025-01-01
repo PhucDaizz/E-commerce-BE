@@ -1,11 +1,13 @@
 ﻿using Azure.Core;
 using ECommerce.API.Data;
+using ECommerce.API.Models.Domain;
 using ECommerce.API.Models.DTO.User;
 using ECommerce.API.Repositories.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Reflection.Metadata;
 
 namespace ECommerce.API.Controllers
 {
@@ -14,10 +16,10 @@ namespace ECommerce.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly ITokenRepository tokenRepository;
-        private readonly UserManager<IdentityUser> userManager;
+        private readonly UserManager<ExtendedIdentityUser> userManager;
         private readonly AuthDbContext dbContext;
 
-        public AuthController(ITokenRepository tokenRepository, UserManager<IdentityUser> userManager, AuthDbContext dbContext)
+        public AuthController(ITokenRepository tokenRepository, UserManager<ExtendedIdentityUser> userManager, AuthDbContext dbContext)
         {
             this.tokenRepository = tokenRepository;
             this.userManager = userManager;
@@ -28,7 +30,7 @@ namespace ECommerce.API.Controllers
         [Route("Login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO loginDTO)
         {
-            var identityUser = await userManager.FindByEmailAsync(loginDTO.Email);
+            /*var identityUser = await userManager.FindByEmailAsync(loginDTO.Email);
             if (identityUser != null)
             {
                 var checkPasswordResult = await userManager.CheckPasswordAsync(identityUser, loginDTO.Password);
@@ -48,6 +50,19 @@ namespace ECommerce.API.Controllers
             }
             ModelState.AddModelError("", "Email or Password is not correct");
             return ValidationProblem(ModelState);
+*/
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var loginResult = await tokenRepository.Login(loginDTO);
+            if (string.IsNullOrEmpty(loginResult.Token))
+            {
+                ModelState.AddModelError("", "Email or Password is not correct");
+                return ValidationProblem(ModelState);
+            }
+            return Ok(loginResult);
         }
 
 
@@ -55,7 +70,7 @@ namespace ECommerce.API.Controllers
         [Route("RegisterUser")]
         public async Task<IActionResult> RegisterUser([FromBody] RegisterRequestDto registerRequestDto)
         {
-            var user = new IdentityUser
+            var user = new ExtendedIdentityUser
             {
                 UserName = registerRequestDto.Email?.Trim(),
                 Email = registerRequestDto.Email?.Trim(),
@@ -101,7 +116,7 @@ namespace ECommerce.API.Controllers
         [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> RegisterAdmin([FromBody]RegisterAdminDTO registerAdminDTO)
         {
-            var admin = new IdentityUser
+            var admin = new ExtendedIdentityUser
             {
                 UserName = registerAdminDTO.Email?.Trim(),
                 Email = registerAdminDTO.Email?.Trim(),
@@ -131,6 +146,21 @@ namespace ECommerce.API.Controllers
                 }
             }
             return ValidationProblem(ModelState);
+        }
+
+
+        
+        [Route("Refreshtoken")]
+        [HttpPost]
+        public async Task<IActionResult> RefreshToken(RefreshTokenModel refreshTokenModel)
+        {
+            var loginResult = await tokenRepository.RefreshToken(refreshTokenModel);
+            if (string.IsNullOrEmpty(loginResult.Token))
+            {
+                ModelState.AddModelError("", "Invalid Token or Refresh Token");
+                return ValidationProblem(ModelState);
+            }
+            return Ok(loginResult);
         }
 
     }

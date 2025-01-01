@@ -1,5 +1,6 @@
 using ECommerce.API.Data;
 using ECommerce.API.Mapping;
+using ECommerce.API.Models.Domain;
 using ECommerce.API.Repositories.Impemention;
 using ECommerce.API.Repositories.Interface;
 using ECommerce.API.Services.Impemention;
@@ -69,9 +70,9 @@ builder.Services.AddCors(options =>
         });
 });
 
-builder.Services.AddIdentityCore<IdentityUser>()
+builder.Services.AddIdentityCore<ExtendedIdentityUser>()
     .AddRoles<IdentityRole>()
-    .AddTokenProvider<DataProtectorTokenProvider<IdentityUser>>("PhucDai")
+    .AddTokenProvider<DataProtectorTokenProvider<ExtendedIdentityUser>>("PhucDai")
     .AddEntityFrameworkStores<AuthDbContext>()
     .AddDefaultTokenProviders();
 

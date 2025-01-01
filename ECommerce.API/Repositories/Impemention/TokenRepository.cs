@@ -1,4 +1,5 @@
-﻿using ECommerce.API.Models.DTO.User;
+﻿using ECommerce.API.Models.Domain;
+using ECommerce.API.Models.DTO.User;
 using ECommerce.API.Repositories.Interface;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -12,16 +13,16 @@ namespace ECommerce.API.Repositories.Impemention
     public class TokenRepository : ITokenRepository
     {
         private readonly IConfiguration configuration;
-        private readonly UserManager<IdentityUser> userManager;
+        private readonly UserManager<ExtendedIdentityUser> userManager;
 
-        public TokenRepository(IConfiguration configuration, UserManager<IdentityUser> userManager)
+        public TokenRepository(IConfiguration configuration, UserManager<ExtendedIdentityUser> userManager)
         {
             this.configuration = configuration;
             this.userManager = userManager;
         }
 
 
-        public string CreateToken(IdentityUser user, List<string> roles)
+        public string CreateToken(ExtendedIdentityUser user, List<string> roles)
         {
             var claim = new List<Claim>
             {
@@ -47,21 +48,37 @@ namespace ECommerce.API.Repositories.Impemention
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        
-        /*public async Task<LoginResponseDto> RefreshToken(RefreshTokenModel model)
+
+        public async Task<LoginResponseDto> RefreshToken(RefreshTokenModel model)
         {
             var principal = GetTokenPrincipal(model.Token);
 
             var response = new LoginResponseDto();
-            if (principal?.Identity?.Name is null)
+            var email = principal?.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value;
+            if (email is null)
             {
                 return response;
             }
 
-            var user = await userManager.FindByEmailAsync(principal.Identity.Name);
-            
+            var user = await userManager.FindByEmailAsync(email);
 
-        }*/
+            if (user == null || user.RefreshToken != model.RefreshToken || user.RefreshTokenExpiry < DateTime.Now)
+            {
+                return response;
+            }
+
+            response.Email = user.Email;
+            response.Roles = await userManager.GetRolesAsync(user);
+            response.Token = CreateToken(user, response.Roles.ToList());
+            response.RefreshToken = GenerateRefreshToken();
+
+            user.RefreshToken = response.RefreshToken;
+            user.RefreshTokenExpiry = DateTime.Now.AddDays(12);
+            await userManager.UpdateAsync(user);
+
+            return response;
+        }
+
 
 
 
@@ -77,6 +94,8 @@ namespace ECommerce.API.Repositories.Impemention
                 ValidateActor = true,
                 ValidateIssuer = true,
                 ValidateAudience = true,
+                ValidIssuer = configuration.GetSection("Jwt:Issuer").Value,
+                ValidAudience = configuration.GetSection("Jwt:Audience").Value
             };
             return new JwtSecurityTokenHandler().ValidateToken(token, validation, out _);
         }
@@ -90,6 +109,25 @@ namespace ECommerce.API.Repositories.Impemention
             return Convert.ToBase64String(randomnumber);
         }
 
-        
+        public async Task<LoginResponseDto> Login(LoginDTO user)
+        {
+            var response = new LoginResponseDto();
+            var identityUser = await userManager.FindByEmailAsync(user.Email);
+            if (identityUser == null || (await userManager.CheckPasswordAsync(identityUser, user.Password)) == false)
+            {
+                return response;
+            }
+            
+            response.Email = user.Email;
+            response.Roles = await userManager.GetRolesAsync(identityUser);
+            response.Token = CreateToken(identityUser, response.Roles.ToList());
+            response.RefreshToken = GenerateRefreshToken();
+
+            identityUser.RefreshToken = response.RefreshToken;
+            identityUser.RefreshTokenExpiry = DateTime.Now.AddDays(12);
+
+            await userManager.UpdateAsync(identityUser);
+            return response;
+        }
     }
 }
