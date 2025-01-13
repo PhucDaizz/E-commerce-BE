@@ -4,6 +4,7 @@ using ECommerce.API.Models.Domain;
 using ECommerce.API.Models.DTO.Product;
 using ECommerce.API.Repositories.Interface;
 using ECommerce.API.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,6 +27,7 @@ namespace ECommerce.API.Controllers
             this.productServices = productServices;
         }
 
+        [Authorize(Roles = "Admin, SuperAdmin")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateProductDTO productDTO)
         {
@@ -55,6 +57,7 @@ namespace ECommerce.API.Controllers
             return Ok(products);
         }
 
+        [Authorize(Roles = "Admin, SuperAdmin")]
         [HttpPut]
         [Route("{id:int}")]
         public async Task<IActionResult> Edit([FromRoute] int id, [FromBody] EditProductDTO productDTO)
@@ -70,6 +73,7 @@ namespace ECommerce.API.Controllers
             return Ok(existing);
         }
 
+        [Authorize(Roles = "Admin, SuperAdmin")]
         [HttpDelete]
         [Route("{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id)

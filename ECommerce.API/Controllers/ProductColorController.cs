@@ -4,6 +4,7 @@ using ECommerce.API.Models.Domain;
 using ECommerce.API.Models.DTO.ProductColor;
 using ECommerce.API.Repositories.Impemention;
 using ECommerce.API.Repositories.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,7 +25,7 @@ namespace ECommerce.API.Controllers
             this.productColorRepository = productColorRepository;
         }
 
-
+        [Authorize(Roles = "Admin, SuperAdmin")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody]CreateProductColorDTO productColorDTO)
         {
@@ -57,6 +58,7 @@ namespace ECommerce.API.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Admin, SuperAdmin")]
         [HttpDelete]
         [Route("{id:int}")]
         public async Task<IActionResult> DeletebyId([FromRoute]int id)
@@ -70,6 +72,7 @@ namespace ECommerce.API.Controllers
 
         }
 
+        [Authorize(Roles = "Admin, SuperAdmin")]
         [HttpPut]
         [Route("{id:int}")]
         public async Task<IActionResult> Edit([FromRoute]int id, [FromBody]EditProductColorDTO productColorDTO)

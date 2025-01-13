@@ -4,6 +4,7 @@ using ECommerce.API.Models.Domain;
 using ECommerce.API.Models.DTO.ProductImage;
 using ECommerce.API.Repositories.Interface;
 using ECommerce.API.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -29,6 +30,7 @@ namespace ECommerce.API.Controllers
             this.productRepository = productRepository;
         }
 
+        [Authorize(Roles = "Admin, SuperAdmin")]
         [HttpPost]
         public async Task<IActionResult> Create(CreateProductImageDTO productImageDTO)
         {
@@ -65,6 +67,7 @@ namespace ECommerce.API.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin, SuperAdmin")]
         [HttpDelete]
         [Route("{id:int}")]
         public async Task<IActionResult> DeleteById([FromRoute] int id)
@@ -99,6 +102,7 @@ namespace ECommerce.API.Controllers
             return Ok(result); 
         }
 
+        [Authorize(Roles = "Admin, SuperAdmin")]
         [HttpPost]
         [Route("UploadListImage/{idProduct:int}")]
         public async Task<IActionResult> CreateImages([FromRoute] int idProduct, List<IFormFile> files)

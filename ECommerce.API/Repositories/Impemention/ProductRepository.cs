@@ -1,4 +1,5 @@
-﻿using ECommerce.API.Data;
+﻿using AutoMapper;
+using ECommerce.API.Data;
 using ECommerce.API.Models.Domain;
 using ECommerce.API.Models.DTO.Product;
 using ECommerce.API.Repositories.Interface;
@@ -9,10 +10,12 @@ namespace ECommerce.API.Repositories.Impemention
     public class ProductRepository : IProductRepository
     {
         private readonly ECommerceDbContext dbContext;
+        private readonly IMapper mapper;
 
-        public ProductRepository(ECommerceDbContext dbContext)
+        public ProductRepository(ECommerceDbContext dbContext, IMapper mapper)
         {
             this.dbContext = dbContext;
+            this.mapper = mapper;
         }
         public async Task<Products> CreateAsync(Products products)
         {
@@ -41,7 +44,7 @@ namespace ECommerce.API.Repositories.Impemention
             return existing;
         }
 
-        public async Task<PagedResult<Products>> GetAllAsync(string? productName, bool isDESC = false, int page = 1, int itemInPage = 20, string sortBy = "CreatedAt", int? categryId = null)
+        public async Task<PagedResult<ListProductDTO>> GetAllAsync(string? productName, bool isDESC = false, int page = 1, int itemInPage = 20, string sortBy = "CreatedAt", int? categryId = null)
         {
             var query = dbContext.Products.AsQueryable();
             if (!string.IsNullOrEmpty(productName))
@@ -71,12 +74,14 @@ namespace ECommerce.API.Repositories.Impemention
             }
 
             int totalCounts = await query.CountAsync();
-            var  products = await query.Skip((page - 1) * itemInPage).Take(itemInPage).ToListAsync();
+            var  products = await query.Skip((page - 1) * itemInPage).Take(itemInPage).Include(x => x.ProductImages).ToListAsync();
             int pageSize = totalCounts % itemInPage != 0 ? totalCounts / itemInPage + 1 : totalCounts / itemInPage;
 
-            return new PagedResult<Products>
+            var productsDTO = mapper.Map<List<ListProductDTO>>(products);
+
+            return new PagedResult<ListProductDTO>
             {
-                Items = products,
+                Items = productsDTO,
                 TotalCount = totalCounts,
                 Page = page,
                 PageSize = pageSize

@@ -3,6 +3,7 @@ using ECommerce.API.Data;
 using ECommerce.API.Models.Domain;
 using ECommerce.API.Models.DTO.ProductSize;
 using ECommerce.API.Repositories.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,6 +24,7 @@ namespace ECommerce.API.Controllers
             this.mapper = mapper;
         }
 
+        [Authorize(Roles = "Admin, SuperAdmin")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody]CreateProductSizeDTO productSizeDTO)
         {
@@ -47,6 +49,7 @@ namespace ECommerce.API.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Admin, SuperAdmin")]
         [HttpDelete]
         [Route("{id:int}")]
         public async Task<IActionResult> DeleteById([FromRoute]int id)
@@ -60,6 +63,7 @@ namespace ECommerce.API.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Admin, SuperAdmin")]
         [HttpPut]
         [Route("{id:int}")]
         public async Task<IActionResult> Edit([FromRoute]int id, [FromBody]EditProductSizeDTO productSizeDTO)

@@ -3,6 +3,7 @@ using ECommerce.API.Data;
 using ECommerce.API.Models.Domain;
 using ECommerce.API.Models.DTO.Category;
 using ECommerce.API.Repositories.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.API.Controllers
@@ -22,6 +23,7 @@ namespace ECommerce.API.Controllers
             this.categoryRepository = categoryRepository;
         }
 
+        [Authorize(Roles = "Admin, SuperAdmin")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody]CreateCategoryDTO categoryDTO)
         {
@@ -32,6 +34,7 @@ namespace ECommerce.API.Controllers
             return Ok(category);
         }
 
+        [Authorize(Roles = "Admin, SuperAdmin")]
         [HttpPut]
         [Route("{id:int}")]
         public async Task<IActionResult> Edit([FromRoute]int id,[FromBody]EditCategoryDTO categoryDTO)
@@ -67,6 +70,7 @@ namespace ECommerce.API.Controllers
             return Ok(categories);
         }
 
+        [Authorize(Roles = "Admin, SuperAdmin")]
         [Route("{id:int}")]
         [HttpDelete]
         public async Task<IActionResult> Delete([FromRoute]int id)

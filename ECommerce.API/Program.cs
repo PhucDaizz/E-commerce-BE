@@ -66,7 +66,10 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(
         policy =>
         {
-            policy.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
+            policy.WithOrigins("http://localhost:5173") 
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
         });
 });
 
@@ -120,6 +123,7 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/Resources"
 });
 
+app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
