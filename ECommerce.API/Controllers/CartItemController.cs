@@ -78,7 +78,7 @@ namespace ECommerce.API.Controllers
             var itemUpdate = await cartItemServices.UpdateAsync(cartItem);
             if (itemUpdate == null)
             {
-                return BadRequest("Cart item not found or quantity must be more than 0.");
+                return Ok("Cart item not found or quantity must be more than 0.");
             }
 
             var result = mapper.Map<CartItemDTO>(itemUpdate);

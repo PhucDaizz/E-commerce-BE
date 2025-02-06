@@ -30,6 +30,7 @@ namespace ECommerce.API.Mapping
             CreateMap<DetailProductDTO, Products>().ReverseMap();
             CreateMap<ProductDTO, Products>().ReverseMap();
             CreateMap<Products, ListProductDTO>().ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.ProductImages));
+            CreateMap<Products, ProductImageCartDTO>().ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.ProductImages));
 
             // ProductColor
             CreateMap<CreateProductColorDTO, ProductColors>().ReverseMap();

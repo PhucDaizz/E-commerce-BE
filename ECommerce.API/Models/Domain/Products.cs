@@ -13,6 +13,7 @@ namespace ECommerce.API.Models.Domain
         public string? Description { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public bool IsPublic { get; set; } = false;
 
         // Navigation Properties
         [ForeignKey("CategoryID")]

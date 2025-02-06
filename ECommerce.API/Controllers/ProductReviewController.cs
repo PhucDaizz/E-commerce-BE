@@ -63,13 +63,14 @@ namespace ECommerce.API.Controllers
 
 
         [HttpGet]
+        [Route("{productID:int}")]
         public async Task<IActionResult> GetAllByProductID([FromRoute]int productID)
         {
             try
             {
                 var productReviews = await productReviewRepository.GetAllAsync(productID);
 
-                return Ok(mapper.Map<IEnumerable<ProductReviewDTO>>(productReviews));
+                return Ok(productReviews);
             }
             catch (Exception ex)
             {

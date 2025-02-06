@@ -29,6 +29,7 @@ namespace ECommerce.API.Controllers
 
         [Authorize(Roles = "Admin, SuperAdmin")]
         [HttpPost]
+        [Route("Add")]
         public async Task<IActionResult> Create([FromBody] CreateProductDTO productDTO)
         {
             var product = mapper.Map<Products>(productDTO);
@@ -51,15 +52,16 @@ namespace ECommerce.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] string? productName, [FromQuery] bool isDESC = false, [FromQuery] int page = 1, [FromQuery] int itemInPage = 20, [FromQuery] string sortBy = "CreatedAt", [FromQuery] int? categryId = null)
+        [Route("GetAll")]
+        public async Task<IActionResult> GetAll([FromQuery] string? productName, [FromQuery] bool isDESC = false, [FromQuery] int page = 1, [FromQuery] int itemInPage = 20, [FromQuery] string sortBy = "CreatedAt", [FromQuery] int? categoryId = null)
         {
-            var products = await productRepository.GetAllAsync(productName, isDESC, page, itemInPage, sortBy, categryId);
+            var products = await productRepository.GetAllAsync(productName, isDESC, page, itemInPage, sortBy, categoryId);
             return Ok(products);
         }
 
         [Authorize(Roles = "Admin, SuperAdmin")]
         [HttpPut]
-        [Route("{id:int}")]
+        [Route("edit/{id:int}")]
         public async Task<IActionResult> Edit([FromRoute] int id, [FromBody] EditProductDTO productDTO)
         {
             var product = mapper.Map<Products>(productDTO);
@@ -75,7 +77,7 @@ namespace ECommerce.API.Controllers
 
         [Authorize(Roles = "Admin, SuperAdmin")]
         [HttpDelete]
-        [Route("{id:int}")]
+        [Route("delete/{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             var product = await productRepository.DeleteAsync(id);
@@ -96,6 +98,29 @@ namespace ECommerce.API.Controllers
                 return BadRequest("Id is not existing!");
             }
             return Ok(existing);
+        }
+
+
+        [HttpGet]
+        [Authorize(Roles = "Admin, SuperAdmin")]
+        [Route("GetAllAdmin")]
+        public async Task<IActionResult> GetAllAdmin([FromQuery] string? productName, [FromQuery] bool isDESC = false, [FromQuery] int page = 1, [FromQuery] int itemInPage = 20, [FromQuery] string sortBy = "CreatedAt", [FromQuery] int? categoryId = null)
+        {
+            var products = await productRepository.GetAllAdminAsync(productName, isDESC, page, itemInPage, sortBy, categoryId);
+            return Ok(products);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin, SuperAdmin")]
+        [Route("ToPublic/{productID:int}")]
+        public async Task<IActionResult> ToPublic([FromRoute]int productID)
+        {
+            var result = await productRepository.ToPublicAync(productID);
+            if (!result)
+            {
+                return BadRequest("Id is not existing!");
+            }
+            return Ok("Product is public");
         }
     }
 }

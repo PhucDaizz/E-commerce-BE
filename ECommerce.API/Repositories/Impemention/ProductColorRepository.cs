@@ -80,5 +80,12 @@ namespace ECommerce.API.Repositories.Impemention
 
             return productColorSizes;
         }
+
+        public async Task<IEnumerable<ProductColors>> CreateRangeAsync(IEnumerable<ProductColors> productColors)
+        {
+            await dbContext.ProductColors.AddRangeAsync(productColors);
+            await dbContext.SaveChangesAsync();
+            return productColors;
+        }
     }
 }

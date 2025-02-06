@@ -46,7 +46,7 @@ namespace ECommerce.API.Repositories.Impemention
 
         public async Task<IEnumerable<CartItems>?> GetAllAsync(Guid UserID)
         {
-            var existing = await dbContext.CartItems.Where(x => x.UserID == UserID).Include(x => x.Products).OrderBy(x => x.UpdatedAt).ToListAsync();
+            var existing = await dbContext.CartItems.Where(x => x.UserID == UserID).Include(x => x.Products).ThenInclude(p => p.ProductImages).OrderBy(x => x.UpdatedAt).ToListAsync();
             if (existing == null)
             {
                 return null;

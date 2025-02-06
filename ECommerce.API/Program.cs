@@ -59,6 +59,7 @@ builder.Services.AddScoped<ICartItemServices, CartItemServices>();
 builder.Services.AddScoped<IPaymentServices, PaymentServices>();
 builder.Services.AddScoped<IDiscountServices, DiscountServices>();
 builder.Services.AddScoped<IProductReviewServices, ProductReviewServices>();
+builder.Services.AddScoped<IProductSizeServices, ProductSizeServices>();
 
 
 builder.Services.AddCors(options =>

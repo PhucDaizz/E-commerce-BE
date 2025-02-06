@@ -44,7 +44,7 @@ namespace ECommerce.API.Repositories.Impemention
             return existing;
         }
 
-        public async Task<PagedResult<ListProductDTO>> GetAllAsync(string? productName, bool isDESC = false, int page = 1, int itemInPage = 20, string sortBy = "CreatedAt", int? categryId = null)
+        public async Task<PagedResult<ListProductDTO>> GetAllAsync(string? productName, bool isDESC = false, int page = 1, int itemInPage = 20, string sortBy = "CreatedAt", int? categoryId = null)
         {
             var query = dbContext.Products.AsQueryable();
             if (!string.IsNullOrEmpty(productName))
@@ -52,9 +52,9 @@ namespace ECommerce.API.Repositories.Impemention
                 query = query.Where(p => p.ProductName.Contains(productName));
             }
 
-            if(categryId.HasValue)
+            if(categoryId.HasValue)
             {
-                query = query.Where(p => p.CategoryID == categryId.Value);
+                query = query.Where(p => p.CategoryID == categoryId.Value);
             }
 
             if (!string.IsNullOrEmpty(sortBy))
@@ -73,6 +73,7 @@ namespace ECommerce.API.Repositories.Impemention
                 }
             }
 
+            query = query.Where(x => x.IsPublic == true);
             int totalCounts = await query.CountAsync();
             var  products = await query.Skip((page - 1) * itemInPage).Take(itemInPage).Include(x => x.ProductImages).ToListAsync();
             int pageSize = totalCounts % itemInPage != 0 ? totalCounts / itemInPage + 1 : totalCounts / itemInPage;
@@ -115,6 +116,65 @@ namespace ECommerce.API.Repositories.Impemention
         public async Task<bool> ExistsAsync(int id)
         {
             return await dbContext.Products.AnyAsync(x => x.ProductID == id);
+        }
+
+        public async Task<PagedResult<ListProductDTO>> GetAllAdminAsync(string? productName, bool isDESC = false, int page = 1, int itemInPage = 20, string sortBy = "CreatedAt", int? categoryId = null)
+        {
+            var query = dbContext.Products.AsQueryable();
+            if (!string.IsNullOrEmpty(productName))
+            {
+                query = query.Where(p => p.ProductName.Contains(productName));
+            }
+
+            if (categoryId.HasValue)
+            {
+                query = query.Where(p => p.CategoryID == categoryId.Value);
+            }
+
+            if (!string.IsNullOrEmpty(sortBy))
+            {
+                switch (sortBy.ToLower())
+                {
+                    case "price":
+                        query = isDESC ? query.OrderByDescending(x => x.Price) : query.OrderBy(x => x.Price);
+                        break;
+                    case "name":
+                        query = isDESC ? query.OrderByDescending(x => x.ProductName) : query.OrderBy(x => x.ProductName);
+                        break;
+                    default:
+                        query = isDESC ? query.OrderByDescending(x => x.CreatedAt) : query.OrderBy(x => x.CreatedAt);
+                        break;
+                }
+            }
+
+            int totalCounts = await query.CountAsync();
+            var products = await query.Skip((page - 1) * itemInPage).Take(itemInPage).Include(x => x.ProductImages).ToListAsync();
+            int pageSize = totalCounts % itemInPage != 0 ? totalCounts / itemInPage + 1 : totalCounts / itemInPage;
+
+            var productsDTO = mapper.Map<List<ListProductDTO>>(products);
+
+            return new PagedResult<ListProductDTO>
+            {
+                Items = productsDTO,
+                TotalCount = totalCounts,
+                Page = page,
+                PageSize = pageSize
+            };
+        }
+
+        public async Task<bool> ToPublicAync(int id)
+        {
+            var existing = await dbContext.Products.FirstOrDefaultAsync(x => x.ProductID == id);
+            if (existing == null)
+            {
+                return false;
+            }
+
+            existing.IsPublic = !existing.IsPublic;
+
+            dbContext.Entry(existing).CurrentValues.SetValues(existing);
+            await dbContext.SaveChangesAsync();
+            return true;
         }
     }
 }

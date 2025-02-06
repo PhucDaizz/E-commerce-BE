@@ -10,7 +10,11 @@ namespace ECommerce.API.Repositories.Interface
         Task<Products?> UpdateAsync(Products products);
         Task<Products?> DeleteAsync(int id);
         Task<Products?> GetByIdAsync(int id);
-        Task<PagedResult<ListProductDTO>> GetAllAsync(string? productName, bool isDESC = false, int page = 1, int itemInPage = 20, string sortBy = "CreatedAt", int? categryId = null);
+        Task<PagedResult<ListProductDTO>> GetAllAsync(string? productName, bool isDESC = false, int page = 1, int itemInPage = 20, string sortBy = "CreatedAt", int? categoryId = null);
         Task<bool> ExistsAsync(int id);
+        Task<PagedResult<ListProductDTO>> GetAllAdminAsync(string? productName, bool isDESC = false, int page = 1, int itemInPage = 20, string sortBy = "CreatedAt", int? categoryId = null);
+        Task<bool> ToPublicAync(int id);
+    
+    
     }
 }

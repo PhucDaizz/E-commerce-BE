@@ -3,6 +3,7 @@ using ECommerce.API.Data;
 using ECommerce.API.Models.Domain;
 using ECommerce.API.Models.DTO.ProductSize;
 using ECommerce.API.Repositories.Interface;
+using ECommerce.API.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,12 +17,14 @@ namespace ECommerce.API.Controllers
         private readonly ECommerceDbContext dbContext;
         private readonly IProductSizeRepository productSizeRepository;
         private readonly IMapper mapper;
+        private readonly IProductSizeServices productSizeServices;
 
-        public ProductSizeController(ECommerceDbContext dbContext, IProductSizeRepository productSizeRepository, IMapper mapper)
+        public ProductSizeController(ECommerceDbContext dbContext, IProductSizeRepository productSizeRepository, IMapper mapper, IProductSizeServices productSizeServices)
         {
             this.dbContext = dbContext;
             this.productSizeRepository = productSizeRepository;
             this.mapper = mapper;
+            this.productSizeServices = productSizeServices;
         }
 
         [Authorize(Roles = "Admin, SuperAdmin")]
@@ -33,6 +36,21 @@ namespace ECommerce.API.Controllers
             productSize.UpdatedAt = DateTime.Now;  
             var createProductSize = await productSizeRepository.CreateAsync(productSize);
             var result = mapper.Map<ProductSizeDTO>(createProductSize);
+            return Ok(result);
+        }
+
+        [Authorize(Roles = "Admin, SuperAdmin")]
+        [HttpPost]
+        [Route("AddRange")]
+        public async Task<IActionResult> CreateRange([FromBody]CreateProductSizesDTO productSizesDTO)
+        {
+            var result = await productSizeServices.CreateRangeAsync(productSizesDTO);
+
+            if(result.message == "Invalid data!")
+            {
+                return BadRequest(result.message);
+            }
+
             return Ok(result);
         }
 
@@ -62,6 +80,21 @@ namespace ECommerce.API.Controllers
             var result = mapper.Map<ProductSizeDTO>(existing);
             return Ok(result);
         }
+
+        [Authorize(Roles = "Admin, SuperAdmin")]
+        [HttpDelete]
+        [Route("DeleteByColorAndSize/{colorID:int}")]
+        public async Task<IActionResult> DeleteByColorAndSize([FromRoute]int colorID, [FromQuery]string size)
+        {
+            var existing = await productSizeRepository.DeleteByColorAndSizeAsync(colorID,size);
+            if (existing == null)
+            {
+                return NotFound("ID is not existing!");
+            }
+            var result = mapper.Map<ProductSizeDTO>(existing);
+            return Ok(result);
+        }
+
 
         [Authorize(Roles = "Admin, SuperAdmin")]
         [HttpPut]

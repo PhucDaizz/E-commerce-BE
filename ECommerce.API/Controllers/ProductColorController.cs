@@ -4,6 +4,7 @@ using ECommerce.API.Models.Domain;
 using ECommerce.API.Models.DTO.ProductColor;
 using ECommerce.API.Repositories.Impemention;
 using ECommerce.API.Repositories.Interface;
+using ECommerce.API.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,12 +18,14 @@ namespace ECommerce.API.Controllers
         private readonly ECommerceDbContext dbContext;
         private readonly IMapper mapper;
         private readonly IProductColorRepository productColorRepository;
+        private readonly IProductColorServices productColorServices;
 
-        public ProductColorController(ECommerceDbContext dbContext, IMapper mapper, IProductColorRepository productColorRepository)
+        public ProductColorController(ECommerceDbContext dbContext, IMapper mapper, IProductColorRepository productColorRepository, IProductColorServices productColorServices)
         {
             this.dbContext = dbContext;
             this.mapper = mapper;
             this.productColorRepository = productColorRepository;
+            this.productColorServices = productColorServices;
         }
 
         [Authorize(Roles = "Admin, SuperAdmin")]
@@ -34,6 +37,32 @@ namespace ECommerce.API.Controllers
             productColor.UpdatedAt = DateTime.Now;
             var createdProductColor = await productColorRepository.CreateAsync(productColor);
             var result = mapper.Map<ProductColorDTO>(createdProductColor);
+            return Ok(result);
+        }
+
+        [Authorize(Roles = "Admin, SuperAdmin")]
+        [HttpPost]
+        [Route("AddRange")]
+        public async Task<IActionResult> CreateRange([FromBody] IEnumerable<CreateProductColorDTO> createProductColorDTOs)
+        {
+            var productId = createProductColorDTOs.FirstOrDefault().ProductID;
+            foreach (var productColor in createProductColorDTOs)
+            {
+                if (productColor.ProductID != productId || productColor.ProductID == null)
+                {
+                    return BadRequest("ProductID is not the same! or ProductID is null");
+                }
+            }
+
+            var productColors = mapper.Map<IEnumerable<ProductColors>>(createProductColorDTOs);
+            
+            foreach (var productColor in productColors)
+            {
+                productColor.CreatedAt = DateTime.Now;
+                productColor.UpdatedAt = DateTime.Now;
+            }
+            var createProductColors = await productColorRepository.CreateRangeAsync(productColors);
+            var result = mapper.Map<IEnumerable<ProductColorDTO>>(createProductColors);
             return Ok(result);
         }
 
@@ -63,7 +92,7 @@ namespace ECommerce.API.Controllers
         [Route("{id:int}")]
         public async Task<IActionResult> DeletebyId([FromRoute]int id)
         {
-            var existing = await productColorRepository.DeleteAsync(id);
+            var existing = await productColorServices.DeleteColorAsync(id);
             if (existing == null)
             {
                 return NotFound("Id is not existing");

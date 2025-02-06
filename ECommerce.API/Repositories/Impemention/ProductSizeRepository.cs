@@ -64,5 +64,61 @@ namespace ECommerce.API.Repositories.Impemention
             }
             return productSizes;
         }
+
+        public async Task<bool> IsExistAsync(int productColorID, string size)
+        {
+            var existing = await dbContext.ProductSizes
+                .FirstOrDefaultAsync(x => x.ProductColorID == productColorID && x.Size == size);
+
+            return existing != null;
+        }
+
+
+        public async Task<ProductSizes?> AddAsync(ProductSizes productSizes)
+        {
+            var existing = await dbContext.ProductSizes
+                .FirstOrDefaultAsync(x => x.ProductColorID == productSizes.ProductColorID && x.Size == productSizes.Size);
+
+            if (existing != null)
+            {
+                existing.Stock += productSizes.Stock;
+                existing.UpdatedAt = DateTime.Now;
+
+                dbContext.ProductSizes.Update(existing);
+                await dbContext.SaveChangesAsync();
+
+                return existing; 
+            }
+
+            return null;
+        }
+
+        public async Task<bool> DeleteByColorIDAsync(int colorID)
+        {
+            var existing = dbContext.ProductSizes.Where(x => x.ProductColorID == colorID); 
+            if (!existing.Any())
+            {
+                return false;
+            }
+            dbContext.ProductSizes.RemoveRange(existing);
+            await dbContext.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<ProductSizes?> DeleteByColorAndSizeAsync(int colorID, string size)
+        {
+            if (string.IsNullOrEmpty(size) || colorID == null)
+            {
+                return null;
+            }
+            var existing = await dbContext.ProductSizes.FirstOrDefaultAsync(x => x.ProductColorID == colorID && x.Size == size);
+            if (existing == null)
+            {
+                return null;
+            }
+            dbContext.ProductSizes.Remove(existing);
+            await dbContext.SaveChangesAsync();
+            return existing;
+        }
     }
 }

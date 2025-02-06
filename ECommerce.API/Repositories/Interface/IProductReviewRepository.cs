@@ -1,4 +1,5 @@
 ﻿using ECommerce.API.Models.Domain;
+using ECommerce.API.Models.DTO.ProductReview;
 
 namespace ECommerce.API.Repositories.Interface
 {
@@ -6,7 +7,7 @@ namespace ECommerce.API.Repositories.Interface
     {
         Task<ProductReviews> CreateAsync(ProductReviews productReview);
 
-        Task<IEnumerable<ProductReviews>?> GetAllAsync(int productId);
+        Task<IEnumerable<ProductReviewDTO>?> GetAllAsync(int productId);
 
         Task<ProductReviews?> DeleteAync(int reviewId);
     }
