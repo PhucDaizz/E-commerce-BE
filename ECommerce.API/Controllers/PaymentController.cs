@@ -1,4 +1,6 @@
 ﻿using ECommerce.API.Models.DTO.Payment;
+using ECommerce.API.Repositories.Impemention;
+using ECommerce.API.Repositories.Interface;
 using ECommerce.API.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -22,22 +24,25 @@ namespace ECommerce.API.Controllers
 
         private readonly IVnpay _vnpay;
         private readonly IPaymentServices paymentServices;
+        private readonly ICartItemRepository cartItemRepository;
 
-        public PaymentController(IVnpay vnpay, IConfiguration configuration, IPaymentServices paymentServices)
+        public PaymentController(IVnpay vnpay, IConfiguration configuration, IPaymentServices paymentServices, ICartItemRepository cartItemRepository)
         {
             _tmnCode = configuration["Vnpay:TmnCode"];
             _hashSecret = configuration["Vnpay:HashSecret"];
             _baseUrl = configuration["Vnpay:BaseUrl"];
             _callbackUrl = configuration["Vnpay:ReturnUrl"];
             this.paymentServices = paymentServices;
-
+            this.cartItemRepository = cartItemRepository;
             _vnpay = vnpay;
             _vnpay.Initialize(_tmnCode, _hashSecret, _baseUrl, _callbackUrl);
         }
 
+
+         /*Do Firt */
         [Authorize(Roles = "User")]
         [HttpGet("CreatePaymentUrl")]
-        public ActionResult<string> CreatePaymentUrl(double moneyToPay, string description,int? discountId)
+        public async Task<ActionResult<string>> CreatePaymentUrl(double moneyToPay, string description,int? discountId)
         {
             try
             {
@@ -50,10 +55,17 @@ namespace ECommerce.API.Controllers
                 }
                 var userId = Guid.Parse(userIdClaim.Value);
 
+                var checkAmount =await paymentServices.checkAmount(userId, discountId);
+
+                if(checkAmount.IsSuccess == false)
+                {
+                    return BadRequest(checkAmount.Message);
+                }
+
                 var request = new PaymentRequest
                 {
                     PaymentId = DateTime.Now.Ticks,
-                    Money = moneyToPay,
+                    Money = checkAmount.FinalAmount,
                     Description = $"{description}|{userId}|{discountId}",
                     IpAddress = ipAddress,
                     BankCode = BankCode.ANY, // Tùy chọn. Mặc định là tất cả phương thức giao dịch
@@ -92,7 +104,7 @@ namespace ECommerce.API.Controllers
                             return BadRequest("Invalid payment description format");
                         }
 
-                        var description = descriptionParts[0];
+                        var description = _vnpay.GetPaymentResult(Request.Query).Description.Split('|')[0];
                         var userId = Guid.Parse(descriptionParts[1]);
 
                         int? discountId = null; 
@@ -121,6 +133,7 @@ namespace ECommerce.API.Controllers
             return NotFound("Không tìm thấy thông tin thanh toán.");
         }
 
+        /*Do Second*/
         [HttpGet("Callback")]
         public ActionResult<string> Callback()
         {

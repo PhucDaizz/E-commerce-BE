@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
+using ECommerce.API.Data;
 using ECommerce.API.Models.Domain;
 using ECommerce.API.Models.DTO.CartItem;
 using ECommerce.API.Models.DTO.Payment;
 using ECommerce.API.Repositories.Interface;
 using ECommerce.API.Services.Interface;
+using Microsoft.EntityFrameworkCore;
 using System.Transactions;
 using VNPAY.NET.Models;
 
@@ -18,8 +20,9 @@ namespace ECommerce.API.Services.Impemention
         private readonly IDiscountServices discountServices;
         private readonly IOrderDetailRepository orderDetailRepository;
         private readonly IMapper mapper;
+        private readonly ECommerceDbContext dbContext;
 
-        public PaymentServices(IPaymentRepository paymentRepository,IDiscountRepository discountRepository, ICartItemRepository cartItemRepository, IOrderRepository orderRepository, IDiscountServices discountServices, IOrderDetailRepository orderDetailRepository,IMapper mapper)
+        public PaymentServices(IPaymentRepository paymentRepository,IDiscountRepository discountRepository, ICartItemRepository cartItemRepository, IOrderRepository orderRepository, IDiscountServices discountServices, IOrderDetailRepository orderDetailRepository,IMapper mapper, ECommerceDbContext dbContext)
         {
             this.paymentRepository = paymentRepository;
             this.discountRepository = discountRepository;
@@ -28,8 +31,9 @@ namespace ECommerce.API.Services.Impemention
             this.discountServices = discountServices;
             this.orderDetailRepository = orderDetailRepository;
             this.mapper = mapper;
+            this.dbContext = dbContext;
         }
-        public async Task<PaymentProcessResult> processPayment(PaymentResult paymentResult, Guid userID, int PaymentMethodId, int? discountId)
+        public async Task<PaymentProcessResult> processPaymentTWO(PaymentResult paymentResult, Guid userID, int PaymentMethodId, int? discountId)
         {
             // Lấy giỏ hàng
             var cartItems = await cartItemRepository.GetAllAsync(userID);
@@ -101,6 +105,149 @@ namespace ECommerce.API.Services.Impemention
                     };
                 }
             }
+        }
+
+        public async Task<PaymentProcessResult> processPayment(PaymentResult paymentResult, Guid userID, int PaymentMethodId, int? discountId)
+        {
+            // Lấy giỏ hàng
+            var cartItems = await cartItemRepository.GetAllAsync(userID);
+            if (cartItems == null || !cartItems.Any())
+            {
+                return new PaymentProcessResult
+                {
+                    IsSuccess = false,
+                    Message = "Cart is empty"
+                };
+            }
+
+            // Tính tổng tiền
+            var amount = cartItems.Sum(item => item.Quantity * item.Products.Price);
+            var amountFix = amount;
+
+            var isExisting = await dbContext.Payments.AnyAsync(x => x.TransactionID == paymentResult.VnpayTransactionId.ToString());
+            if (isExisting)
+            {
+                return new PaymentProcessResult
+                {
+                    IsSuccess = false,
+                    Message = "Transaction already exists"
+                };
+            }
+
+            await using var transaction = await dbContext.Database.BeginTransactionAsync();
+
+            try
+            {
+                // Áp dụng mã giảm giá (nếu có)
+                if (discountId.HasValue)
+                {
+                    var discountAmount = await discountServices.ApplyDiscountAsync(discountId.Value, userID, amount);
+                    if (discountAmount < 0)
+                    {
+                        return new PaymentProcessResult
+                        {
+                            IsSuccess = false,
+                            Message = "Invalid discount code"
+                        };
+                    }
+                    amountFix = discountAmount;
+                }
+
+                // Tạo đơn hàng
+                var order = new Orders
+                {
+                    OrderID = Guid.NewGuid(),
+                    UserID = userID,
+                    DiscountID = discountId,
+                    OrderDate = DateTime.Now,
+                    TotalAmount = amountFix + 30000, /* shipping fee */
+                    PaymentMethodID = PaymentMethodId,
+                    Status = (int)paymentResult.TransactionStatus.Code,
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
+                };
+
+                // Tạo thanh toán
+                var payment = new Payments
+                {
+                    OrderID = order.OrderID,
+                    UserID = userID,
+                    PaymentMethodID = PaymentMethodId,
+                    PaymentStatus = "Completed",
+                    TransactionID = paymentResult.VnpayTransactionId.ToString(),
+                    AmountPaid = amountFix + 30000,
+                    PaymentDate = DateTime.Now,
+                };
+
+                // Lưu đơn hàng
+                await orderRepository.CreateAsync(order);
+
+                // Thêm chi tiết đơn hàng
+                var listCart = mapper.Map<IEnumerable<CartItemListDTO>>(cartItems);
+                await orderDetailRepository.CreateAsync(order.OrderID, listCart);
+
+                // Xóa giỏ hàng
+                await cartItemRepository.DeleteAllByUserIDAsync(userID);
+
+                // Lưu thanh toán
+                await paymentRepository.CreateAsync(payment); 
+
+                await transaction.CommitAsync(); // Commit transaction
+
+                return new PaymentProcessResult
+                {
+                    IsSuccess = true,
+                    Message = "Payment processed successfully."
+                };
+
+
+            } catch (Exception ex)
+            {
+                await transaction.RollbackAsync(); // Rollback transaction
+                return new PaymentProcessResult
+                {
+                    IsSuccess = false,
+                    Message = $"Payment failed: {ex.Message}"
+                };
+            }
+        }
+
+        public async Task<PaymentAmountDTO> checkAmount(Guid userId, int? discountId)
+        {
+            // Get cartItem from database
+            var cartItems = await cartItemRepository.GetAllAsync(userId);
+            if (cartItems == null || !cartItems.Any())
+            {
+                return new PaymentAmountDTO
+                {
+                    IsSuccess = false,
+                    Message = "Cart is Empty!",
+                    FinalAmount = 0
+                };
+            }
+
+            // Get total amount of cart
+            var amount = (float)cartItems.Sum(item => item.Quantity * item.Products.Price);
+            var finalAmount = amount;
+
+            // Check discount code if available
+            if (discountId.HasValue)
+            {
+                var discountAmount = await discountServices.ApplyDiscountAsync(discountId.Value, userId, amount, false);
+                if (discountAmount >= 0)
+                {
+                    finalAmount = (float)discountAmount;
+                }
+            }
+            finalAmount += 30000; // Shipping fee
+
+            return new PaymentAmountDTO
+            {
+                IsSuccess = true,
+                Message = "Valid amount",
+                FinalAmount = finalAmount
+            };
+
         }
     }
 }

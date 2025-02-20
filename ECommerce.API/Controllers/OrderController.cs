@@ -34,7 +34,7 @@ namespace ECommerce.API.Controllers
 
         [HttpGet]
         [Authorize(Roles = "User")]
-        [Route("GetOrderDetailById")]
+        [Route("GetOrderDetailById/{orderID:Guid}")]
         public async Task<IActionResult> GetDetailOrder([FromRoute]Guid orderID)
         {
             var userIdClaim = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
@@ -74,14 +74,15 @@ namespace ECommerce.API.Controllers
         [HttpGet]
         [Authorize(Roles = "Admin, SuperAdmin")]
         [Route("GetDetailOderByIdADMIN")]
-        public async Task<IActionResult> GetDetailOrderAdmin([FromRoute]Guid userID, [FromRoute]Guid orderId)
+        public async Task<IActionResult> GetDetailOrderAdmin([FromQuery]Guid orderId)
         {
-            var orderDetail = await orderRepository.GetByIdAsync(orderId, userID);
-            if (orderDetail == null)
+            var order = await orderRepository.GetByIdAdminAsync(orderId);
+            if (order == null)
             {
-                return NotFound("Please try again!");
+                return NotFound("OrderId is not existing");
             }
-            return Ok(mapper.Map<OrderDetailDTO>(orderDetail));
+            var resut = mapper.Map<GetDetailOrderDTO>(order);
+            return Ok(resut);
         }
 
         [HttpGet]

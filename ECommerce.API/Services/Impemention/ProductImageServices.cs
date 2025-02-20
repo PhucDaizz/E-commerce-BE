@@ -1,6 +1,7 @@
 ﻿using ECommerce.API.Data;
 using ECommerce.API.Models.Domain;
 using ECommerce.API.Services.Interface;
+using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -62,7 +63,7 @@ namespace ECommerce.API.Services.Impemention
             return fileName;
         }
 
-        public async Task<IEnumerable<string>> SaveImagesAsync(IEnumerable<IFormFile> imageFiles, string[] allowedFileExtensions, string productName, int productId)
+        public async Task<IEnumerable<string>> SaveImagesAsync(IEnumerable<IFormFile> imageFiles, string[] allowedFileExtensions, string productName, int productId, int length)
         {
 
             if (!imageFiles.Any() || imageFiles == null)
@@ -79,11 +80,11 @@ namespace ECommerce.API.Services.Impemention
             {
                 Directory.CreateDirectory(path);
             }
-
+            
             foreach (var imageFile in imageFiles)
             {
 
-                if (imageFile.Length < 0) continue;
+                if (imageFile.Length < 0 || length > 5) continue;
 
                 // Check the allow extenstions
                 var ext = Path.GetExtension(imageFile.FileName).ToLowerInvariant();
@@ -99,6 +100,7 @@ namespace ECommerce.API.Services.Impemention
                 await imageFile.CopyToAsync(stream);
 
                 imageUrls.Add(fileName);
+                length++;
             }
 
             return imageUrls;

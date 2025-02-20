@@ -151,3 +151,8 @@ C:\Workspace\c#\E-commerce\ECommerce.API\bin\Debug\net8.0\Microsoft.AspNetCore.I
 C:\Workspace\c#\E-commerce\ECommerce.API\bin\Debug\net8.0\Microsoft.Extensions.Identity.Core.dll
 C:\Workspace\c#\E-commerce\ECommerce.API\bin\Debug\net8.0\Microsoft.Extensions.Identity.Stores.dll
 C:\Workspace\c#\E-commerce\ECommerce.API\bin\Debug\net8.0\VNPAY.NET.dll
+C:\Workspace\c#\E-commerce\ECommerce.API\bin\Debug\net8.0\BouncyCastle.Cryptography.dll
+C:\Workspace\c#\E-commerce\ECommerce.API\bin\Debug\net8.0\MailKit.dll
+C:\Workspace\c#\E-commerce\ECommerce.API\bin\Debug\net8.0\MimeKit.dll
+C:\Workspace\c#\E-commerce\ECommerce.API\bin\Debug\net8.0\System.Security.Cryptography.Pkcs.dll
+C:\Workspace\c#\E-commerce\ECommerce.API\bin\Debug\net8.0\runtimes\win\lib\net8.0\System.Security.Cryptography.Pkcs.dll

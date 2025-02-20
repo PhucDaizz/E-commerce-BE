@@ -273,6 +273,12 @@ namespace ECommerce.API.Migrations.AuthDb
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
 
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("Gender")
+                        .HasColumnType("bit");
+
                     b.Property<string>("RefreshToken")
                         .HasColumnType("nvarchar(max)");
 
@@ -286,15 +292,15 @@ namespace ECommerce.API.Migrations.AuthDb
                         {
                             Id = "808e47f5-a733-42ab-8e31-b6af349bfd90",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "c341c80f-e733-4fe3-b25a-fbe7bea37290",
+                            ConcurrencyStamp = "13196130-173b-4033-b106-75a94f5a89fc",
                             Email = "superadmin@ecommerce.com",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "SUPERADMIN@ECOMMERCE.COM",
                             NormalizedUserName = "SUPERADMIN@ECOMMERCE.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEDURJAW+sD4rsgPKb0rd/lLpyyXOEmZSE87F0ulARiujaWs9o/i+Tp6OiKOK1+ILVw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEJDGYSth1KaULHLkMGZ9TqVuXLbZYiKkWd7qD/wJYvDuuF09SKh1x4mZJm/xl5TF6A==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "2d6d8de3-7730-4c2d-8043-e4cbc49d7cfc",
+                            SecurityStamp = "db437515-38da-4737-863a-8245b5bf70c0",
                             TwoFactorEnabled = false,
                             UserName = "superadmin@ecommerce.com"
                         });

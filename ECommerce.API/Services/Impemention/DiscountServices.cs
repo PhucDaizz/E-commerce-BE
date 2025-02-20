@@ -16,7 +16,7 @@ namespace ECommerce.API.Services.Impemention
             this.discountRepository = discountRepository;
             this.dbContext = dbContext;
         }
-        public async Task<double> ApplyDiscountAsync(int discountId, Guid userID, double amount)
+        public async Task<double> ApplyDiscountAsync(int discountId, Guid userID, double amount, bool isUpdateData = true)
         {
             var existing = await dbContext.Discounts.FirstOrDefaultAsync(x => x.DiscountID == discountId);
 
@@ -55,11 +55,34 @@ namespace ECommerce.API.Services.Impemention
                 {
                     existing.IsActive = false;
                 }
-                dbContext.Discounts.Update(existing);
-                await dbContext.SaveChangesAsync();
+
+                if (isUpdateData)
+                {
+                    dbContext.Discounts.Update(existing);
+                    await dbContext.SaveChangesAsync();
+                }
                 return amount;
             }
             return amount;
+        }
+
+        public async Task<Discounts> CanUseDiscount(Guid userId, string code, float amount)
+        {
+            var discount = await discountRepository.GetDiscountByCodeAsync(code);
+            if (discount == null)
+            {
+                return null;
+            }
+            if(!discount.IsActive || discount.MinOrderValue > amount)
+            {
+                return null;
+            }
+            var timesUsedDiscount = await dbContext.Orders.Where(x => x.UserID == userId && x.DiscountID == discount.DiscountID).CountAsync();
+            if (timesUsedDiscount < discount.MaxUsagePerUser)
+            {
+                return discount;
+            }
+            return null;
         }
     }
 }

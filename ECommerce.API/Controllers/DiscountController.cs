@@ -2,9 +2,11 @@
 using ECommerce.API.Models.Domain;
 using ECommerce.API.Models.DTO.Discount;
 using ECommerce.API.Repositories.Interface;
+using ECommerce.API.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace ECommerce.API.Controllers
 {
@@ -14,11 +16,13 @@ namespace ECommerce.API.Controllers
     {
         private readonly IMapper mapper;
         private readonly IDiscountRepository discountRepository;
+        private readonly IDiscountServices discountServices;
 
-        public DiscountController(IMapper mapper, IDiscountRepository discountRepository)
+        public DiscountController(IMapper mapper, IDiscountRepository discountRepository, IDiscountServices discountServices)
         {
             this.mapper = mapper;
             this.discountRepository = discountRepository;
+            this.discountServices = discountServices;
         }
 
 
@@ -57,9 +61,11 @@ namespace ECommerce.API.Controllers
 
         [Authorize(Roles = "Admin, SuperAdmin")]
         [HttpPut]
-        public async Task<IActionResult> Update([FromBody]EditDiscountDTO editDiscountDTO)
+        [Route("Update/{id:int}")]
+        public async Task<IActionResult> Update([FromRoute]int id,[FromBody]EditDiscountDTO editDiscountDTO)
         {
             var discountUpdate = mapper.Map<Discounts>(editDiscountDTO);
+            discountUpdate.DiscountID = id;
             var result = await discountRepository.UpdateAsync(discountUpdate);
             if (result == null)
             {
@@ -79,6 +85,23 @@ namespace ECommerce.API.Controllers
                 return NotFound("DiscountID is not existing");
             }
             var result = mapper.Map<DiscountDTO>(existing);
+            return Ok(result);
+        }
+
+        [HttpGet]
+        [Authorize]
+        [Route("GetDiscountByCode/{code}/{amount:float}")]
+        public async Task<IActionResult> GetDiscountByCode([FromRoute]string code, [FromRoute]float amount)
+        {
+            var userIdClaim = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
+            var userId = Guid.Parse(userIdClaim.Value);
+
+            var discount = await discountServices.CanUseDiscount(userId, code, amount);
+            if (discount == null)
+            {
+                return NotFound("The discount code does not exist or has already been used.");
+            }
+            var result = mapper.Map<DiscountDTO>(discount);
             return Ok(result);
         }
 

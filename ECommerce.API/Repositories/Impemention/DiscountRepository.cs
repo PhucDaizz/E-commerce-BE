@@ -79,6 +79,16 @@ namespace ECommerce.API.Repositories.Impemention
             return existing;
         }
 
+        public async Task<Discounts?> GetDiscountByCodeAsync(string code)
+        {
+            var existing = await dbContext.Discounts.FirstOrDefaultAsync(x => x.Code == code);
+            if (existing != null && DateTime.Now < existing.EndDate && existing.IsActive)
+            {
+                return existing;
+            }
+            return null;
+        }
+
         public async Task<Discounts?> UpdateAsync(Discounts discounts)
         {
             var existing = await dbContext.Discounts.FirstOrDefaultAsync(x => x.DiscountID == discounts.DiscountID);

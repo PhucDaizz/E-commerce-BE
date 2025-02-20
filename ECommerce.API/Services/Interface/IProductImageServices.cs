@@ -6,6 +6,6 @@ namespace ECommerce.API.Services.Interface
     {
         Task<string> SaveImageAsync(IFormFile imageFile, string[] allowedFileExtensions, string productName, int productId);
         void DeleteImage(string fileNameWithExtension); 
-        Task<IEnumerable<string>> SaveImagesAsync(IEnumerable<IFormFile> imagefiles, string[] allowedFileExtensions,string productName,int productId);
+        Task<IEnumerable<string>> SaveImagesAsync(IEnumerable<IFormFile> imagefiles, string[] allowedFileExtensions,string productName,int productId, int length);
     }
 }

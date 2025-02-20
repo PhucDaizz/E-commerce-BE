@@ -6,5 +6,7 @@ namespace ECommerce.API.Models.Domain
     {
         public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenExpiry { get; set; }
+        public bool? Gender { get; set; }
+        public string? Address { get; set; }
     }
 }

@@ -54,6 +54,18 @@ namespace ECommerce.API.Repositories.Impemention
                 case "totalamount": 
                     query = isDESC ? query.OrderByDescending(x => x.TotalAmount) : query.OrderBy(x => x.TotalAmount); 
                     break;
+                case "error":
+                    query = isDESC ? query.Where(x => x.Status == 0).OrderByDescending(x => x.OrderDate) : query.Where(x => x.Status == 0);
+                    break;
+                case "pending":
+                    query = isDESC ? query.Where(x => x.Status == 1).OrderByDescending(x => x.OrderDate) : query.Where(x => x.Status == 1);
+                    break;
+                case "completed":
+                    query = isDESC ? query.Where(x => x.Status == 2).OrderByDescending(x => x.OrderDate) : query.Where(x => x.Status == 2);
+                    break;
+                case "cancel":
+                    query = isDESC ? query.Where(x => x.Status == 3).OrderByDescending(x => x.OrderDate) : query.Where(x => x.Status == 3);
+                    break;
                 default: 
                     query = isDESC ? query.OrderByDescending(x => x.OrderDate) : query.OrderBy(x => x.OrderDate); 
                     break;
@@ -82,7 +94,7 @@ namespace ECommerce.API.Repositories.Impemention
             return orders;
         }
 
-        public async Task<Orders?> GetByIdAsync(Guid id, Guid userId)
+        public async Task<Orders?> GetByIdAsync(Guid id, Guid? userId)
         {
             var existing = await dbContext.Orders.FirstOrDefaultAsync(x => x.OrderID == id && x.UserID == userId);
             return existing;
@@ -98,6 +110,22 @@ namespace ECommerce.API.Repositories.Impemention
             order.UpdatedAt = DateTime.Now;
             dbContext.Orders.Entry(existing).CurrentValues.SetValues(order);
             await dbContext.SaveChangesAsync();
+            return existing;
+        }
+
+
+        public async Task<Orders?> GetByIdAdminAsync(Guid id)
+        {
+            var existing = await dbContext.Orders
+                            .Include(x => x.Payments)
+                            .Include(x => x.Shippings)
+                            .Include(x => x.OrderDetails)
+                                .ThenInclude(x => x.Products)
+                            .FirstOrDefaultAsync(x => x.OrderID == id);
+            if (existing == null)
+            {
+                return null;
+            }
             return existing;
         }
     }

@@ -3,6 +3,7 @@ using ECommerce.API.Models.Domain;
 using ECommerce.API.Models.DTO.CartItem;
 using ECommerce.API.Models.DTO.Order;
 using ECommerce.API.Repositories.Interface;
+using Microsoft.EntityFrameworkCore;
 
 namespace ECommerce.API.Repositories.Impemention
 {
@@ -34,6 +35,14 @@ namespace ECommerce.API.Repositories.Impemention
             return orderDetailsList;
         }
 
-        
+        public async Task<IEnumerable<OrderDetails>> GetListOrderDetailsAsync(Guid orderID)
+        {
+            var orderDetail = await dbContext.OrderDetails.Where(x => x.OrderID == orderID).Include(x => x.Products).ToListAsync();
+            if (orderDetail == null)
+            {
+                return null;
+            }
+            return orderDetail;
+        }
     }
 }

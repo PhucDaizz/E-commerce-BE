@@ -4,6 +4,8 @@ using ECommerce.API.Models.DTO.CartItem;
 using ECommerce.API.Models.DTO.Category;
 using ECommerce.API.Models.DTO.Discount;
 using ECommerce.API.Models.DTO.Order;
+using ECommerce.API.Models.DTO.OrderDetail;
+using ECommerce.API.Models.DTO.Payment;
 using ECommerce.API.Models.DTO.PaymentMethod;
 using ECommerce.API.Models.DTO.Product;
 using ECommerce.API.Models.DTO.ProductColor;
@@ -11,6 +13,7 @@ using ECommerce.API.Models.DTO.ProductImage;
 using ECommerce.API.Models.DTO.ProductReview;
 using ECommerce.API.Models.DTO.ProductSize;
 using ECommerce.API.Models.DTO.Shipping;
+using ECommerce.API.Models.DTO.User;
 
 namespace ECommerce.API.Mapping
 {
@@ -65,6 +68,10 @@ namespace ECommerce.API.Mapping
             CreateMap<CreateOrderDTO, Orders>().ReverseMap();
             CreateMap<OrderDTO, Orders>().ReverseMap();
             CreateMap<OrderDetailDTO, Orders>().ReverseMap();
+            CreateMap<Orders, GetDetailOrderDTO>()
+                   .ForMember(dest => dest.PaymentDTO, opt => opt.MapFrom(src => src.Payments))
+                   .ForMember(dest => dest.ShippingDTO, opt => opt.MapFrom(src => src.Shippings.ToList()))
+                   .ForMember(dest => dest.GetOrderDetailDTO, opt => opt.MapFrom(src => src.OrderDetails.ToList()));
 
             // PaymentMethod
             CreateMap<CreatePaymentMethodDTO,PaymentMethods>().ReverseMap();
@@ -77,6 +84,15 @@ namespace ECommerce.API.Mapping
             // Shipping
             CreateMap<CreateShippingDTO, Shippings>().ReverseMap();
             CreateMap<ShippingDTO, Shippings>().ReverseMap();
+
+            //User
+            CreateMap<ExtendedIdentityUser, InforDTO>().ReverseMap();
+
+            //OrderDetail
+            CreateMap<OrderDetails, GetOrderDetailDTO>().ForMember(dest => dest.ProductDTO, opt => opt.MapFrom(src => src.Products));
+        
+            //Payment
+            CreateMap<Payments, PaymentDTO>().ReverseMap();
         }
     }
 }

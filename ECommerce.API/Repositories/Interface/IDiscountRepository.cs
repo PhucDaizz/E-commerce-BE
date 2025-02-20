@@ -11,5 +11,6 @@ namespace ECommerce.API.Repositories.Interface
         Task<ListDiscountDTO?> GetAllAsync([FromQuery] int page = 1, [FromQuery] int itemsInPage = 20, [FromQuery] string sortBy = "IsActive", [FromQuery] bool isDESC = false);
         Task<Discounts?> UpdateAsync(Discounts discounts);
         Task<Discounts?> DeleteAsync(int id);
+        Task<Discounts?> GetDiscountByCodeAsync(string code);
     }
 }

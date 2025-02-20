@@ -7,5 +7,7 @@ namespace ECommerce.API.Repositories.Interface
     public interface IOrderDetailRepository
     {
         Task<IEnumerable<OrderDetails>> CreateAsync(Guid orderID, IEnumerable<CartItemListDTO> cartItemListDTOs);
+
+        Task<IEnumerable<OrderDetails>> GetListOrderDetailsAsync(Guid orderID);
     }
 }

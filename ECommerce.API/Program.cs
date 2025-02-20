@@ -60,6 +60,7 @@ builder.Services.AddScoped<IPaymentServices, PaymentServices>();
 builder.Services.AddScoped<IDiscountServices, DiscountServices>();
 builder.Services.AddScoped<IProductReviewServices, ProductReviewServices>();
 builder.Services.AddScoped<IProductSizeServices, ProductSizeServices>();
+builder.Services.AddScoped<IEmailServices, EmailServices>();
 
 
 builder.Services.AddCors(options =>
@@ -79,6 +80,11 @@ builder.Services.AddIdentityCore<ExtendedIdentityUser>()
     .AddTokenProvider<DataProtectorTokenProvider<ExtendedIdentityUser>>("PhucDai")
     .AddEntityFrameworkStores<AuthDbContext>()
     .AddDefaultTokenProviders();
+
+builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
+{
+    options.TokenLifespan = TimeSpan.FromHours(2);
+});
 
 builder.Services.Configure<IdentityOptions>(options =>
 {

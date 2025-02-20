@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ECommerce.API.Controllers
 {
@@ -114,7 +115,9 @@ namespace ECommerce.API.Controllers
                 return NotFound("ID product is not existing");
             }
             string[] allowedFileExtentions = [".jpg", ".jpeg", ".png"];
-            var imagesList = await productImageServices.SaveImagesAsync(files, allowedFileExtentions, product.ProductName, product.ProductID);
+            var length = await dbContext.ProductImages.Where(x => x.ProductID == idProduct).CountAsync();
+
+            var imagesList = await productImageServices.SaveImagesAsync(files, allowedFileExtentions, product.ProductName, product.ProductID, length);
 
             if (imagesList.Count() == 0 || imagesList == null)
             {
@@ -124,15 +127,22 @@ namespace ECommerce.API.Controllers
             List<ProductImages> images = new List<ProductImages>();
             foreach (var image in imagesList)
             {
+                if (length > 5)
+                {
+                    continue;
+                }
+
                 var productImage = new ProductImages
                 {
                     ProductID = idProduct,
                     ImageURL = image,
-                    IsPrimary = primary == 1 ? true: false,
-                    CreatedAt = DateTime.Now,
+                    IsPrimary = (length == 0) ,
+                    CreatedAt = DateTime.Now
                 };
+
                 images.Add(productImage);
                 primary++;
+                length++;
             }
             var imageData = await productImageRepository.CreateImagesAsync(images);
             var result = mapper.Map<IEnumerable<ProductImageDTO>>(imageData);
