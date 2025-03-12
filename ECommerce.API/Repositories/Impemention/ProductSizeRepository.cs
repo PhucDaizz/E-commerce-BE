@@ -120,5 +120,23 @@ namespace ECommerce.API.Repositories.Impemention
             await dbContext.SaveChangesAsync();
             return existing;
         }
+
+        public async Task<bool> UpdateRangeAsync(IEnumerable<CartItems> cartItems)
+        {
+            List<ProductSizes> productSizesUpdate = new List<ProductSizes>();
+            foreach (var item in cartItems)
+            {
+                var productSize = await dbContext.ProductSizes.FirstOrDefaultAsync(x => x.ProductSizeID == item.ProductSizeID);
+                if(productSize == null)
+                {
+                    return false;
+                }
+                productSize.Stock -= item.Quantity;
+                productSizesUpdate.Add(productSize);
+            }
+            dbContext.ProductSizes.UpdateRange(productSizesUpdate);
+            await dbContext.SaveChangesAsync();
+            return true;
+        }
     }
 }

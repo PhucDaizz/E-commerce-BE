@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using System.Net;
 using System.Reflection.Metadata;
 
@@ -24,14 +25,16 @@ namespace ECommerce.API.Controllers
         private readonly AuthDbContext dbContext;
         private readonly IMapper mapper;
         private readonly IEmailServices emailServices;
+        private readonly IAuthRepository authRepository;
 
-        public AuthController(ITokenRepository tokenRepository, UserManager<ExtendedIdentityUser> userManager, AuthDbContext dbContext, IMapper mapper, IEmailServices emailServices)
+        public AuthController(ITokenRepository tokenRepository, UserManager<ExtendedIdentityUser> userManager, AuthDbContext dbContext, IMapper mapper, IEmailServices emailServices, IAuthRepository authRepository)
         {
             this.tokenRepository = tokenRepository;
             this.userManager = userManager;
             this.dbContext = dbContext;
             this.mapper = mapper;
             this.emailServices = emailServices;
+            this.authRepository = authRepository;
         }
 
         [HttpPost]
@@ -101,16 +104,16 @@ namespace ECommerce.API.Controllers
         [HttpPost]
         [Route("RegisterAdmin")]
         [Authorize(Roles = "SuperAdmin")]
-        public async Task<IActionResult> RegisterAdmin([FromBody]RegisterAdminDTO registerAdminDTO)
+        public async Task<IActionResult> RegisterAdmin([FromBody] RegisterRequestDto registerAdminDTO)
         {
             var admin = new ExtendedIdentityUser
             {
-                UserName = registerAdminDTO.Email?.Trim(),
+                UserName = registerAdminDTO.UserName?.Trim(),
                 Email = registerAdminDTO.Email?.Trim(),
                 PhoneNumber = registerAdminDTO.PhoneNumber?.Trim(),
             };
 
-            var identityResult =  await userManager.CreateAsync(admin, registerAdminDTO.Password);
+            var identityResult = await userManager.CreateAsync(admin, registerAdminDTO.Password);
 
             if (identityResult.Succeeded)
             {
@@ -205,7 +208,42 @@ namespace ECommerce.API.Controllers
             var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
             var encodedToken = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(token));
             var confirmationLink = $"http://localhost:5173/verifyemail?userId={user.Id}&token={encodedToken}";
-            await emailServices.SendEmailAsync(email, "Confirm Your Email", $"Please confirm your account by <a href='{confirmationLink}'>clicking here</a>;.", true);
+
+            string htmlBody = $@"
+                <!DOCTYPE html>
+                <html lang=""vi"">
+                <head>
+                    <meta charset=""UTF-8"">
+                    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+                    <title>Xác nhận tài khoản của bạn</title>
+                </head>
+                <body style=""font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;"">
+                    <div style=""width: 100%; max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);"">
+                        <!-- Tiêu đề -->
+                        <div style=""text-align: center; padding: 20px 0;"">
+                            <h1 style=""color: #333333; font-size: 24px; margin: 0;"">Xác nhận tài khoản của bạn</h1>
+                        </div>
+            
+                        <!-- Nội dung chính -->
+                        <div style=""padding: 20px; text-align: center;"">
+                            <p style=""color: #666666; font-size: 16px; line-height: 1.5;"">Kính gửi quý khách,</p>
+                            <p style=""color: #666666; font-size: 16px; line-height: 1.5;"">Để hoàn tất quá trình đăng ký tài khoản của bạn, vui lòng xác nhận địa chỉ email bằng cách nhấp vào nút bên dưới:</p>
+                            <a href=""{confirmationLink}"" style=""display: inline-block; padding: 10px 20px; background-color: #007BFF; color: #ffffff; text-decoration: none; border-radius: 5px; font-size: 16px; margin: 20px 0;"">Xác nhận email</a>
+                            <p style=""color: #666666; font-size: 16px; line-height: 1.5;"">Nếu bạn không thực hiện yêu cầu đăng ký này, xin vui lòng bỏ qua email.</p>
+                        </div>
+            
+                        <!-- Footer -->
+                        <div style=""text-align: center; padding: 20px; font-size: 12px; color: #999999;"">
+                            <p>Trân trọng,<br>[Tên công ty của bạn]</p>
+                            <p>Nếu bạn cần hỗ trợ, vui lòng liên hệ với chúng tôi qua <a href=""mailto:support@yourcompany.com"" style=""color: #007BFF; text-decoration: none;"">support@yourcompany.com</a>.</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                ";
+
+
+            await emailServices.SendEmailAsync(email, "PhucDaiStore - Xác nhận eamil của bạn", htmlBody, true);
         }
 
         [Authorize]
@@ -248,7 +286,35 @@ namespace ECommerce.API.Controllers
 
             var callback = QueryHelpers.AddQueryString(forgotPasswordDTO.ClientUrl, param);
 
-            await emailServices.SendEmailAsync(forgotPasswordDTO.Email, "Reset Password", $"Please reset your password by <a href='{callback}'>clicking here</a>.", true);
+            string htmlBody = $@"
+                <!DOCTYPE html>
+                <html lang=""vi"">
+                <head>
+                    <meta charset=""UTF-8"">
+                    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+                    <title>Đặt lại mật khẩu của bạn</title>
+                </head>
+                <body style=""font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;"">
+                    <div style=""width: 100%; max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);"">
+                        <div style=""text-align: center; padding: 20px 0;"">
+                            <h1 style=""color: #333333; font-size: 24px; margin: 0;"">Đặt lại mật khẩu của bạn</h1>
+                        </div>
+                        <div style=""padding: 20px; text-align: center;"">
+                            <p style=""color: #666666; font-size: 16px; line-height: 1.5;"">Kính gửi quý khách,</p>
+                            <p style=""color: #666666; font-size: 16px; line-height: 1.5;"">Bạn đã yêu cầu đặt lại mật khẩu cho tài khoản của mình. Vui lòng nhấp vào nút bên dưới để tiến hành:</p>
+                            <a href=""{callback}"" style=""display: inline-block; padding: 10px 20px; background-color: #007BFF; color: #ffffff; text-decoration: none; border-radius: 5px; font-size: 16px; margin: 20px 0;"">Đặt lại mật khẩu</a>
+                            <p style=""color: #666666; font-size: 16px; line-height: 1.5;"">Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này.</p>
+                        </div>
+                        <div style=""text-align: center; padding: 20px; font-size: 12px; color: #999999;"">
+                            <p>Trân trọng,<br>[Tên công ty của bạn]</p>
+                            <p>Nếu bạn cần hỗ trợ, vui lòng liên hệ qua <a href=""mailto:support@yourcompany.com"" style=""color: #007BFF; text-decoration: none;"">support@yourcompany.com</a>.</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                ";
+
+            await emailServices.SendEmailAsync(forgotPasswordDTO.Email, "PhucDaiStore - Đặt lại mật khẩu", htmlBody, true);
 
             return Ok("Email has been sent");
         }
@@ -277,14 +343,14 @@ namespace ECommerce.API.Controllers
             else
             {
                 var erroes = result.Errors.Select(x => x.Description);
-                return BadRequest(new { Errors = erroes });  
+                return BadRequest(new { Errors = erroes });
             }
         }
 
 
         [HttpPost("updateinfor")]
         [Authorize]
-        public async Task<IActionResult> UpdateInfor([FromBody]UpdateInforDTO updateInforDTO)
+        public async Task<IActionResult> UpdateInfor([FromBody] UpdateInforDTO updateInforDTO)
         {
             if (!ModelState.IsValid)
             {
@@ -313,5 +379,25 @@ namespace ECommerce.API.Controllers
             }
         }
 
+        [HttpGet("GetInforById")]
+        [Authorize(Roles = "Admin, SuperAdmin")]
+        public async Task<IActionResult> GetInforByID([FromQuery]Guid id)
+        {
+            var user = await userManager.FindByIdAsync(id.ToString());
+            if (user == null)
+            {
+                return BadRequest("User not found");
+            }
+            var result = mapper.Map<InforDTO>(user);
+            return Ok(result);
+        }
+
+        [HttpGet("GetAllUser")]
+        [Authorize(Roles = "Admin, SuperAdmin")]
+        public async Task<IActionResult> GetAllUser([FromQuery]string? querySearch,[FromQuery]string searchField = "Email",[FromQuery]int page = 1,[FromQuery]int itemInPage = 10)
+        {
+            var users = await authRepository.ListUserAsync(querySearch,searchField,page,itemInPage);
+            return Ok(users);
+        }
     }
 }

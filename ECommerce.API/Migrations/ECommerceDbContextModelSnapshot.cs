@@ -425,35 +425,37 @@ namespace ECommerce.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("ActualDeliveryDate")
+                    b.Property<DateTime?>("ActualDeliveryDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("EstimatedDeliveryDate")
+                    b.Property<DateTime?>("EstimatedDeliveryDate")
                         .HasColumnType("datetime2");
 
                     b.Property<Guid>("OrderID")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ShippingAddress")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("ShippingFee")
+                        .HasColumnType("int");
+
                     b.Property<string>("ShippingMethod")
-                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ShippingServicesID")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ShippingStatus")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TrackingNumber")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("ShippingID");

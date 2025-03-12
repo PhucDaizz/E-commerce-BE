@@ -1,4 +1,5 @@
 ﻿using ECommerce.API.Models.DTO.Product;
+using ECommerce.API.Models.DTO.ProductSize;
 
 namespace ECommerce.API.Models.DTO.CartItem
 {
@@ -8,7 +9,7 @@ namespace ECommerce.API.Models.DTO.CartItem
         public int ProductID { get; set; }
         public int Quantity { get; set; }
         public int ProductSizeID { get; set; }
-
         public ProductImageCartDTO productDTO { get; set; }
+        public ProductSizeDTO productSizeDTO { get; set; }
     }
 }

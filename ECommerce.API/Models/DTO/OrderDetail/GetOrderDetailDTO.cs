@@ -9,6 +9,6 @@ namespace ECommerce.API.Models.DTO.OrderDetail
         public int ProductID { get; set; }
         public int Quantity { get; set; }
         public double UnitPrice { get; set; }
-        public ProductDTO ProductDTO { get; set; }
+        public ProductImageCartDTO ProductDTO { get; set; }
     }
 }

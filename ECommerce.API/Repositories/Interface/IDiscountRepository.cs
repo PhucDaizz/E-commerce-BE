@@ -12,5 +12,6 @@ namespace ECommerce.API.Repositories.Interface
         Task<Discounts?> UpdateAsync(Discounts discounts);
         Task<Discounts?> DeleteAsync(int id);
         Task<Discounts?> GetDiscountByCodeAsync(string code);
+        Task<Discounts?> ActiveAsync(int discountId);
     }
 }

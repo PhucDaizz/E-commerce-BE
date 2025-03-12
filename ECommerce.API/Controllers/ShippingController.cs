@@ -1,10 +1,13 @@
 ﻿using AutoMapper;
+using ECommerce.API.Data;
 using ECommerce.API.Models.Domain;
 using ECommerce.API.Models.DTO.Shipping;
 using ECommerce.API.Repositories.Interface;
+using ECommerce.API.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ECommerce.API.Controllers
 {
@@ -14,11 +17,15 @@ namespace ECommerce.API.Controllers
     {
         private readonly IShippingRepository shippingRepository;
         private readonly IMapper mapper;
+        private readonly ECommerceDbContext dbContext;
+        private readonly IShippingServices shippingServices;
 
-        public ShippingController(IShippingRepository shippingRepository, IMapper mapper)
+        public ShippingController(IShippingRepository shippingRepository, IMapper mapper, ECommerceDbContext dbContext, IShippingServices shippingServices)
         {
             this.shippingRepository = shippingRepository;
             this.mapper = mapper;
+            this.dbContext = dbContext;
+            this.shippingServices = shippingServices;
         }
 
         [HttpPost]
@@ -48,5 +55,17 @@ namespace ECommerce.API.Controllers
             }
         }
 
+        [HttpPut]
+        [Authorize(Roles ="SuperAdmin, Admin")]
+        [Route("{orderId:Guid}")]
+        public async Task<IActionResult> Update([FromRoute]Guid orderId, [FromBody]UpdateShippingDTO updateShippingDTO)
+        {
+            var shipping = await shippingServices.UpdateShippingAfterCreateAsync(orderId, updateShippingDTO);
+            if (shipping == null)
+            {
+                return NotFound("OrderId is not existing");
+            }
+            return Ok(mapper.Map<ShippingDTO>(shipping));
+        }
     }
 }

@@ -13,5 +13,6 @@ namespace ECommerce.API.Repositories.Interface
         Task<ProductSizes?> AddAsync(ProductSizes productSizes);
         Task<bool> DeleteByColorIDAsync(int colorID);
         Task<ProductSizes?> DeleteByColorAndSizeAsync(int colorID, string size);
+        Task<bool> UpdateRangeAsync(IEnumerable<CartItems> cartItems);
     }
 }

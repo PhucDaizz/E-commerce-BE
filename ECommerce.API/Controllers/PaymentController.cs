@@ -133,6 +133,35 @@ namespace ECommerce.API.Controllers
             return NotFound("Không tìm thấy thông tin thanh toán.");
         }
 
+
+        [HttpPost("PaymentCOD")]
+        [Authorize]
+        public async Task<IActionResult> PaymentCOD([FromBody]int? discountId)
+        {
+           try
+           {
+                var userIdClaim = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
+                if (userIdClaim == null)
+                {
+                    return Unauthorized("Please login again!.");
+                }
+                var userId = Guid.Parse(userIdClaim.Value);
+
+                var paymentResult = await paymentServices.processPaymentCOD(userId, discountId);
+
+                if (paymentResult.IsSuccess)
+                {
+                    return Ok(paymentResult.Message);
+                }
+
+                return BadRequest(paymentResult.Message);
+           }
+           catch (Exception ex)
+           {
+                return BadRequest(ex.Message);
+           }
+        }
+
         /*Do Second*/
         [HttpGet("Callback")]
         public ActionResult<string> Callback()

@@ -4,6 +4,8 @@
     {
         public Guid ShippingID { get; set; }
         public Guid OrderID { get; set; }
+        public string? ShippingServicesID { get; set; }
+        public int? ShippingFee { get; set; }
         public string ShippingMethod { get; set; } // Standard, Express
         public string ShippingAddress { get; set; }
         public string TrackingNumber { get; set; }

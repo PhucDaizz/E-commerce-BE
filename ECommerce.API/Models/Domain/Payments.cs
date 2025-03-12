@@ -10,7 +10,7 @@ namespace ECommerce.API.Models.Domain
         public Guid PaymentID { get; set; } // ID thanh toán
         public Guid OrderID { get; set; }  // Liên kết đến đơn hàng
         public Guid UserID { get; set; }   // Liên kết đến người dùng
-        public int PaymentMethodID { get; set; } // ID phương thức thanh toán
+        public int PaymentMethodID { get; set; } // ID phương thức thanh toán 1: VNPAY, 2: COD
         public string PaymentStatus { get; set; } // Trạng thái (Pending, Completed, Failed)
         public string? TransactionID { get; set; } // Mã giao dịch từ cổng thanh toán
         public double AmountPaid { get; set; }    // Tổng tiền đã thanh toán

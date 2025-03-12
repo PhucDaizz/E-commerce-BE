@@ -56,7 +56,9 @@ namespace ECommerce.API.Mapping
             CreateMap<AddCartItemDTO, CartItems>().ReverseMap();
             CreateMap<EditCartItemDTO, CartItems>().ReverseMap();
             CreateMap<CartItemDTO, CartItems>().ReverseMap();
-            CreateMap<CartItems, CartItemListDTO>().ForMember(dest => dest.productDTO, opt => opt.MapFrom(src => src.Products));
+            CreateMap<CartItems, CartItemListDTO>()
+                .ForMember(dest => dest.productDTO, opt => opt.MapFrom(src => src.Products))
+                .ForMember(dest => dest.productSizeDTO, opt => opt.MapFrom(src => src.ProductSizes));
 
 
             // Discount
@@ -84,6 +86,7 @@ namespace ECommerce.API.Mapping
             // Shipping
             CreateMap<CreateShippingDTO, Shippings>().ReverseMap();
             CreateMap<ShippingDTO, Shippings>().ReverseMap();
+            CreateMap<UpdateShippingDTO, Shippings>().ReverseMap();
 
             //User
             CreateMap<ExtendedIdentityUser, InforDTO>().ReverseMap();

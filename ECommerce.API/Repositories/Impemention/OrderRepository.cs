@@ -54,10 +54,10 @@ namespace ECommerce.API.Repositories.Impemention
                 case "totalamount": 
                     query = isDESC ? query.OrderByDescending(x => x.TotalAmount) : query.OrderBy(x => x.TotalAmount); 
                     break;
-                case "error":
+                case "pending":
                     query = isDESC ? query.Where(x => x.Status == 0).OrderByDescending(x => x.OrderDate) : query.Where(x => x.Status == 0);
                     break;
-                case "pending":
+                case "error":
                     query = isDESC ? query.Where(x => x.Status == 1).OrderByDescending(x => x.OrderDate) : query.Where(x => x.Status == 1);
                     break;
                 case "completed":
@@ -65,6 +65,9 @@ namespace ECommerce.API.Repositories.Impemention
                     break;
                 case "cancel":
                     query = isDESC ? query.Where(x => x.Status == 3).OrderByDescending(x => x.OrderDate) : query.Where(x => x.Status == 3);
+                    break;
+                case "confirmed":
+                    query = isDESC ? query.Where(x => x.Status == 4).OrderByDescending(x => x.OrderDate) : query.Where(x => x.Status == 4);
                     break;
                 default: 
                     query = isDESC ? query.OrderByDescending(x => x.OrderDate) : query.OrderBy(x => x.OrderDate); 
@@ -86,7 +89,7 @@ namespace ECommerce.API.Repositories.Impemention
 
         public async Task<IEnumerable<Orders>?> GetAllByUserIdAsync(Guid userId)
         {
-            var orders = await dbContext.Orders.Where(o => o.UserID == userId).ToListAsync();
+            var orders = await dbContext.Orders.Where(o => o.UserID == userId).OrderByDescending(x => x.OrderDate).ToListAsync();
             if (!orders.Any() || orders == null)
             {
                 return null;
@@ -121,12 +124,30 @@ namespace ECommerce.API.Repositories.Impemention
                             .Include(x => x.Shippings)
                             .Include(x => x.OrderDetails)
                                 .ThenInclude(x => x.Products)
+                                    .ThenInclude(pd => pd.ProductImages)
                             .FirstOrDefaultAsync(x => x.OrderID == id);
             if (existing == null)
             {
                 return null;
             }
             return existing;
+        }
+
+        public async Task<Orders?> UpdateOrderStatus(Guid id, int status)
+        {
+            var existing = await dbContext.Orders.FirstOrDefaultAsync(x => x.OrderID == id);
+            if(existing == null)
+            {
+                return null;
+            }
+            if(status >= 0 && status <= 4 && status != 1 )
+            {
+                existing.Status = status;
+                dbContext.Entry(existing).CurrentValues.SetValues(existing);
+                await dbContext.SaveChangesAsync(); 
+                return existing;
+            }
+            return null;
         }
     }
 }

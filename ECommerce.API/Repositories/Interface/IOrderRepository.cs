@@ -13,5 +13,6 @@ namespace ECommerce.API.Repositories.Interface
         Task<IEnumerable<Orders>?> GetAllByUserIdAsync(Guid userId);
         Task<PagedResult<Orders>> GetAllAsync([FromQuery] Guid? userId, [FromQuery] string? sortBy, [FromQuery] bool isDESC = true, [FromQuery]int page = 1, [FromQuery]int itemInPage = 10);
         Task<Orders?> GetByIdAdminAsync(Guid id);
+        Task<Orders?> UpdateOrderStatus(Guid id, int status); 
     }
 }

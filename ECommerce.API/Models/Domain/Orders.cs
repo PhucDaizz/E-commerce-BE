@@ -11,9 +11,9 @@ namespace ECommerce.API.Models.Domain
         public int? DiscountID { get; set; }
         public DateTime OrderDate { get; set; }
         public double TotalAmount { get; set; }
-        public int PaymentMethodID { get; set; } // 1 = Cash, 2 = CreditCard, 3 = PayPal, ...
+        public int PaymentMethodID { get; set; } // 1 = VNPay, 2 = Cash, 3 = PayPal, ...
 
-        public int Status { get; set; } // 1 = Pending , 2 = Confirmed, 3 = Cancelled, 4 = Completed 
+        public int Status { get; set; } // 0 = Pending , 1 = error, 2 = Completed, 3 = Cancelled, 4 = Confirmed
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
 

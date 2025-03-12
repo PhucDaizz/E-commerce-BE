@@ -48,6 +48,8 @@ builder.Services.AddScoped<IPaymentMethodRepository, PaymentMethodRepository>();
 builder.Services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IProductReviewRepository, ProductReviewRepository>();
+builder.Services.AddScoped<IShippingRepository, ShippingRepository>();
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddSingleton<IVnpay, Vnpay>();
 
 
@@ -61,6 +63,8 @@ builder.Services.AddScoped<IDiscountServices, DiscountServices>();
 builder.Services.AddScoped<IProductReviewServices, ProductReviewServices>();
 builder.Services.AddScoped<IProductSizeServices, ProductSizeServices>();
 builder.Services.AddScoped<IEmailServices, EmailServices>();
+builder.Services.AddScoped<IShippingServices, ShippingServices>();
+builder.Services.AddScoped<IDashboardServices, DashboardServices>();
 
 
 builder.Services.AddCors(options =>
