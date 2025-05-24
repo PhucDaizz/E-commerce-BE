@@ -9,5 +9,6 @@ namespace ECommerce.API.Repositories.Interface
         Task<CartItems?> DeleteAsync(CartItems cartItems);
         Task<IEnumerable<CartItems>?> GetAllAsync(Guid UserID);
         Task<bool> DeleteAllByUserIDAsync(Guid UserID);
+        Task<bool> ClearAllByProductIDAsync(int ProductID);
     }
 }

@@ -9,13 +9,11 @@ namespace ECommerce.API.Repositories.Impemention
 {
     public class ProductReviewRepository : IProductReviewRepository
     {
-        private readonly ECommerceDbContext dbContext;
-        private readonly AuthDbContext authDbContext;
+        private readonly AppDbContext dbContext;
 
-        public ProductReviewRepository(ECommerceDbContext dbContext, AuthDbContext authDbContext)
+        public ProductReviewRepository(AppDbContext dbContext)
         {
             this.dbContext = dbContext;
-            this.authDbContext = authDbContext;
         }
         public async Task<ProductReviews> CreateAsync(ProductReviews productReview)
         {
@@ -47,7 +45,7 @@ namespace ECommerce.API.Repositories.Impemention
 
             var userIds = productReviews.Select(x => x.UserID.ToString()).Distinct();
 
-            var users = await authDbContext.Users
+            var users = await dbContext.Users
                                    .Where(user => userIds.Contains(user.Id))
                                    .ToDictionaryAsync(user => user.Id, user => user.UserName);
 

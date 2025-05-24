@@ -8,9 +8,9 @@ namespace ECommerce.API.Repositories.Impemention
 {
     public class CategoryRepository : ICategoryRepository
     {
-        private readonly ECommerceDbContext dbContext;
+        private readonly AppDbContext dbContext;
 
-        public CategoryRepository(ECommerceDbContext dbContext)
+        public CategoryRepository(AppDbContext dbContext)
         {
             this.dbContext = dbContext;
         }

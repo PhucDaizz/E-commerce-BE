@@ -1,4 +1,6 @@
-﻿namespace ECommerce.API.Models.DTO.Order
+﻿using ECommerce.API.Models.DTO.Shipping;
+
+namespace ECommerce.API.Models.DTO.Order
 {
     public class OrderDTO
     {
@@ -9,5 +11,6 @@
         public int Status { get; set; } // 1 = Pending , 2 = Confirmed, 3 = Cancelled, 4 = Completed 
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public ShippingDTO? Shipping { get; set; }
     }
 }

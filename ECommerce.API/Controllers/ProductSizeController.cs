@@ -14,12 +14,12 @@ namespace ECommerce.API.Controllers
     [ApiController]
     public class ProductSizeController : ControllerBase
     {
-        private readonly ECommerceDbContext dbContext;
+        private readonly AppDbContext dbContext;
         private readonly IProductSizeRepository productSizeRepository;
         private readonly IMapper mapper;
         private readonly IProductSizeServices productSizeServices;
 
-        public ProductSizeController(ECommerceDbContext dbContext, IProductSizeRepository productSizeRepository, IMapper mapper, IProductSizeServices productSizeServices)
+        public ProductSizeController(AppDbContext dbContext, IProductSizeRepository productSizeRepository, IMapper mapper, IProductSizeServices productSizeServices)
         {
             this.dbContext = dbContext;
             this.productSizeRepository = productSizeRepository;

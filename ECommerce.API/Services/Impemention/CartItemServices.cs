@@ -11,13 +11,13 @@ namespace ECommerce.API.Services.Impemention
 {
     public class CartItemServices : ICartItemServices
     {
-        private readonly ECommerceDbContext dbContext;
+        private readonly AppDbContext dbContext;
         private readonly ICartItemRepository cartItemRepository;
         private readonly IMapper mapper;
         private readonly IProductSizeRepository productSizeRepository;
         private readonly IProductColorRepository productColorRepository;
 
-        public CartItemServices(ECommerceDbContext dbContext, ICartItemRepository cartItemRepository, IMapper mapper, IProductSizeRepository productSizeRepository, IProductColorRepository productColorRepository)
+        public CartItemServices(AppDbContext dbContext, ICartItemRepository cartItemRepository, IMapper mapper, IProductSizeRepository productSizeRepository, IProductColorRepository productColorRepository)
         {
             this.dbContext = dbContext;
             this.cartItemRepository = cartItemRepository;

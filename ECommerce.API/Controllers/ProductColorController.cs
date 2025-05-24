@@ -15,12 +15,12 @@ namespace ECommerce.API.Controllers
     [ApiController]
     public class ProductColorController : ControllerBase
     {
-        private readonly ECommerceDbContext dbContext;
+        private readonly AppDbContext dbContext;
         private readonly IMapper mapper;
         private readonly IProductColorRepository productColorRepository;
         private readonly IProductColorServices productColorServices;
 
-        public ProductColorController(ECommerceDbContext dbContext, IMapper mapper, IProductColorRepository productColorRepository, IProductColorServices productColorServices)
+        public ProductColorController(AppDbContext dbContext, IMapper mapper, IProductColorRepository productColorRepository, IProductColorServices productColorServices)
         {
             this.dbContext = dbContext;
             this.mapper = mapper;

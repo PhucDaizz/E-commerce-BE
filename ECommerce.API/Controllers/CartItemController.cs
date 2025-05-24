@@ -17,12 +17,12 @@ namespace ECommerce.API.Controllers
     [ApiController]
     public class CartItemController : ControllerBase
     {
-        private readonly ECommerceDbContext dbContext;
+        private readonly AppDbContext dbContext;
         private readonly ICartItemRepository cartItemRepository;
         private readonly IMapper mapper;
         private readonly ICartItemServices cartItemServices;
 
-        public CartItemController(ECommerceDbContext dbContext, ICartItemRepository cartItemRepository, IMapper mapper, ICartItemServices cartItemServices)
+        public CartItemController(AppDbContext dbContext, ICartItemRepository cartItemRepository, IMapper mapper, ICartItemServices cartItemServices)
         {
             this.dbContext = dbContext;
             this.cartItemRepository = cartItemRepository;

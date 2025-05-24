@@ -24,12 +24,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfie));
 
-builder.Services.AddDbContext<ECommerceDbContext>(options =>
-{                               
-    options.UseSqlServer(builder.Configuration.GetConnectionString("ECommerceConnectionstring"));
-});
-
-builder.Services.AddDbContext<AuthDbContext>(options =>
+builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("ECommerceConnectionstring"));
 });
@@ -82,7 +77,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddIdentityCore<ExtendedIdentityUser>()
     .AddRoles<IdentityRole>()
     .AddTokenProvider<DataProtectorTokenProvider<ExtendedIdentityUser>>("PhucDai")
-    .AddEntityFrameworkStores<AuthDbContext>()
+    .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
 builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>

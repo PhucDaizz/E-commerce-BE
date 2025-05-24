@@ -11,10 +11,10 @@ namespace ECommerce.API.Controllers
     [ApiController]
     public class DashboardController : ControllerBase
     {
-        private readonly ECommerceDbContext dbContext;
+        private readonly AppDbContext dbContext;
         private readonly IDashboardServices dashboardServices;
 
-        public DashboardController(ECommerceDbContext dbContext, IDashboardServices dashboardServices)
+        public DashboardController(AppDbContext dbContext, IDashboardServices dashboardServices)
         {
             this.dbContext = dbContext;
             this.dashboardServices = dashboardServices;

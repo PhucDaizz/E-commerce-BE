@@ -9,9 +9,9 @@ namespace ECommerce.API.Services.Impemention
     public class ProductSizeServices : IProductSizeServices
     {
         private readonly IProductSizeRepository productSizeRepository;
-        private readonly ECommerceDbContext dbContext;
+        private readonly AppDbContext dbContext;
 
-        public ProductSizeServices(IProductSizeRepository productSizeRepository, ECommerceDbContext dbContext)
+        public ProductSizeServices(IProductSizeRepository productSizeRepository, AppDbContext dbContext)
         {
             this.productSizeRepository = productSizeRepository;
             this.dbContext = dbContext;

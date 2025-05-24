@@ -12,12 +12,12 @@ namespace ECommerce.API.Services.Impemention
 {
     public class ProductColorServices : IProductColorServices
     {
-        private readonly ECommerceDbContext dbContext;
+        private readonly AppDbContext dbContext;
         private readonly IProductColorRepository productColorRepository;
         private readonly IProductSizeRepository productSizeRepository;
         private readonly IMapper mapper;
 
-        public ProductColorServices(ECommerceDbContext dbContext, IProductColorRepository productColorRepository, IProductSizeRepository productSizeRepository, IMapper mapper)
+        public ProductColorServices(AppDbContext dbContext, IProductColorRepository productColorRepository, IProductSizeRepository productSizeRepository, IMapper mapper)
         {
             this.dbContext = dbContext;
             this.productColorRepository = productColorRepository;

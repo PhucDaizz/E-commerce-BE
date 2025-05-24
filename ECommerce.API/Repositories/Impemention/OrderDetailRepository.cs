@@ -9,9 +9,9 @@ namespace ECommerce.API.Repositories.Impemention
 {
     public class OrderDetailRepository : IOrderDetailRepository
     {
-        private readonly ECommerceDbContext dbContext;
+        private readonly AppDbContext dbContext;
 
-        public OrderDetailRepository(ECommerceDbContext dbContext)
+        public OrderDetailRepository(AppDbContext dbContext)
         {
             this.dbContext = dbContext;
         }

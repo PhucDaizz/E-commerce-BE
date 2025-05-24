@@ -10,10 +10,10 @@ namespace ECommerce.API.Repositories.Impemention
 {
     public class ProductColorRepository : IProductColorRepository
     {
-        private readonly ECommerceDbContext dbContext;
+        private readonly AppDbContext dbContext;
         private readonly IMapper mapper;
 
-        public ProductColorRepository(ECommerceDbContext dbContext, IMapper mapper)
+        public ProductColorRepository(AppDbContext dbContext, IMapper mapper)
         {
             this.dbContext = dbContext;
             this.mapper = mapper;
@@ -86,6 +86,29 @@ namespace ECommerce.API.Repositories.Impemention
             await dbContext.ProductColors.AddRangeAsync(productColors);
             await dbContext.SaveChangesAsync();
             return productColors;
+        }
+
+        public async Task<bool> DeleteProductColorSizeAsync(int productId)
+        {
+             var colors = await dbContext.ProductColors
+                .Include(x => x.ProductSizes)
+                .Where(x => x.ProductID == productId)
+                .ToListAsync();
+
+            if (colors == null)
+            {
+                return false;
+            }
+
+            foreach (var color in colors)
+            {
+                dbContext.ProductSizes.RemoveRange(color.ProductSizes);
+                dbContext.ProductColors.Remove(color);
+            }
+
+            await dbContext.SaveChangesAsync();
+
+            return true;
         }
     }
 }

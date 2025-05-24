@@ -22,7 +22,7 @@ namespace ECommerce.API.Services.Impemention
         private readonly IDiscountServices discountServices;
         private readonly IOrderDetailRepository orderDetailRepository;
         private readonly IMapper mapper;
-        private readonly ECommerceDbContext dbContext;
+        private readonly AppDbContext dbContext;
         private readonly UserManager<ExtendedIdentityUser> userManager;
         private readonly IShippingRepository shippingRepository;
         private readonly IProductSizeRepository productSizeRepository;
@@ -30,7 +30,7 @@ namespace ECommerce.API.Services.Impemention
         public PaymentServices(IPaymentRepository paymentRepository,IDiscountRepository discountRepository, 
                             ICartItemRepository cartItemRepository, IOrderRepository orderRepository, 
                             IDiscountServices discountServices, IOrderDetailRepository orderDetailRepository,
-                            IMapper mapper, ECommerceDbContext dbContext, UserManager<ExtendedIdentityUser> userManager,
+                            IMapper mapper, AppDbContext dbContext, UserManager<ExtendedIdentityUser> userManager,
                             IShippingRepository shippingRepository, IProductSizeRepository productSizeRepository)
         {
             this.paymentRepository = paymentRepository;

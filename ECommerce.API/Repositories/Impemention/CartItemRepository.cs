@@ -7,12 +7,25 @@ namespace ECommerce.API.Repositories.Impemention
 {
     public class CartItemRepository : ICartItemRepository
     {
-        private readonly ECommerceDbContext dbContext;
+        private readonly AppDbContext dbContext;
 
-        public CartItemRepository(ECommerceDbContext dbContext)
+        public CartItemRepository(AppDbContext dbContext)
         {
             this.dbContext = dbContext;
         }
+
+        public async Task<bool> ClearAllByProductIDAsync(int ProductID)
+        {
+            var products = await dbContext.CartItems.Where(x => x.ProductID == ProductID).ToListAsync();
+            if (products.Any())
+            {
+                dbContext.CartItems.RemoveRange(products);
+                await dbContext.SaveChangesAsync();
+                return true;
+            }
+            return false;    
+        }
+
         public async Task<CartItems> CreateAsync(CartItems cartItems)
         {
             await dbContext.CartItems.AddAsync(cartItems);

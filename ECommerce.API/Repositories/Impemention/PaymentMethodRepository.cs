@@ -7,9 +7,9 @@ namespace ECommerce.API.Repositories.Impemention
 {
     public class PaymentMethodRepository : IPaymentMethodRepository
     {
-        private readonly ECommerceDbContext dbContext;
+        private readonly AppDbContext dbContext;
 
-        public PaymentMethodRepository(ECommerceDbContext dbContext)
+        public PaymentMethodRepository(AppDbContext dbContext)
         {
             this.dbContext = dbContext;
         }

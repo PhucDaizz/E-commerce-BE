@@ -32,8 +32,12 @@ namespace ECommerce.API.Mapping
             CreateMap<EditProductDTO, Products>().ReverseMap();
             CreateMap<DetailProductDTO, Products>().ReverseMap();
             CreateMap<ProductDTO, Products>().ReverseMap();
-            CreateMap<Products, ListProductDTO>().ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.ProductImages));
+            CreateMap<Products, ListProductDTO>()
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.ProductImages));
             CreateMap<Products, ProductImageCartDTO>().ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.ProductImages));
+            CreateMap<Products, ListProductAdminDTO>()
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.ProductImages))
+                .ForMember(dest => dest.TotalQuantity, opt => opt.MapFrom(src => src.ProductColors.SelectMany(x => x.ProductSizes).Sum(x => x.Stock)));
 
             // ProductColor
             CreateMap<CreateProductColorDTO, ProductColors>().ReverseMap();
@@ -68,7 +72,8 @@ namespace ECommerce.API.Mapping
 
             // Order
             CreateMap<CreateOrderDTO, Orders>().ReverseMap();
-            CreateMap<OrderDTO, Orders>().ReverseMap();
+            CreateMap<Orders, OrderDTO>()
+                .ForMember(dest => dest.Shipping, opt => opt.MapFrom(src => src.Shippings.OrderBy(x => x.UpdatedAt).LastOrDefault()));
             CreateMap<OrderDetailDTO, Orders>().ReverseMap();
             CreateMap<Orders, GetDetailOrderDTO>()
                    .ForMember(dest => dest.PaymentDTO, opt => opt.MapFrom(src => src.Payments))

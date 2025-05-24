@@ -8,9 +8,9 @@ namespace ECommerce.API.Repositories.Impemention
 {
     public class ShippingRepository : IShippingRepository
     {
-        private readonly ECommerceDbContext dbContext;
+        private readonly AppDbContext dbContext;
 
-        public ShippingRepository(ECommerceDbContext dbContext, IOrderRepository orderRepository)
+        public ShippingRepository(AppDbContext dbContext, IOrderRepository orderRepository)
         {
             this.dbContext = dbContext;
         }

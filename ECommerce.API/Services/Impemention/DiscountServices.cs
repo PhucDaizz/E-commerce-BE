@@ -9,9 +9,9 @@ namespace ECommerce.API.Services.Impemention
     public class DiscountServices : IDiscountServices
     {
         private readonly IDiscountRepository discountRepository;
-        private readonly ECommerceDbContext dbContext;
+        private readonly AppDbContext dbContext;
 
-        public DiscountServices(IDiscountRepository discountRepository, ECommerceDbContext dbContext)
+        public DiscountServices(IDiscountRepository discountRepository, AppDbContext dbContext)
         {
             this.discountRepository = discountRepository;
             this.dbContext = dbContext;

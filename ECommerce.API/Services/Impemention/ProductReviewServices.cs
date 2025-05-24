@@ -9,9 +9,9 @@ namespace ECommerce.API.Services.Impemention
     public class ProductReviewServices : IProductReviewServices
     {
         private readonly IProductReviewRepository productReviewRepository;
-        private readonly ECommerceDbContext dbContext;
+        private readonly AppDbContext dbContext;
 
-        public ProductReviewServices(IProductReviewRepository productReviewRepository, ECommerceDbContext dbContext)
+        public ProductReviewServices(IProductReviewRepository productReviewRepository, AppDbContext dbContext)
         {
             this.productReviewRepository = productReviewRepository;
             this.dbContext = dbContext;

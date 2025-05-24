@@ -7,9 +7,9 @@ namespace ECommerce.API.Repositories.Impemention
 {
     public class AuthRepository: IAuthRepository
     {
-        private readonly AuthDbContext dbContext;
+        private readonly AppDbContext dbContext;
 
-        public AuthRepository(AuthDbContext dbContext)
+        public AuthRepository(AppDbContext dbContext)
         {
             this.dbContext = dbContext;
         }

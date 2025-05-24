@@ -14,12 +14,12 @@ namespace ECommerce.API.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        private readonly ECommerceDbContext dbContext;
+        private readonly AppDbContext dbContext;
         private readonly IProductRepository productRepository;
         private readonly IMapper mapper;
         private readonly IProductServices productServices;
 
-        public ProductController(ECommerceDbContext dbContext, IProductRepository productRepository, IMapper mapper, IProductServices productServices)
+        public ProductController(AppDbContext dbContext, IProductRepository productRepository, IMapper mapper, IProductServices productServices)
         {
             this.dbContext = dbContext;
             this.productRepository = productRepository;
@@ -80,12 +80,15 @@ namespace ECommerce.API.Controllers
         [Route("delete/{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            var product = await productRepository.DeleteAsync(id);
-            if (product == null)
+            try
             {
-                return BadRequest("Id is not existing!");
+                await productServices.DeleteAsync(id);
+                return Ok("Product is deleted");
             }
-            return Ok(product);
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpGet]
@@ -93,7 +96,7 @@ namespace ECommerce.API.Controllers
         public async Task<IActionResult> GetDetailById([FromRoute] int id)
         {
             var existing = await productServices.GetProductDetailAsync(id);
-            if ( existing == null)
+            if (existing == null)
             {
                 return BadRequest("Id is not existing!");
             }
@@ -113,7 +116,7 @@ namespace ECommerce.API.Controllers
         [HttpPost]
         [Authorize(Roles = "Admin, SuperAdmin")]
         [Route("ToPublic/{productID:int}")]
-        public async Task<IActionResult> ToPublic([FromRoute]int productID)
+        public async Task<IActionResult> ToPublic([FromRoute] int productID)
         {
             var result = await productRepository.ToPublicAync(productID);
             if (!result)
@@ -121,6 +124,19 @@ namespace ECommerce.API.Controllers
                 return BadRequest("Id is not existing!");
             }
             return Ok("Product is public");
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin, SuperAdmin")]
+        [Route("pausesale/{productId:int}")]
+        public async Task<IActionResult> PauseSale([FromRoute] int productId)
+        {
+            var result = await productServices.PauseSalesAsync(productId);
+            if (!result)
+            {
+                return BadRequest("Id is not existing!");
+            }
+            return Ok("Product is paused");
         }
     }
 }

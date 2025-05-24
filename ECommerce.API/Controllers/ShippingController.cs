@@ -17,10 +17,10 @@ namespace ECommerce.API.Controllers
     {
         private readonly IShippingRepository shippingRepository;
         private readonly IMapper mapper;
-        private readonly ECommerceDbContext dbContext;
+        private readonly AppDbContext dbContext;
         private readonly IShippingServices shippingServices;
 
-        public ShippingController(IShippingRepository shippingRepository, IMapper mapper, ECommerceDbContext dbContext, IShippingServices shippingServices)
+        public ShippingController(IShippingRepository shippingRepository, IMapper mapper, AppDbContext dbContext, IShippingServices shippingServices)
         {
             this.shippingRepository = shippingRepository;
             this.mapper = mapper;

@@ -11,10 +11,10 @@ namespace ECommerce.API.Repositories.Impemention
 {
     public class DiscountRepository : IDiscountRepository
     {
-        private readonly ECommerceDbContext dbContext;
+        private readonly AppDbContext dbContext;
         private readonly IMapper mapper;
 
-        public DiscountRepository(ECommerceDbContext dbContext, IMapper mapper)
+        public DiscountRepository(AppDbContext dbContext, IMapper mapper)
         {
             this.dbContext = dbContext;
             this.mapper = mapper;

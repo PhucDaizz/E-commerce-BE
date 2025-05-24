@@ -22,19 +22,19 @@ namespace ECommerce.API.Controllers
     {
         private readonly ITokenRepository tokenRepository;
         private readonly UserManager<ExtendedIdentityUser> userManager;
-        private readonly AuthDbContext dbContext;
         private readonly IMapper mapper;
         private readonly IEmailServices emailServices;
         private readonly IAuthRepository authRepository;
+        private readonly AppDbContext dbContext;
 
-        public AuthController(ITokenRepository tokenRepository, UserManager<ExtendedIdentityUser> userManager, AuthDbContext dbContext, IMapper mapper, IEmailServices emailServices, IAuthRepository authRepository)
+        public AuthController(ITokenRepository tokenRepository, UserManager<ExtendedIdentityUser> userManager, IMapper mapper, IEmailServices emailServices, IAuthRepository authRepository, AppDbContext dbContext)
         {
             this.tokenRepository = tokenRepository;
             this.userManager = userManager;
-            this.dbContext = dbContext;
             this.mapper = mapper;
             this.emailServices = emailServices;
             this.authRepository = authRepository;
+            this.dbContext = dbContext;
         }
 
         [HttpPost]

@@ -12,11 +12,11 @@ namespace ECommerce.API.Controllers
     [Route("api/[controller]")]
     public class CategoryController : ControllerBase
     {
-        private readonly ECommerceDbContext dbContext;
+        private readonly AppDbContext dbContext;
         private readonly IMapper mapper;
         private readonly ICategoryRepository categoryRepository;
 
-        public CategoryController(ECommerceDbContext dbContext, IMapper mapper, ICategoryRepository categoryRepository)
+        public CategoryController(AppDbContext dbContext, IMapper mapper, ICategoryRepository categoryRepository)
         {
             this.dbContext = dbContext;
             this.mapper = mapper;

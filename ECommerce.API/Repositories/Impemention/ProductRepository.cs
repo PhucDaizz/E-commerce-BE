@@ -9,10 +9,10 @@ namespace ECommerce.API.Repositories.Impemention
 {
     public class ProductRepository : IProductRepository
     {
-        private readonly ECommerceDbContext dbContext;
+        private readonly AppDbContext dbContext;
         private readonly IMapper mapper;
 
-        public ProductRepository(ECommerceDbContext dbContext, IMapper mapper)
+        public ProductRepository(AppDbContext dbContext, IMapper mapper)
         {
             this.dbContext = dbContext;
             this.mapper = mapper;
@@ -118,9 +118,14 @@ namespace ECommerce.API.Repositories.Impemention
             return await dbContext.Products.AnyAsync(x => x.ProductID == id);
         }
 
-        public async Task<PagedResult<ListProductDTO>> GetAllAdminAsync(string? productName, bool isDESC = false, int page = 1, int itemInPage = 20, string sortBy = "CreatedAt", int? categoryId = null)
+        public async Task<PagedResult<ListProductAdminDTO>> GetAllAdminAsync(string? productName, bool isDESC = false, int page = 1, int itemInPage = 20, string sortBy = "CreatedAt", int? categoryId = null)
         {
-            var query = dbContext.Products.AsQueryable();
+            var query = dbContext.Products
+                .Include(x => x.ProductColors)
+                    .ThenInclude(x => x.ProductSizes)
+                .AsQueryable();
+
+
             if (!string.IsNullOrEmpty(productName))
             {
                 query = query.Where(p => p.ProductName.Contains(productName));
@@ -151,9 +156,9 @@ namespace ECommerce.API.Repositories.Impemention
             var products = await query.Skip((page - 1) * itemInPage).Take(itemInPage).Include(x => x.ProductImages).ToListAsync();
             int pageSize = totalCounts % itemInPage != 0 ? totalCounts / itemInPage + 1 : totalCounts / itemInPage;
 
-            var productsDTO = mapper.Map<List<ListProductDTO>>(products);
+            var productsDTO = mapper.Map<List<ListProductAdminDTO>>(products);
 
-            return new PagedResult<ListProductDTO>
+            return new PagedResult<ListProductAdminDTO>
             {
                 Items = productsDTO,
                 TotalCount = totalCounts,

@@ -16,13 +16,13 @@ namespace ECommerce.API.Controllers
     [ApiController]
     public class ProductImageController : ControllerBase
     {
-        private readonly ECommerceDbContext dbContext;
+        private readonly AppDbContext dbContext;
         private readonly IMapper mapper;
         private readonly IProductImageRepository productImageRepository;
         private readonly IProductImageServices productImageServices;
         private readonly IProductRepository productRepository;
 
-        public ProductImageController(ECommerceDbContext dbContext, IMapper mapper, IProductImageRepository productImageRepository, IProductImageServices productImageServices, IProductRepository productRepository)
+        public ProductImageController(AppDbContext dbContext, IMapper mapper, IProductImageRepository productImageRepository, IProductImageServices productImageServices, IProductRepository productRepository)
         {
             this.dbContext = dbContext;
             this.mapper = mapper;

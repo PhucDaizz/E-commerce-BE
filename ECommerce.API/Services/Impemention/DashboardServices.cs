@@ -10,13 +10,11 @@ namespace ECommerce.API.Services.Impemention
 {
     public class DashboardServices : IDashboardServices
     {
-        private readonly ECommerceDbContext dbContext;
-        private readonly AuthDbContext authDbContext;
+        private readonly AppDbContext dbContext;
 
-        public DashboardServices(ECommerceDbContext dbContext, AuthDbContext authDbContext)
+        public DashboardServices(AppDbContext dbContext)
         {
             this.dbContext = dbContext;
-            this.authDbContext = authDbContext;
         }
 
         public async Task<ReportInventoryDTO> GetReportInventoryAsync()
@@ -79,7 +77,7 @@ namespace ECommerce.API.Services.Impemention
 
         public async Task<ReportUserDTO> GetReportUserAsync()
         {
-            var totalUser = await authDbContext.Users.CountAsync();
+            var totalUser = await dbContext.Users.CountAsync();
             return new ReportUserDTO
             {
                 TotalUser = totalUser

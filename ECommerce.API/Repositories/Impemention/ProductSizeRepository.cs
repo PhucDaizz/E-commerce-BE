@@ -7,9 +7,9 @@ namespace ECommerce.API.Repositories.Impemention
 {
     public class ProductSizeRepository : IProductSizeRepository
     {
-        private readonly ECommerceDbContext dbContext;
+        private readonly AppDbContext dbContext;
 
-        public ProductSizeRepository(ECommerceDbContext dbContext)
+        public ProductSizeRepository(AppDbContext dbContext)
         {
             this.dbContext = dbContext;
         }

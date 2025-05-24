@@ -2,16 +2,19 @@
 using ECommerce.API.Models.Domain;
 using ECommerce.API.Repositories.Interface;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace ECommerce.API.Repositories.Impemention
 {
     public class ProductImageRepository : IProductImageRepository
     {
-        private readonly ECommerceDbContext dbContext;
+        private readonly AppDbContext dbContext;
+        private readonly IHostEnvironment environment;
 
-        public ProductImageRepository(ECommerceDbContext dbContext)
+        public ProductImageRepository(AppDbContext dbContext, IHostEnvironment environment)
         {
             this.dbContext = dbContext;
+            this.environment = environment;
         }
         public async Task<ProductImages> CreateAsync(ProductImages productImages)
         {
@@ -70,6 +73,56 @@ namespace ECommerce.API.Repositories.Impemention
             }
             await dbContext.SaveChangesAsync();
             return imagesList;
+        }
+
+        public async Task<bool> retainProductFeaturedImage(int productId)
+        {
+            var images = await dbContext.ProductImages.Where(x => x.ProductID == productId).OrderBy(x => x.CreatedAt).Skip(1).ToListAsync();
+            
+            foreach (var image in images)
+            {
+                if (!string.IsNullOrEmpty(image.ImageURL))
+                {
+                    var contentPath = environment.ContentRootPath;
+                    var path = Path.Combine(contentPath, "Uploads", image.ImageURL);
+                
+                    if (File.Exists(path))
+                    {
+                        File.Delete(path);
+                    }
+                }
+            }
+
+            dbContext.ProductImages.RemoveRange(images);
+
+            await dbContext.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<bool> DeleteProductImagesAsync(int productId)
+        {
+            var images = await dbContext.ProductImages.Where(x => x.ProductID == productId).OrderBy(x => x.CreatedAt).ToListAsync();
+
+            foreach (var image in images)
+            {
+                if (!string.IsNullOrEmpty(image.ImageURL))
+                {
+                    var contentPath = environment.ContentRootPath;
+                    var path = Path.Combine(contentPath, "Uploads", image.ImageURL);
+
+                    if (File.Exists(path))
+                    {
+                        File.Delete(path);
+                    }
+                }
+            }
+
+            dbContext.ProductImages.RemoveRange(images);
+
+            await dbContext.SaveChangesAsync();
+
+            return true;
         }
     }
 }

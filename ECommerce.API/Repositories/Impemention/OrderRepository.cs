@@ -9,9 +9,9 @@ namespace ECommerce.API.Repositories.Impemention
 {
     public class OrderRepository : IOrderRepository
     {
-        private readonly ECommerceDbContext dbContext;
+        private readonly AppDbContext dbContext;
 
-        public OrderRepository(ECommerceDbContext dbContext)
+        public OrderRepository(AppDbContext dbContext)
         {
             this.dbContext = dbContext;
         }
@@ -43,7 +43,7 @@ namespace ECommerce.API.Repositories.Impemention
 
             if (userId.HasValue)
             {
-                query = query.Where(x => x.UserID == userId.Value);
+                query = query.Where(x => x.UserID == userId.Value).Include(x => x.Shippings);
             }
 
             switch (sortBy?.ToLower())
@@ -89,7 +89,7 @@ namespace ECommerce.API.Repositories.Impemention
 
         public async Task<IEnumerable<Orders>?> GetAllByUserIdAsync(Guid userId)
         {
-            var orders = await dbContext.Orders.Where(o => o.UserID == userId).OrderByDescending(x => x.OrderDate).ToListAsync();
+            var orders = await dbContext.Orders.Where(o => o.UserID == userId).Include(x => x.Shippings).OrderByDescending(x => x.OrderDate).ToListAsync();
             if (!orders.Any() || orders == null)
             {
                 return null;

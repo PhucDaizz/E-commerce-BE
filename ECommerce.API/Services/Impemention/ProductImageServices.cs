@@ -10,10 +10,10 @@ namespace ECommerce.API.Services.Impemention
 {
     public class ProductImageServices : IProductImageServices
     {
-        private readonly ECommerceDbContext dbContext;
+        private readonly AppDbContext dbContext;
         private readonly IWebHostEnvironment environment;
 
-        public ProductImageServices(ECommerceDbContext dbContext, IWebHostEnvironment environment)
+        public ProductImageServices(AppDbContext dbContext, IWebHostEnvironment environment)
         {
             this.dbContext = dbContext;
             this.environment = environment;

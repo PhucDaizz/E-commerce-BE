@@ -15,12 +15,12 @@ namespace ECommerce.API.Controllers
     [ApiController]
     public class ProductReviewController : ControllerBase
     {
-        private readonly ECommerceDbContext dbContext;
+        private readonly AppDbContext dbContext;
         private readonly IMapper mapper;
         private readonly IProductReviewServices productReviewServices;
         private readonly IProductReviewRepository productReviewRepository;
 
-        public ProductReviewController(ECommerceDbContext dbContext, IMapper mapper, IProductReviewServices productReviewServices, IProductReviewRepository productReviewRepository)
+        public ProductReviewController(AppDbContext dbContext, IMapper mapper, IProductReviewServices productReviewServices, IProductReviewRepository productReviewRepository)
         {
             this.dbContext = dbContext;
             this.mapper = mapper;
