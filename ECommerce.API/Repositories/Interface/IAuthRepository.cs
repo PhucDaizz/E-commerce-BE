@@ -7,5 +7,7 @@ namespace ECommerce.API.Repositories.Interface
     public interface IAuthRepository
     {
         Task<ListUserDTO> ListUserAsync(string? querySearch, string searchField = "Email" ,int page = 1, int itemInPage = 10);
+
+        Task<ExtendedIdentityUser> GetInforAsync(string userId);
     }
 }

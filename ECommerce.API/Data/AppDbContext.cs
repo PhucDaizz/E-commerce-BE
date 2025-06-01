@@ -29,6 +29,8 @@ namespace ECommerce.API.Data
         public DbSet<ProductSizes> ProductSizes { get; set; }
         public DbSet<Shippings> Shippings { get; set; }
         public DbSet<Payments> Payments { get; set; }
+        public DbSet<Conversations> Conversations { get; set; }
+        public DbSet<ChatMessage> ChatMessage { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -163,6 +165,37 @@ namespace ECommerce.API.Data
                 .WithOne(p => p.Orders)
                 .HasForeignKey<Payments>(p => p.OrderID)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Conversations>(entity =>
+            {
+                entity.HasKey(c => c.ConversationId);
+                entity.HasOne(c => c.ClientUser)
+                      .WithMany(u => u.ClientConversations)
+                      .HasForeignKey(c => c.ClientUserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(c => c.AdminUser)                   
+                      .WithMany(u => u.AdminAssignedConversations) 
+                      .HasForeignKey(c => c.AdminUserId)           
+                      .IsRequired(false)                          
+                      .OnDelete(DeleteBehavior.SetNull);
+            });
+
+
+            builder.Entity<ChatMessage>(entity =>
+            {
+                entity.HasKey(e => e.MessageId);
+
+                entity.HasOne(cm => cm.Conversation)
+                      .WithMany(c => c.ChatMessages)
+                      .HasForeignKey(cm => cm.ConversationId)
+                      .OnDelete(DeleteBehavior.Cascade); 
+
+                entity.HasOne(cm => cm.Sender)
+                      .WithMany(u => u.SentMessages)
+                      .HasForeignKey(cm => cm.SenderUserId)
+                      .OnDelete(DeleteBehavior.Restrict); 
+            });
+
         }
     }
 }

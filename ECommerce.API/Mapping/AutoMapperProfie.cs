@@ -2,6 +2,8 @@
 using ECommerce.API.Models.Domain;
 using ECommerce.API.Models.DTO.CartItem;
 using ECommerce.API.Models.DTO.Category;
+using ECommerce.API.Models.DTO.ChatMessage;
+using ECommerce.API.Models.DTO.Conversation;
 using ECommerce.API.Models.DTO.Discount;
 using ECommerce.API.Models.DTO.Order;
 using ECommerce.API.Models.DTO.OrderDetail;
@@ -101,6 +103,18 @@ namespace ECommerce.API.Mapping
         
             //Payment
             CreateMap<Payments, PaymentDTO>().ReverseMap();
+
+            // Conversation
+            CreateMap<Conversations, ListConversationsDTO>()
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.ClientUser.UserName))
+                .ForMember(dest => dest.InitialMessage,
+                    opt => opt.MapFrom(src => src.ChatMessages.OrderBy(m => m.SentTimeUtc).Select(x => x.MessageContent).FirstOrDefault()));
+
+
+            //ChatMessage
+            CreateMap<ChatMessage, ChatMessageDTO>()
+                .ForMember(dest => dest.SenderName, opt => opt.Ignore());
+
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using ECommerce.API.Data;
+using ECommerce.API.Models.Domain;
 using ECommerce.API.Models.DTO.User;
 using ECommerce.API.Repositories.Interface;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,11 @@ namespace ECommerce.API.Repositories.Impemention
         public AuthRepository(AppDbContext dbContext)
         {
             this.dbContext = dbContext;
+        }
+
+        public async Task<ExtendedIdentityUser> GetInforAsync(string userId)
+        {
+            return await dbContext.ExtendedIdentityUsers.FirstOrDefaultAsync(u => u.Id == userId);
         }
 
         public async Task<ListUserDTO> ListUserAsync(string? querySearch, string searchField = "Email", int page = 1, int itemInPage = 10)

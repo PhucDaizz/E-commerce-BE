@@ -1,4 +1,6 @@
+using ECommerce.API.BackgroundServices;
 using ECommerce.API.Data;
+using ECommerce.API.Hubs;
 using ECommerce.API.Mapping;
 using ECommerce.API.Models.Domain;
 using ECommerce.API.Repositories.Impemention;
@@ -29,6 +31,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("ECommerceConnectionstring"));
 });
 
+
+builder.Services.AddSignalR();
+
+
 // repositories
 builder.Services.AddScoped<ICategoryRepository,CategoryRepository>();
 builder.Services.AddScoped<IProductRepository,ProductRepository>();
@@ -46,6 +52,8 @@ builder.Services.AddScoped<IProductReviewRepository, ProductReviewRepository>();
 builder.Services.AddScoped<IShippingRepository, ShippingRepository>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddSingleton<IVnpay, Vnpay>();
+builder.Services.AddScoped<IConversationRepository, ConversationRepository>();
+builder.Services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
 
 
 // services
@@ -60,6 +68,9 @@ builder.Services.AddScoped<IProductSizeServices, ProductSizeServices>();
 builder.Services.AddScoped<IEmailServices, EmailServices>();
 builder.Services.AddScoped<IShippingServices, ShippingServices>();
 builder.Services.AddScoped<IDashboardServices, DashboardServices>();
+builder.Services.AddScoped<IChatCleanupOrchestratorService, ChatCleanupOrchestratorService>();
+builder.Services.AddScoped<IClosedConversationCleanupService, ClosedConversationCleanupService>();
+builder.Services.AddScoped<IStalePendingConversationCleanupService,StalePendingConversationCleanupService>();
 
 
 builder.Services.AddCors(options =>
@@ -109,7 +120,26 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
         };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) &&
+                    (path.StartsWithSegments("/chathub", StringComparison.OrdinalIgnoreCase)))
+                {
+
+                    context.Token = accessToken;
+                }
+                return Task.CompletedTask;
+            }
+        };
     });
+
+builder.Services.AddHostedService<ChatCleanupService>();
 
 var app = builder.Build();
 
@@ -132,6 +162,7 @@ app.UseStaticFiles(new StaticFileOptions
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapHub<ChatHub>("/chathub");
 
 app.MapControllers();
 
