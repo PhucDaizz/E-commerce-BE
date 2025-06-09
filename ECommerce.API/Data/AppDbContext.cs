@@ -55,8 +55,8 @@ namespace ECommerce.API.Data
             var superAdminUser = new ExtendedIdentityUser
             {
                 Id = superAdminId,
-                UserName = "superadmin@ecommerce.com",
-                NormalizedUserName = "superadmin@ecommerce.com".ToUpper(),
+                UserName = "superadmin",
+                NormalizedUserName = "superadmin".ToUpper(),
                 Email = "superadmin@ecommerce.com",
                 NormalizedEmail = "superadmin@ecommerce.com".ToUpper()
             };

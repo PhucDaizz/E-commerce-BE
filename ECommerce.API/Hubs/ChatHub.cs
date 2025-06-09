@@ -79,6 +79,7 @@ namespace ECommerce.API.Hubs
                             ClientUserName = conversation.ClientUser?.UserName ?? "Unknown",
                             ClientUserId = conversation.ClientUserId,
                             LastMessageContent = lastMessage?.MessageContent ?? "No messages yet",
+                            LastMessageUserId = lastMessage?.SenderUserId,
                             LastMessageTime = lastMessage?.SentTimeUtc.ToString("g") ?? "N/A",
                             IsReadByAdmin = lastMessage?.IsReadByAdmin ?? false,
                         });
@@ -352,7 +353,13 @@ namespace ECommerce.API.Hubs
 
         }
 
-
+        [Authorize]
+        public async Task MarkMessagesAsRead(string conversationId)
+        {
+            var userId = Context.UserIdentifier;
+            await Clients.Group(conversationId).SendAsync("ReceiveReadReceipt", conversationId, userId, DateTime.UtcNow);
+            await _chatMessageRepository.MarkMessagesAsReadAsync(Guid.Parse(conversationId), userId, Context.User.IsInRole("Admin"));
+        }
 
 
         public async Task SendMessage(Guid conversationId, string messageContent)
@@ -391,14 +398,19 @@ namespace ECommerce.API.Hubs
             }
 
 
+            var isAdmin = Context.User.IsInRole("Admin");
             var senderInfor = await _authRepository.GetInforAsync(senderUserId);
+
             var message = new ChatMessage
             {
                 ConversationId = conversationId,
                 SenderUserId = senderUserId,
                 MessageContent = messageContent,
-                SentTimeUtc = DateTime.UtcNow
+                SentTimeUtc = DateTime.UtcNow,
+                IsReadByClient = !isAdmin,
+                IsReadByAdmin = isAdmin
             };
+
             await _chatMessageRepository.AddAsync(message);
 
             conversation.LastActivityTimeUtc = DateTime.UtcNow;

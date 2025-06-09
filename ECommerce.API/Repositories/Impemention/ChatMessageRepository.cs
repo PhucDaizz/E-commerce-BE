@@ -54,5 +54,26 @@ namespace ECommerce.API.Repositories.Impemention
                 .OrderByDescending(c => c.SentTimeUtc)
                 .FirstOrDefaultAsync();
         }
+
+        public async Task MarkMessagesAsReadAsync(Guid conversationId, string currentUserId, bool isAdmin)
+        {
+            if (isAdmin)
+            {
+                await _dbContext.ChatMessage
+                    .Where(m => m.ConversationId == conversationId
+                             && !m.IsReadByAdmin)
+                    .ExecuteUpdateAsync(setters =>
+                        setters.SetProperty(m => m.IsReadByAdmin, true));
+            }
+            else
+            {
+                await _dbContext.ChatMessage
+                    .Where(m => m.ConversationId == conversationId
+                             && !m.IsReadByClient)
+                    .ExecuteUpdateAsync(setters =>
+                        setters.SetProperty(m => m.IsReadByClient, true));
+            }
+        }
+
     }
 }
