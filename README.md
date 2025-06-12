@@ -1,3 +1,4 @@
+<img src="https://iili.io/Ffa8zIR.png" alt="Screenshot 2025 06 12 103816" border="0">
 # 🛒 E-commerce Platform - Full-Stack Solution
 
 <div align="center">
