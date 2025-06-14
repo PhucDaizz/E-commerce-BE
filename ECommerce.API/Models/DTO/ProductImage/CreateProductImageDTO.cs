@@ -12,5 +12,7 @@ namespace ECommerce.API.Models.DTO.ProductImage
 
         [Required]
         public bool IsPrimary { get; set; } = false;
+
+        public bool OnCloud { get; set; } = false;
     }
 }

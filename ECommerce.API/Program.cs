@@ -1,3 +1,5 @@
+using CloudinaryDotNet;
+using dotenv.net;
 using ECommerce.API.BackgroundServices;
 using ECommerce.API.Data;
 using ECommerce.API.Hubs;
@@ -15,7 +17,19 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using VNPAY.NET;
 
+DotEnv.Load();
+
 var builder = WebApplication.CreateBuilder(args);
+
+var account = new Account(
+    builder.Configuration["CLOUDINARY:CLOUD_NAME"],
+    builder.Configuration["CLOUDINARY:API_KEY"],
+    builder.Configuration["CLOUDINARY:API_SECRET"]
+);
+
+Cloudinary cloudinary = new Cloudinary(account);
+cloudinary.Api.Secure = true;
+
 
 // Add services to the container.
 
@@ -71,6 +85,7 @@ builder.Services.AddScoped<IDashboardServices, DashboardServices>();
 builder.Services.AddScoped<IChatCleanupOrchestratorService, ChatCleanupOrchestratorService>();
 builder.Services.AddScoped<IClosedConversationCleanupService, ClosedConversationCleanupService>();
 builder.Services.AddScoped<IStalePendingConversationCleanupService,StalePendingConversationCleanupService>();
+builder.Services.AddSingleton(cloudinary);
 
 
 builder.Services.AddCors(options =>

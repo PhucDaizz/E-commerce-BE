@@ -181,5 +181,14 @@ namespace ECommerce.API.Repositories.Impemention
             await dbContext.SaveChangesAsync();
             return true;
         }
+
+        public async Task<Products?> GetDetailAsync(int id)
+        {
+            var product = await dbContext.Products
+                .Include(x => x.ProductImages)
+                .Include(x => x.Categories)
+                .FirstOrDefaultAsync(x => x.ProductID == id);
+            return product;
+        }
     }
 }

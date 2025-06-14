@@ -54,6 +54,10 @@
               "target": "Package",
               "version": "[13.0.1, )"
             },
+            "CloudinaryDotNet": {
+              "target": "Package",
+              "version": "[1.27.5, )"
+            },
             "MailKit": {
               "target": "Package",
               "version": "[4.10.0, )"
@@ -99,6 +103,10 @@
             "VNPAY.NET": {
               "target": "Package",
               "version": "[8.5.0, )"
+            },
+            "dotenv.net": {
+              "target": "Package",
+              "version": "[3.2.1, )"
             }
           },
           "imports": [

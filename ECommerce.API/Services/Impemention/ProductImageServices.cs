@@ -1,4 +1,6 @@
-﻿using ECommerce.API.Data;
+﻿using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
+using ECommerce.API.Data;
 using ECommerce.API.Models.Domain;
 using ECommerce.API.Services.Interface;
 using Microsoft.EntityFrameworkCore;
@@ -12,11 +14,13 @@ namespace ECommerce.API.Services.Impemention
     {
         private readonly AppDbContext dbContext;
         private readonly IWebHostEnvironment environment;
+        private readonly Cloudinary _cloudinary;
 
-        public ProductImageServices(AppDbContext dbContext, IWebHostEnvironment environment)
+        public ProductImageServices(AppDbContext dbContext, IWebHostEnvironment environment, Cloudinary cloudinary)
         {
             this.dbContext = dbContext;
             this.environment = environment;
+            _cloudinary = cloudinary;
         }
         public void DeleteImage(string fileNameWithExtension)
         {
@@ -63,7 +67,7 @@ namespace ECommerce.API.Services.Impemention
             return fileName;
         }
 
-        public async Task<IEnumerable<string>> SaveImagesAsync(IEnumerable<IFormFile> imageFiles, string[] allowedFileExtensions, string productName, int productId, int length)
+        public async Task<IEnumerable<string>> SaveImagesAsync(IEnumerable<IFormFile> imageFiles, string[] allowedFileExtensions, Products product, int productId, int length, bool? onCloud = false)
         {
 
             if (!imageFiles.Any() || imageFiles == null)
@@ -73,6 +77,49 @@ namespace ECommerce.API.Services.Impemention
 
             List<string> imageUrls = new List<string>();
 
+
+            // Nếu lưu trên Cloudinary
+            if (onCloud == true)
+            {
+                string[]? category = new string[] { product.Categories?.CategoryName ?? "default" };
+
+                foreach (var file in imageFiles)
+                {
+                    if (length >= 5) break;
+
+                    var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+                    if (!allowedFileExtensions.Contains(ext))
+                    {
+                        throw new NotSupportedException($"Only {string.Join(", ", allowedFileExtensions)} are allowed");
+                    }
+
+                    await using var stream = file.OpenReadStream();
+                    var uploadParams = new ImageUploadParams
+                    {
+                        File = new FileDescription(file.FileName, stream),
+                        PublicId = $"product/{Slugify(product.ProductName)}_{Guid.NewGuid()}",
+                        Overwrite = true,
+                        UseFilename = true,
+                        UniqueFilename = false,
+                        Tags = string.Join(",", category)
+                    };
+
+                    var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                    if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        imageUrls.Add(uploadResult.SecureUri.ToString());
+                        length++;
+                    }
+                    else
+                    {
+                        throw new Exception("Image upload failed");
+                    }
+                }
+
+                return imageUrls;
+            }
+
+            // Nếu lưu local
             var contentPath = environment.ContentRootPath;
             var path = Path.Combine(contentPath, "Uploads");
 
@@ -93,7 +140,7 @@ namespace ECommerce.API.Services.Impemention
                     throw new NotImplementedException($"Only {string.Join(",", allowedFileExtensions)} are allowed");
                 }
 
-                var slugifiedProductName = Slugify(productName);
+                var slugifiedProductName = Slugify(product.ProductName);
                 var fileName = $"{slugifiedProductName}_{productId}_{Guid.NewGuid().ToString()}{ext}";
                 var fileNameWithPath = Path.Combine(path, fileName);
                 using var stream = new FileStream(fileNameWithPath, FileMode.Create);
@@ -132,5 +179,84 @@ namespace ECommerce.API.Services.Impemention
             slug = Regex.Replace(slug, @"[^a-zA-Z0-9_\-]", "");
             return slug;
         }
+
+        // / Upload image to Cloudinary
+        public async Task<string> UploadImageCloundinaryAsync(IFormFile file, string[] allowedFileExtensions, string name, string category, string? path = "product")
+        {
+            if(file == null || file.Length == 0)
+            {
+                throw new ArgumentNullException(nameof(file), "File cannot be null or empty");
+            }
+
+            var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!allowedFileExtensions.Contains(ext))
+            {
+                throw new NotSupportedException($"Only {string.Join(", ", allowedFileExtensions)} are allowed");
+            }
+
+            await using var stream = file.OpenReadStream();
+            var uploadParams = new ImageUploadParams
+            {
+                File = new FileDescription(file.FileName, stream),
+                PublicId = $"{path}/{Slugify(name)}_{Guid.NewGuid()}",
+                Overwrite = true,
+                UseFilename = true,
+                UniqueFilename = false,
+                Tags = !string.IsNullOrEmpty(category) ? string.Join(",", new[] { category }) : null
+            };
+
+            var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+            if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                return uploadResult.SecureUri.ToString();
+            }
+            throw new Exception("Image upload failed");
+        }
+        
+        // Upload multiple images to Cloudinary
+        public async Task<IEnumerable<object>> UploadListImagesCloudinaryAsync(IEnumerable<IFormFile> files, string[] allowedFileExtensions, string name, string[]? category, string? path = "product")
+        {
+            if(files == null || !files.Any())
+            {
+                throw new ArgumentNullException(nameof(files), "File cannot be null or empty");
+            }
+
+            foreach (var file in files)
+            {
+                var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+                if (!allowedFileExtensions.Contains(ext))
+                {
+                    throw new NotSupportedException($"Only {string.Join(", ", allowedFileExtensions)} are allowed");
+                }
+            }
+
+            var uploadResults = new List<object>();
+
+            foreach (var file in files)
+            {
+                await using var stream = file.OpenReadStream();
+                var uploadParams = new ImageUploadParams
+                {
+                    File = new FileDescription(file.FileName, stream),
+                    PublicId = $"{path}/{Slugify(name)}_{Guid.NewGuid()}",
+                    Overwrite = true,
+                    UseFilename = true,
+                    UniqueFilename = false,
+                    Tags = category != null ? string.Join(",", category) : null
+                };
+
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    uploadResults.Add(uploadResult.SecureUri.ToString());
+                }
+                else
+                {
+                    throw new Exception("Image upload failed");
+                }
+            }
+            return uploadResults;
+        }
+
     }
 }

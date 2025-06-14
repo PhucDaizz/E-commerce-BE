@@ -37,7 +37,7 @@ namespace ECommerce.API.Controllers
         {
             try
             {
-                var product = await productRepository.GetByIdAsync(productImageDTO.ProductID);
+                var product = await productRepository.GetDetailAsync(productImageDTO.ProductID);
                 if (product == null)
                 {
                     return BadRequest("Product ID is not existing");
@@ -48,7 +48,24 @@ namespace ECommerce.API.Controllers
                     return StatusCode(StatusCodes.Status400BadRequest, "File size more than 10MB, please upload a maller size file.");
                 }
                 string[] allowedFileExtentions = [".jpg", ".jpeg", ".png"];
-                string createdImageName = await productImageServices.SaveImageAsync(productImageDTO.ImageURL, allowedFileExtentions,product.ProductName, product.ProductID);
+
+
+                string createdImageName = null;
+                switch(productImageDTO.OnCloud)
+                {
+                    case true:
+                        if (productImageDTO.ImageURL != null || productImageDTO.ImageURL.Length > 0)
+                        {
+                            createdImageName = await productImageServices.UploadImageCloundinaryAsync(productImageDTO.ImageURL, allowedFileExtentions, product.ProductName, product.Categories.CategoryName.ToString(), "product");
+                        }
+                        break;
+                    case false:
+                        if (productImageDTO.ImageURL != null || productImageDTO.ImageURL.Length > 0)
+                        {
+                            createdImageName = await productImageServices.SaveImageAsync(productImageDTO.ImageURL, allowedFileExtentions,product.ProductName, product.ProductID);
+                        }
+                        break;
+                }
 
                 // map DTO to domain
                 var productImage = new ProductImages
@@ -67,6 +84,66 @@ namespace ECommerce.API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
+
+
+        /*[Authorize(Roles = "Admin, SuperAdmin")]
+        [HttpPost("UploadImageCloud")]
+        public async Task<IActionResult> UploadImage(CreateProductImageDTO productImageDTO)
+        {
+            try
+            {
+                if (productImageDTO.ImageURL == null || productImageDTO.ImageURL.Length <= 0)
+                {
+                    return BadRequest("Image file is required.");
+                }
+
+                string[] allowedFileExtensions = [".jpg", ".jpeg", ".png"];
+                var uploadResult = await productImageServices.UploadListImagesCloudinaryAsync(
+                    productImageDTO.ImageURL,
+                    allowedFileExtensions,
+                    "Dai phuc nguyen",
+                    null
+                );
+
+                return Ok(uploadResult);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Upload failed: {ex.Message}");
+            }
+        }*/
+
+        
+        
+        /*[HttpPost]
+        [Route("cloudinaryV2")]
+        public async Task<IActionResult> UploadImagePath([FromForm] CreateProductImageDTO productImageDTO)
+        {
+            try
+            {
+                if (productImageDTO.ImageURL == null || productImageDTO.ImageURL.Length <= 0)
+                {
+                    return BadRequest("Image file is required.");
+                }
+
+                string[] category = ["Quần"];
+                string[] allowedFileExtensions = [".jpg", ".jpeg", ".png"];
+                var uploadResult = await productImageServices.UploadImageCloundinaryAsync(
+                    productImageDTO.ImageURL,
+                    allowedFileExtensions,
+                    "Dai phuc nguyen",
+                    category
+                );
+
+                return Ok(uploadResult);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Upload failed: {ex.Message}");
+            }
+        }*/
+
+
 
         [Authorize(Roles = "Admin, SuperAdmin")]
         [HttpDelete]
@@ -106,10 +183,10 @@ namespace ECommerce.API.Controllers
         [Authorize(Roles = "Admin, SuperAdmin")]
         [HttpPost]
         [Route("UploadListImage/{idProduct:int}")]
-        public async Task<IActionResult> CreateImages([FromRoute] int idProduct, List<IFormFile> files)
+        public async Task<IActionResult> CreateImages([FromRoute] int idProduct, List<IFormFile> files, bool? onCloud = false)
         {
             int primary = 1;
-            var product = await productRepository.GetByIdAsync(idProduct);
+            var product = await productRepository.GetDetailAsync(idProduct);
             if (product == null)
             {
                 return NotFound("ID product is not existing");
@@ -117,7 +194,7 @@ namespace ECommerce.API.Controllers
             string[] allowedFileExtentions = [".jpg", ".jpeg", ".png"];
             var length = await dbContext.ProductImages.Where(x => x.ProductID == idProduct).CountAsync();
 
-            var imagesList = await productImageServices.SaveImagesAsync(files, allowedFileExtentions, product.ProductName, product.ProductID, length);
+            var imagesList = await productImageServices.SaveImagesAsync(files, allowedFileExtentions, product, product.ProductID, length, onCloud);
 
             if (imagesList.Count() == 0 || imagesList == null)
             {
