@@ -75,9 +75,9 @@ namespace ECommerce.API.Repositories.Impemention
             return imagesList;
         }
 
-        public async Task<bool> retainProductFeaturedImage(int productId)
+        /*public async Task<bool> retainProductFeaturedImage(IEnumerable<ProductImages> productImages)
         {
-            var images = await dbContext.ProductImages.Where(x => x.ProductID == productId).OrderBy(x => x.CreatedAt).Skip(1).ToListAsync();
+            *//*var images = await dbContext.ProductImages.Where(x => x.ProductID == productId).OrderBy(x => x.CreatedAt).Skip(1).ToListAsync();
             
             foreach (var image in images)
             {
@@ -91,14 +91,14 @@ namespace ECommerce.API.Repositories.Impemention
                         File.Delete(path);
                     }
                 }
-            }
+            }*//*
 
-            dbContext.ProductImages.RemoveRange(images);
+            dbContext.ProductImages.RemoveRange(productImages);
 
             await dbContext.SaveChangesAsync();
 
             return true;
-        }
+        }*/
 
         public async Task<bool> DeleteProductImagesAsync(int productId)
         {

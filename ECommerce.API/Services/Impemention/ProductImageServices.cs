@@ -2,6 +2,7 @@
 using CloudinaryDotNet.Actions;
 using ECommerce.API.Data;
 using ECommerce.API.Models.Domain;
+using ECommerce.API.Repositories.Interface;
 using ECommerce.API.Services.Interface;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
@@ -15,19 +16,41 @@ namespace ECommerce.API.Services.Impemention
         private readonly AppDbContext dbContext;
         private readonly IWebHostEnvironment environment;
         private readonly Cloudinary _cloudinary;
+        private readonly IProductImageRepository productImageRepository;
 
-        public ProductImageServices(AppDbContext dbContext, IWebHostEnvironment environment, Cloudinary cloudinary)
+        public ProductImageServices(AppDbContext dbContext, IWebHostEnvironment environment, Cloudinary cloudinary, IProductImageRepository productImageRepository)
         {
             this.dbContext = dbContext;
             this.environment = environment;
             _cloudinary = cloudinary;
+            this.productImageRepository = productImageRepository;
         }
-        public void DeleteImage(string fileNameWithExtension)
+        public async Task<bool> DeleteImage(string fileNameWithExtension)
         {
             if (string.IsNullOrEmpty(fileNameWithExtension))
             {
                 throw new ArgumentNullException(nameof(fileNameWithExtension));
             }
+
+            if (fileNameWithExtension.Contains("cloudinary.com"))
+            {
+                var publicId = GetPublicIdFromUrl(fileNameWithExtension);
+
+                var deleteParams = new DeletionParams(publicId)
+                {
+                    ResourceType = ResourceType.Image
+                };
+
+                var result = await _cloudinary.DestroyAsync(deleteParams);
+
+                if (result.Result != "ok")
+                {
+                    return false;
+                }
+
+                return true;
+            }
+
             var contentPath = environment.ContentRootPath;
             var path = Path.Combine(contentPath, $"Uploads", fileNameWithExtension);
             if (!File.Exists(path))
@@ -35,6 +58,7 @@ namespace ECommerce.API.Services.Impemention
                 throw new ArgumentNullException($"Invalid file path");
             }
             File.Delete(path);
+            return true;
         }
 
         public async Task<string> SaveImageAsync(IFormFile imageFile, string[] allowedFileExtensions, string productName, int productId)
@@ -258,5 +282,113 @@ namespace ECommerce.API.Services.Impemention
             return uploadResults;
         }
 
+        public async Task<bool> retainProductFeaturedImage(int productId)
+        {
+            var images = await dbContext.ProductImages
+                .Where(x => x.ProductID == productId)
+                .OrderBy(x => x.IsPrimary)
+                .ThenBy(x => x.CreatedAt)
+                .ToListAsync();
+
+            if (images.Count <= 1)
+                return false;
+
+            var imagesToDelete = images.Skip(1).ToList();
+
+            foreach (var image in imagesToDelete)
+            {
+                if (!string.IsNullOrEmpty(image.ImageURL))
+                {
+                    if (image.ImageURL.Contains("cloudinary.com"))
+                    {
+                        var publicId = GetPublicIdFromUrl(image.ImageURL);
+
+                        var deleteParams = new DeletionParams(publicId)
+                        {
+                            ResourceType = ResourceType.Image
+                        };
+
+                        var result = await _cloudinary.DestroyAsync(deleteParams);
+                        if (result.Result != "ok" && result.Result != "not found")
+                        {
+                            throw new Exception($"Xoá ảnh Cloudinary thất bại: {result.Result}");
+                        }
+                    }
+                    else
+                    {
+                        var path = Path.Combine(environment.ContentRootPath, "Uploads", image.ImageURL);
+                        if (File.Exists(path))
+                        {
+                            File.Delete(path);
+                        }
+                    }
+                }
+            }
+
+            dbContext.ProductImages.RemoveRange(imagesToDelete);
+            await dbContext.SaveChangesAsync();
+
+            return true;
+        }
+
+        private string GetPublicIdFromUrl(string url)
+        {
+            var uri = new Uri(url);
+            var segments = uri.AbsolutePath.Split('/');
+
+            var uploadIndex = Array.IndexOf(segments, "upload");
+
+            if (uploadIndex >= 0 && uploadIndex + 2 < segments.Length)
+            {
+                var relevantParts = segments.Skip(uploadIndex + 2); // Bỏ cả "upload" và version
+                var publicIdWithExtension = string.Join("/", relevantParts);
+                var publicId = Path.ChangeExtension(publicIdWithExtension, null); // Bỏ .jpg
+                return publicId;
+            }
+
+            throw new InvalidOperationException("Không thể tách public_id từ URL");
+        }
+
+        public async Task<bool> DeleteProductImagesAsync(int productId)
+        {
+            var images = await dbContext.ProductImages.Where(x => x.ProductID == productId).ToListAsync();
+            foreach (var image in images)
+            {
+                if (!string.IsNullOrEmpty(image.ImageURL))
+                {
+                    // Detele cloudinary image
+                    if (image.ImageURL.Contains("cloudinary.com"))
+                    {
+                        var publicId = GetPublicIdFromUrl(image.ImageURL);
+
+                        var deleteParams = new DeletionParams(publicId)
+                        {
+                            ResourceType = ResourceType.Image
+                        };
+
+                        var result = await _cloudinary.DestroyAsync(deleteParams);
+                        if (result.Result != "ok")
+                        {
+                            throw new Exception($"Xoá ảnh Cloudinary thất bại: {result.Result}");
+                        }
+                    }
+                    // Delete local image
+                    else 
+                    {
+                        var contentPath = environment.ContentRootPath;
+                        var path = Path.Combine(contentPath, "Uploads", image.ImageURL);
+                        if (File.Exists(path))
+                        {
+                            File.Delete(path);
+                        }
+                    }
+                    
+                }
+
+            }
+            dbContext.ProductImages.RemoveRange(images);
+            await dbContext.SaveChangesAsync();
+            return true;
+        }
     }
 }

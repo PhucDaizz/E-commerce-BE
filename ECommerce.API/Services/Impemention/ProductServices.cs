@@ -21,8 +21,9 @@ namespace ECommerce.API.Services.Impemention
         private readonly AppDbContext _dbContext;
         private readonly IProductSizeRepository _productSizeRepository;
         private readonly ICartItemRepository _cartItemRepository;
+        private readonly IProductImageServices _productImageServices;
 
-        public ProductServices(IMapper mapper, IProductRepository productRepository, ICategoryRepository categoryRepository, IProductColorRepository productColorRepository, IProductImageRepository productImageRepository, AppDbContext dbContext, IProductSizeRepository productSizeRepository, ICartItemRepository cartItemRepository)
+        public ProductServices(IMapper mapper, IProductRepository productRepository, ICategoryRepository categoryRepository, IProductColorRepository productColorRepository, IProductImageRepository productImageRepository, AppDbContext dbContext, IProductSizeRepository productSizeRepository, ICartItemRepository cartItemRepository, IProductImageServices productImageServices)
         {
             this.mapper = mapper;
             this.productRepository = productRepository;
@@ -32,6 +33,7 @@ namespace ECommerce.API.Services.Impemention
             _dbContext = dbContext;
             _productSizeRepository = productSizeRepository;
             _cartItemRepository = cartItemRepository;
+            _productImageServices = productImageServices;
         }
 
         public async Task<bool> PauseSalesAsync(int id)
@@ -39,7 +41,7 @@ namespace ECommerce.API.Services.Impemention
             await using var transaction = await _dbContext.Database.BeginTransactionAsync();
             try
             {
-                var imageDelete = await productImageRepository.retainProductFeaturedImage(id);
+                var imageDelete = await _productImageServices.retainProductFeaturedImage(id);
 
                 var privateProduct = await productRepository.ToPublicAync(id);
 
@@ -99,7 +101,8 @@ namespace ECommerce.API.Services.Impemention
             {
                 await _cartItemRepository.ClearAllByProductIDAsync(id);
                 await productColorRepository.DeleteProductColorSizeAsync(id);
-                await productImageRepository.DeleteProductImagesAsync(id);
+                await _productImageServices.DeleteProductImagesAsync(id);
+                /*await productImageRepository.DeleteProductImagesAsync(id);*/
                 await productRepository.DeleteAsync(id);
 
                 await transaction.CommitAsync();

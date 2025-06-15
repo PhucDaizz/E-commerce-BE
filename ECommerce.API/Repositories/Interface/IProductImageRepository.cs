@@ -11,7 +11,7 @@ namespace ECommerce.API.Repositories.Interface
         Task<ProductImages?> DeleteAsync(int id);
         Task<IEnumerable<ProductImages>> GetAllByProductIDAsync(int productId);
         Task<IEnumerable<ProductImages>> CreateImagesAsync(IEnumerable<ProductImages> imagesList);
-        Task<bool> retainProductFeaturedImage(int productId);
+        /*Task<bool> retainProductFeaturedImage(IEnumerable<ProductImages> productImages);*/
         Task<bool> DeleteProductImagesAsync(int productId);
     }
 }

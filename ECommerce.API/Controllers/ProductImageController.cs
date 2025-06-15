@@ -155,7 +155,7 @@ namespace ECommerce.API.Controllers
             {
                 return NotFound("ID is not existing");
             }
-            productImageServices.DeleteImage(existing.ImageURL);
+            var result = await productImageServices.DeleteImage(existing.ImageURL);
             var productImage = mapper.Map<ProductImageDTO>(existing);
             return Ok(productImage);
         }
