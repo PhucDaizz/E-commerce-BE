@@ -5,6 +5,7 @@ using ECommerce.API.Models.Domain;
 using ECommerce.API.Models.DTO.User;
 using ECommerce.API.Repositories.Interface;
 using ECommerce.API.Services.Interface;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -13,6 +14,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 using System.Reflection.Metadata;
+using System.Security.Claims;
 
 namespace ECommerce.API.Controllers
 {
@@ -26,8 +28,9 @@ namespace ECommerce.API.Controllers
         private readonly IEmailServices emailServices;
         private readonly IAuthRepository authRepository;
         private readonly AppDbContext dbContext;
+        private readonly IConfiguration _configuration;
 
-        public AuthController(ITokenRepository tokenRepository, UserManager<ExtendedIdentityUser> userManager, IMapper mapper, IEmailServices emailServices, IAuthRepository authRepository, AppDbContext dbContext)
+        public AuthController(ITokenRepository tokenRepository, UserManager<ExtendedIdentityUser> userManager, IMapper mapper, IEmailServices emailServices, IAuthRepository authRepository, AppDbContext dbContext, IConfiguration configuration)
         {
             this.tokenRepository = tokenRepository;
             this.userManager = userManager;
@@ -35,6 +38,7 @@ namespace ECommerce.API.Controllers
             this.emailServices = emailServices;
             this.authRepository = authRepository;
             this.dbContext = dbContext;
+            _configuration = configuration;
         }
 
         [HttpPost]
@@ -52,6 +56,87 @@ namespace ECommerce.API.Controllers
                 return ValidationProblem(ModelState);
             }
             return Ok(loginResult);
+        }
+
+        [HttpGet("google-login")]
+        public IActionResult GoogleLogin()
+        {
+            return Challenge(
+            new AuthenticationProperties { RedirectUri = "/api/auth/google-callback-handler" },
+            "Google");
+        }
+
+        [HttpGet("google-callback-handler")]
+        public async Task<IActionResult> GoogleSignInCallbackHandler()
+        {
+            var frontendUrl = _configuration["FrontendUrl"] ?? "http://localhost:5173";
+
+            try
+            {
+                // Xác thực với Google
+                var authenticateResult = await HttpContext.AuthenticateAsync("Google");
+
+                if (!authenticateResult.Succeeded)
+                {
+                    return Redirect($"{frontendUrl}/login-failed?error=Google authentication failed");
+                }
+
+                // Lấy thông tin user từ Google
+                var email = authenticateResult.Principal?.FindFirstValue(ClaimTypes.Email);
+                var name = authenticateResult.Principal?.FindFirstValue(ClaimTypes.Name);
+                var googleUserId = authenticateResult.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(googleUserId))
+                {
+                    return Redirect($"{frontendUrl}/login-failed?error=Email or Google User ID not found");
+                }
+
+                // Tìm hoặc tạo user
+                var user = await userManager.FindByEmailAsync(email);
+                if (user == null)
+                {
+                    // Tạo user mới
+                    user = new ExtendedIdentityUser
+                    {
+                        UserName = name ?? email,
+                        Email = email,
+                        EmailConfirmed = true
+                    };
+
+                    var result = await userManager.CreateAsync(user);
+                    if (!result.Succeeded)
+                    {
+                        var errors = string.Join(",", result.Errors.Select(e => e.Description));
+                        return Redirect($"{frontendUrl}/login-failed?error={Uri.EscapeDataString(errors)}");
+                    }
+
+                    // Thêm vai trò User
+                    await userManager.AddToRoleAsync(user, "User");
+                }
+
+                // Kiểm tra và thêm liên kết Google
+                var logins = await userManager.GetLoginsAsync(user);
+                if (!logins.Any(l => l.LoginProvider == "Google" && l.ProviderKey == googleUserId))
+                {
+                    await userManager.AddLoginAsync(user, new UserLoginInfo("Google", googleUserId, "Google"));
+                }
+
+                // Tạo JWT và Refresh Token
+                var roles = await userManager.GetRolesAsync(user);
+                var accessToken = tokenRepository.CreateToken(user, roles.ToList());
+                var refreshToken = tokenRepository.GenerateRefreshToken();
+
+                user.RefreshToken = refreshToken;
+                user.RefreshTokenExpiry = DateTime.Now.AddDays(12);
+                await userManager.UpdateAsync(user);
+
+                // Redirect về frontend với token
+                return Redirect($"{frontendUrl}/auth/callback?token={accessToken}&refreshToken={refreshToken}");
+            }
+            catch (Exception ex)
+            {
+                return Redirect($"{frontendUrl}/login-failed?error={Uri.EscapeDataString(ex.Message)}");
+            }
         }
 
 

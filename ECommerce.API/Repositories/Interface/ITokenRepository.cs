@@ -9,6 +9,6 @@ namespace ECommerce.API.Repositories.Interface
         string CreateToken(ExtendedIdentityUser user, List<string> roles);
         Task<LoginResponseDto> Login(LoginDTO user);
         Task<LoginResponseDto> RefreshToken(RefreshTokenModel model);
-
+        string GenerateRefreshToken();
     }
 }

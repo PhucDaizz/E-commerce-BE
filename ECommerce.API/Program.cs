@@ -9,6 +9,7 @@ using ECommerce.API.Repositories.Impemention;
 using ECommerce.API.Repositories.Interface;
 using ECommerce.API.Services.Impemention;
 using ECommerce.API.Services.Interface;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -85,6 +86,7 @@ builder.Services.AddScoped<IDashboardServices, DashboardServices>();
 builder.Services.AddScoped<IChatCleanupOrchestratorService, ChatCleanupOrchestratorService>();
 builder.Services.AddScoped<IClosedConversationCleanupService, ClosedConversationCleanupService>();
 builder.Services.AddScoped<IStalePendingConversationCleanupService,StalePendingConversationCleanupService>();
+builder.Services.AddScoped<IGoogleAuthServices, GoogleAuthServices>();
 builder.Services.AddSingleton(cloudinary);
 
 
@@ -121,7 +123,21 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequiredUniqueChars = 1;
 });
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+
+        options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    })
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+    {
+        options.Cookie.Name = "GoogleAuth";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+        options.SlidingExpiration = true;
+    })
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
@@ -153,6 +169,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 return Task.CompletedTask;
             }
         };
+    })
+    .AddGoogle("Google",options =>
+    {
+        options.ClientId = builder.Configuration["Google:ClientId"];
+        options.ClientSecret = builder.Configuration["Google:ClientSecret"];
+        options.CallbackPath = "/signin-google";
+
+        options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.Scope.Add("profile");
+        options.Scope.Add("email");
+
+        options.SaveTokens = true;
     });
 
 builder.Services.AddHostedService<ChatCleanupService>();

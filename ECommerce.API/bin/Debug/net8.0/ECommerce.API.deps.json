@@ -11,6 +11,7 @@
           "AutoMapper": "13.0.1",
           "CloudinaryDotNet": "1.27.5",
           "MailKit": "4.10.0",
+          "Microsoft.AspNetCore.Authentication.Google": "8.0.17",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.11",
           "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "8.0.11",
           "Microsoft.AspNetCore.SignalR.Core": "1.2.0",
@@ -119,6 +120,14 @@
           "lib/net8.0/MailKit.dll": {
             "assemblyVersion": "4.10.0.0",
             "fileVersion": "4.10.0.0"
+          }
+        }
+      },
+      "Microsoft.AspNetCore.Authentication.Google/8.0.17": {
+        "runtime": {
+          "lib/net8.0/Microsoft.AspNetCore.Authentication.Google.dll": {
+            "assemblyVersion": "8.0.17.0",
+            "fileVersion": "8.0.1725.26609"
           }
         }
       },
@@ -1086,14 +1095,7 @@
           }
         }
       },
-      "System.Formats.Asn1/8.0.1": {
-        "runtime": {
-          "lib/net8.0/System.Formats.Asn1.dll": {
-            "assemblyVersion": "8.0.0.0",
-            "fileVersion": "8.0.724.31311"
-          }
-        }
-      },
+      "System.Formats.Asn1/8.0.1": {},
       "System.Globalization/4.3.0": {
         "dependencies": {
           "Microsoft.NETCore.Platforms": "1.1.1",
@@ -1598,6 +1600,13 @@
       "sha512": "sha512-C6gwHQGHru2x/g1pzk0NXn5BIv0qoeKbSgb4BIFfWl4OjTZOEajSIR+O6i4WElsuJI8Z77LGr4rH5nVjypyvDQ==",
       "path": "mailkit/4.10.0",
       "hashPath": "mailkit.4.10.0.nupkg.sha512"
+    },
+    "Microsoft.AspNetCore.Authentication.Google/8.0.17": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-wNF9d1s//OzqDmERyxLFnlos6mDIGVNqS1Iaxhxh9/XHKPUBmraGCVhJIn+v2qGdd5pi98XgtFCXszvBeLMZWQ==",
+      "path": "microsoft.aspnetcore.authentication.google/8.0.17",
+      "hashPath": "microsoft.aspnetcore.authentication.google.8.0.17.nupkg.sha512"
     },
     "Microsoft.AspNetCore.Authentication.JwtBearer/8.0.11": {
       "type": "package",

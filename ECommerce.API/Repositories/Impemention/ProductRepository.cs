@@ -4,6 +4,8 @@ using ECommerce.API.Models.Domain;
 using ECommerce.API.Models.DTO.Product;
 using ECommerce.API.Repositories.Interface;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
+using System.Text;
 
 namespace ECommerce.API.Repositories.Impemention
 {
@@ -49,7 +51,11 @@ namespace ECommerce.API.Repositories.Impemention
             var query = dbContext.Products.AsQueryable();
             if (!string.IsNullOrEmpty(productName))
             {
-                query = query.Where(p => p.ProductName.Contains(productName));
+                var unsignedKeyword = RemoveDiacritics(productName.ToLower());
+
+                query = query.Where(p =>
+                    p.ProductName.ToLower().Contains(productName.ToLower()) ||
+                    p.ProductNameUnsigned.ToLower().Contains(unsignedKeyword));
             }
 
             if(categoryId.HasValue)
@@ -128,7 +134,11 @@ namespace ECommerce.API.Repositories.Impemention
 
             if (!string.IsNullOrEmpty(productName))
             {
-                query = query.Where(p => p.ProductName.Contains(productName));
+                var unsignedKeyword = RemoveDiacritics(productName.ToLower());
+
+                query = query.Where(p =>
+                    p.ProductName.ToLower().Contains(productName.ToLower()) ||
+                    p.ProductNameUnsigned.ToLower().Contains(unsignedKeyword));
             }
 
             if (categoryId.HasValue)
@@ -189,6 +199,18 @@ namespace ECommerce.API.Repositories.Impemention
                 .Include(x => x.Categories)
                 .FirstOrDefaultAsync(x => x.ProductID == id);
             return product;
+        }
+
+        private string RemoveDiacritics(string productName)
+        {
+            var normalized = productName.Normalize(NormalizationForm.FormD);
+            var sb = new StringBuilder();
+            foreach (var c in normalized)
+            {
+                if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                    sb.Append(c);
+            }
+            return sb.ToString().Normalize(NormalizationForm.FormC).ToLower();
         }
     }
 }

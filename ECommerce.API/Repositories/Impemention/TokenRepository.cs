@@ -101,7 +101,7 @@ namespace ECommerce.API.Repositories.Impemention
         }
 
 
-        private string GenerateRefreshToken()
+        public string GenerateRefreshToken()
         {
             var randomnumber = new byte[32];
             using var rng = RandomNumberGenerator.Create();

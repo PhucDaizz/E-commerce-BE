@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "Lw81gpDD9sI=",
+  "dgSpecHash": "4wpTxa3OVWI=",
   "success": true,
   "projectFilePath": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\ECommerce.API.csproj",
   "expectedPackageFiles": [
@@ -12,6 +12,7 @@
     "C:\\Users\\PHUCDAI\\.nuget\\packages\\dotenv.net\\3.2.1\\dotenv.net.3.2.1.nupkg.sha512",
     "C:\\Users\\PHUCDAI\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\PHUCDAI\\.nuget\\packages\\mailkit\\4.10.0\\mailkit.4.10.0.nupkg.sha512",
+    "C:\\Users\\PHUCDAI\\.nuget\\packages\\microsoft.aspnetcore.authentication.google\\8.0.17\\microsoft.aspnetcore.authentication.google.8.0.17.nupkg.sha512",
     "C:\\Users\\PHUCDAI\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\8.0.11\\microsoft.aspnetcore.authentication.jwtbearer.8.0.11.nupkg.sha512",
     "C:\\Users\\PHUCDAI\\.nuget\\packages\\microsoft.aspnetcore.authorization\\2.3.0\\microsoft.aspnetcore.authorization.2.3.0.nupkg.sha512",
     "C:\\Users\\PHUCDAI\\.nuget\\packages\\microsoft.aspnetcore.connections.abstractions\\2.3.0\\microsoft.aspnetcore.connections.abstractions.2.3.0.nupkg.sha512",
