@@ -2702,6 +2702,46 @@
             "copyToOutput": false
           }
         }
+      },
+      "Ecommerce.Application/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "Ecommerce.Domain": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/Ecommerce.Application.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Ecommerce.Application.dll": {}
+        }
+      },
+      "Ecommerce.Domain/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "compile": {
+          "bin/placeholder/Ecommerce.Domain.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Ecommerce.Domain.dll": {}
+        }
+      },
+      "Ecommerce.Infrastructure/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "Ecommerce.Application": "1.0.0",
+          "Ecommerce.Domain": "1.0.0",
+          "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "8.0.11",
+          "Microsoft.EntityFrameworkCore": "8.0.11",
+          "Microsoft.EntityFrameworkCore.SqlServer": "8.0.11"
+        },
+        "compile": {
+          "bin/placeholder/Ecommerce.Infrastructure.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Ecommerce.Infrastructure.dll": {}
+        }
       }
     }
   },
@@ -7895,12 +7935,30 @@
         "vnpay.net.8.5.0.nupkg.sha512",
         "vnpay.net.nuspec"
       ]
+    },
+    "Ecommerce.Application/1.0.0": {
+      "type": "project",
+      "path": "../Ecommerce.Application/Ecommerce.Application.csproj",
+      "msbuildProject": "../Ecommerce.Application/Ecommerce.Application.csproj"
+    },
+    "Ecommerce.Domain/1.0.0": {
+      "type": "project",
+      "path": "../Ecommerce.Domain/Ecommerce.Domain.csproj",
+      "msbuildProject": "../Ecommerce.Domain/Ecommerce.Domain.csproj"
+    },
+    "Ecommerce.Infrastructure/1.0.0": {
+      "type": "project",
+      "path": "../Ecommerce.Infrastructure/Ecommerce.Infrastructure.csproj",
+      "msbuildProject": "../Ecommerce.Infrastructure/Ecommerce.Infrastructure.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net8.0": [
       "AutoMapper >= 13.0.1",
       "CloudinaryDotNet >= 1.27.5",
+      "Ecommerce.Application >= 1.0.0",
+      "Ecommerce.Domain >= 1.0.0",
+      "Ecommerce.Infrastructure >= 1.0.0",
       "MailKit >= 4.10.0",
       "Microsoft.AspNetCore.Authentication.Google >= 8.0.17",
       "Microsoft.AspNetCore.Authentication.JwtBearer >= 8.0.11",
@@ -7948,7 +8006,17 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "C:\\Workspace\\c#\\E-commerce\\Ecommerce.Application\\Ecommerce.Application.csproj": {
+              "projectPath": "C:\\Workspace\\c#\\E-commerce\\Ecommerce.Application\\Ecommerce.Application.csproj"
+            },
+            "C:\\Workspace\\c#\\E-commerce\\Ecommerce.Domain\\Ecommerce.Domain.csproj": {
+              "projectPath": "C:\\Workspace\\c#\\E-commerce\\Ecommerce.Domain\\Ecommerce.Domain.csproj"
+            },
+            "C:\\Workspace\\c#\\E-commerce\\Ecommerce.Infrastructure\\Ecommerce.Infrastructure.csproj": {
+              "projectPath": "C:\\Workspace\\c#\\E-commerce\\Ecommerce.Infrastructure\\Ecommerce.Infrastructure.csproj"
+            }
+          }
         }
       },
       "warningProperties": {

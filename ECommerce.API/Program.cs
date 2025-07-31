@@ -1,7 +1,7 @@
 using CloudinaryDotNet;
 using dotenv.net;
+using Ecommerce.Infrastructure;
 using ECommerce.API.BackgroundServices;
-using ECommerce.API.Data;
 using ECommerce.API.Hubs;
 using ECommerce.API.Mapping;
 using ECommerce.API.Models.Domain;

@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using ECommerce.API.Data;
+using Ecommerce.Infrastructure;
 using ECommerce.API.Models.Domain;
 using ECommerce.API.Models.DTO.CartItem;
 using ECommerce.API.Repositories.Impemention;

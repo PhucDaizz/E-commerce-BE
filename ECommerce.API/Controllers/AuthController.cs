@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Azure.Core;
-using ECommerce.API.Data;
+using Ecommerce.Infrastructure;
 using ECommerce.API.Models.Domain;
 using ECommerce.API.Models.DTO.User;
 using ECommerce.API.Repositories.Interface;

@@ -1,28 +1,40 @@
-﻿using Ecommerce.Infrastructure;
-using ECommerce.API.Models.Domain;
-using ECommerce.API.Models.DTO.User;
-using ECommerce.API.Repositories.Interface;
+﻿using Ecommerce.Application.DTOS.User;
+using Ecommerce.Application.Repositories.Interfaces;
+using Ecommerce.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace ECommerce.API.Repositories.Impemention
+namespace Ecommerce.Infrastructure.Repositories
 {
-    public class AuthRepository: IAuthRepository
+    public class AuthRepository : IAuthRepository
     {
-        private readonly AppDbContext dbContext;
+        private readonly AppDbContext _dbContext;
 
         public AuthRepository(AppDbContext dbContext)
         {
-            this.dbContext = dbContext;
+            _dbContext = dbContext;
         }
 
-        public async Task<ExtendedIdentityUser> GetInforAsync(string userId)
+        public async Task<InforDTO?> GetInforAsync(string userId)
         {
-            return await dbContext.ExtendedIdentityUsers.FirstOrDefaultAsync(u => u.Id == userId);
+            var user = await _dbContext.ExtendedIdentityUsers.FirstOrDefaultAsync(u => u.Id == userId);
+            return user != null ? new InforDTO
+            {
+                UserName = user.UserName,
+                Email = user.Email,
+                EmailConfirmed = user.EmailConfirmed,
+                PhoneNumber = user.PhoneNumber,
+                Address = user.Address
+            }: null;
         }
 
         public async Task<ListUserDTO> ListUserAsync(string? querySearch, string searchField = "Email", int page = 1, int itemInPage = 10)
         {
-            var query = dbContext.ExtendedIdentityUsers.AsQueryable();
+            var query = _dbContext.ExtendedIdentityUsers.AsQueryable();
             if (!string.IsNullOrEmpty(querySearch))
             {
                 if (searchField == "Email")
