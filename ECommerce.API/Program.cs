@@ -1,6 +1,10 @@
-using CloudinaryDotNet;
+﻿using CloudinaryDotNet;
 using dotenv.net;
+using Ecommerce.Application.Repositories.Interfaces;
 using Ecommerce.Infrastructure;
+using Ecommerce.Infrastructure.Contracts.Infrastructure;
+using Ecommerce.Infrastructure.Repositories;
+using Ecommerce.Infrastructure.Settings;
 using ECommerce.API.BackgroundServices;
 using ECommerce.API.Hubs;
 using ECommerce.API.Mapping;
@@ -46,6 +50,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("ECommerceConnectionstring"));
 });
 
+builder.Services.Configure<JwtSettings>(
+    builder.Configuration.GetSection(JwtSettings.SectionName)
+);
+
 
 builder.Services.AddSignalR();
 
@@ -89,6 +97,13 @@ builder.Services.AddScoped<IStalePendingConversationCleanupService,StalePendingC
 builder.Services.AddScoped<IGoogleAuthServices, GoogleAuthServices>();
 builder.Services.AddSingleton(cloudinary);
 
+
+// repositories new 
+builder.Services.AddScoped<ITokenGenerator, JwtTokenGenerator>();
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+builder.Services.AddScoped<IIdentityRepository, IdentityRepository>(); //TokenRepository cũ
+
+// services new
 
 builder.Services.AddCors(options =>
 {
