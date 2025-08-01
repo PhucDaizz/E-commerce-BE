@@ -1,50 +1,54 @@
-﻿using ECommerce.API.Data;
-using ECommerce.API.Models.Domain;
-using ECommerce.API.Repositories.Interface;
-using Microsoft.AspNetCore.Mvc;
+﻿using Ecommerce.Application.Repositories.Interfaces;
+using Ecommerce.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace ECommerce.API.Repositories.Impemention
+namespace Ecommerce.Infrastructure.Repositories
 {
-    public class CategoryRepository : ICategoryRepository
+    public class CategoryRepository: ICategoryRepository
     {
-        private readonly AppDbContext dbContext;
+        private readonly AppDbContext _dbContext;
 
         public CategoryRepository(AppDbContext dbContext)
         {
-            this.dbContext = dbContext;
+            _dbContext = dbContext;
         }
+
         public async Task<Categories> CreateAsync(Categories categories)
         {
-            await dbContext.AddAsync(categories);
-            await dbContext.SaveChangesAsync();
+            await _dbContext.AddAsync(categories);
+            await _dbContext.SaveChangesAsync();
             return categories;
         }
 
         public async Task<Categories?> DeleteAsync(int id)
         {
-            var existing = await dbContext.Categories.FirstOrDefaultAsync(x => x.CategoryID == id);
+            var existing = await _dbContext.Categories.FirstOrDefaultAsync(x => x.CategoryID == id);
             if (existing == null)
             {
                 return null;
             }
             else
             {
-                dbContext.Categories.Remove(existing);
-                await dbContext.SaveChangesAsync();
+                _dbContext.Categories.Remove(existing);
+                await _dbContext.SaveChangesAsync();
                 return existing;
             }
         }
 
         public async Task<IEnumerable<Categories>> GetAllAsync()
         {
-            var categories = await dbContext.Categories.ToListAsync();
+            var categories = await _dbContext.Categories.ToListAsync();
             return categories;
         }
 
         public async Task<Categories?> GetByIdAsync(int id)
         {
-            var existing = await dbContext.Categories.FirstOrDefaultAsync(x => x.CategoryID == id);
+            var existing = await _dbContext.Categories.FirstOrDefaultAsync(x => x.CategoryID == id);
             if (existing == null)
             {
                 return null;
@@ -54,13 +58,13 @@ namespace ECommerce.API.Repositories.Impemention
 
         public async Task<Categories?> UpdateAsync(Categories categories)
         {
-            var existing = await dbContext.Categories.FirstOrDefaultAsync(x => x.CategoryID == categories.CategoryID);
+            var existing = await _dbContext.Categories.FirstOrDefaultAsync(x => x.CategoryID == categories.CategoryID);
             if (existing != null)
             {
                 categories.CreatedAt = existing.CreatedAt;
                 categories.UpdatedAt = DateTime.UtcNow;
-                dbContext.Entry(existing).CurrentValues.SetValues(categories);
-                await dbContext.SaveChangesAsync();
+                _dbContext.Entry(existing).CurrentValues.SetValues(categories);
+                await _dbContext.SaveChangesAsync();
                 return existing;
             }
             else

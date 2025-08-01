@@ -1,11 +1,15 @@
-﻿using ECommerce.API.Data;
-using ECommerce.API.Models.Domain;
-using ECommerce.API.Repositories.Interface;
+﻿using Ecommerce.Application.Repositories.Interfaces;
+using Ecommerce.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace ECommerce.API.Repositories.Impemention
+namespace Ecommerce.Infrastructure.Repositories
 {
-    public class PaymentMethodRepository : IPaymentMethodRepository
+    public class PaymentMethodRepository: IPaymentMethodRepository
     {
         private readonly AppDbContext dbContext;
 
