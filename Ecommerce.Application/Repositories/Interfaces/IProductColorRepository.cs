@@ -1,7 +1,11 @@
-﻿using ECommerce.API.Models.Domain;
-using ECommerce.API.Models.DTO.ProductColor;
+﻿using Ecommerce.Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace ECommerce.API.Repositories.Interface
+namespace Ecommerce.Application.Repositories.Interfaces
 {
     public interface IProductColorRepository
     {

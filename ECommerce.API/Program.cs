@@ -1,5 +1,6 @@
 ﻿using CloudinaryDotNet;
 using dotenv.net;
+using Ecommerce.Application.Common.Mappings;
 using Ecommerce.Application.Repositories.Interfaces;
 using Ecommerce.Infrastructure;
 using Ecommerce.Infrastructure.Contracts.Infrastructure;
@@ -7,7 +8,6 @@ using Ecommerce.Infrastructure.Repositories;
 using Ecommerce.Infrastructure.Settings;
 using ECommerce.API.BackgroundServices;
 using ECommerce.API.Hubs;
-using ECommerce.API.Mapping;
 using ECommerce.API.Models.Domain;
 using ECommerce.API.Repositories.Impemention;
 using ECommerce.API.Repositories.Interface;
@@ -60,14 +60,10 @@ builder.Services.AddSignalR();
 
 // repositories
 builder.Services.AddScoped<IProductRepository,ProductRepository>();
-builder.Services.AddScoped<IProductColorRepository,ProductColorRepository>();
-builder.Services.AddScoped<IProductSizeRepository, ProductSizeRepository>();
 builder.Services.AddScoped<IProductImageRepository, ProductImageRepository>();
 builder.Services.AddScoped<ITokenRepository, TokenRepository>();
-builder.Services.AddScoped<ICartItemRepository, CartItemRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
-builder.Services.AddScoped<IProductReviewRepository, ProductReviewRepository>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddSingleton<IVnpay, Vnpay>();
 
@@ -102,6 +98,10 @@ builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IDiscountRepository, DiscountRepository>();
 builder.Services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
 builder.Services.AddScoped<IConversationRepository, ConversationRepository>();
+builder.Services.AddScoped<IProductSizeRepository, ProductSizeRepository>();
+builder.Services.AddScoped<IProductColorRepository, ProductColorRepository>();
+builder.Services.AddScoped<ICartItemRepository, CartItemRepository>();
+builder.Services.AddScoped<IProductReviewRepository, ProductReviewRepository>();
 
 
 

@@ -1,11 +1,14 @@
-﻿using ECommerce.API.Data;
-using ECommerce.API.Models.Domain;
-using ECommerce.API.Models.DTO.ProductReview;
-using ECommerce.API.Repositories.Interface;
-using Microsoft.AspNetCore.Http.HttpResults;
+﻿using Ecommerce.Application.DTOS.ProductReview;
+using Ecommerce.Application.Repositories.Interfaces;
+using Ecommerce.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace ECommerce.API.Repositories.Impemention
+namespace Ecommerce.Infrastructure.Repositories
 {
     public class ProductReviewRepository : IProductReviewRepository
     {
@@ -25,7 +28,7 @@ namespace ECommerce.API.Repositories.Impemention
         public async Task<ProductReviews?> DeleteAync(int reviewId)
         {
             var exising = await dbContext.ProductReviews.FirstOrDefaultAsync(x => x.ReviewID == reviewId);
-            if(exising == null)
+            if (exising == null)
             {
                 return null;
             }

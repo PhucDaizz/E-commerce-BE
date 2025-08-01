@@ -1,9 +1,13 @@
-﻿using ECommerce.API.Data;
-using ECommerce.API.Models.Domain;
-using ECommerce.API.Repositories.Interface;
+﻿using Ecommerce.Application.Repositories.Interfaces;
+using Ecommerce.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace ECommerce.API.Repositories.Impemention
+namespace Ecommerce.Infrastructure.Repositories
 {
     public class CartItemRepository : ICartItemRepository
     {
@@ -23,7 +27,7 @@ namespace ECommerce.API.Repositories.Impemention
                 await dbContext.SaveChangesAsync();
                 return true;
             }
-            return false;    
+            return false;
         }
 
         public async Task<CartItems> CreateAsync(CartItems cartItems)
@@ -37,10 +41,11 @@ namespace ECommerce.API.Repositories.Impemention
         {
             var cartItems = await dbContext.CartItems.Where(x => x.UserID == UserID).ToListAsync();
 
-            if (cartItems.Any()) { 
-                dbContext.CartItems.RemoveRange(cartItems); 
-                await dbContext.SaveChangesAsync(); 
-                return true; 
+            if (cartItems.Any())
+            {
+                dbContext.CartItems.RemoveRange(cartItems);
+                await dbContext.SaveChangesAsync();
+                return true;
             }
             return false;
         }
