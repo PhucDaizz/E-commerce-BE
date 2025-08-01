@@ -1,8 +1,13 @@
-﻿using ECommerce.API.Models.Domain;
-using ECommerce.API.Models.DTO.Product;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+﻿using Ecommerce.Application.DTOS.Common;
+using Ecommerce.Application.DTOS.Product;
+using Ecommerce.Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace ECommerce.API.Repositories.Interface
+namespace Ecommerce.Application.Repositories.Interfaces
 {
     public interface IProductRepository
     {
@@ -15,7 +20,5 @@ namespace ECommerce.API.Repositories.Interface
         Task<bool> ExistsAsync(int id);
         Task<PagedResult<ListProductAdminDTO>> GetAllAdminAsync(string? productName, bool isDESC = false, int page = 1, int itemInPage = 20, string sortBy = "CreatedAt", int? categoryId = null);
         Task<bool> ToPublicAync(int id);
-    
-    
     }
 }

@@ -1,45 +1,48 @@
-﻿using ECommerce.API.Data;
-using ECommerce.API.Models.Domain;
-using ECommerce.API.Models.DTO.Product;
-using ECommerce.API.Repositories.Interface;
-using Microsoft.AspNetCore.Mvc;
+﻿using Ecommerce.Application.DTOS.Common;
+using Ecommerce.Application.Repositories.Interfaces;
+using Ecommerce.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace ECommerce.API.Repositories.Impemention
+namespace Ecommerce.Infrastructure.Repositories
 {
     public class OrderRepository : IOrderRepository
     {
-        private readonly AppDbContext dbContext;
+        private readonly AppDbContext _dbContext;
 
         public OrderRepository(AppDbContext dbContext)
         {
-            this.dbContext = dbContext;
+            _dbContext = dbContext;
         }
 
         public async Task<Orders> CreateAsync(Orders order)
         {
             order.CreatedAt = DateTime.Now;
             order.UpdatedAt = DateTime.Now;
-            await dbContext.AddAsync(order);
-            await dbContext.SaveChangesAsync();
+            await _dbContext.AddAsync(order);
+            await _dbContext.SaveChangesAsync();
             return order;
         }
 
         public async Task<Orders?> DeleteAsync(Guid id)
         {
-            var existing = await dbContext.Orders.FirstOrDefaultAsync(x => x.OrderID == id);
+            var existing = await _dbContext.Orders.FirstOrDefaultAsync(x => x.OrderID == id);
             if (existing == null)
             {
                 return null;
             }
-            dbContext.Remove(existing);
-            await dbContext.SaveChangesAsync();
+            _dbContext.Remove(existing);
+            await _dbContext.SaveChangesAsync();
             return existing;
         }
 
-        public async Task<PagedResult<Orders>> GetAllAsync([FromQuery] Guid? userId, [FromQuery] string? sortBy, [FromQuery] bool isDESC = true, [FromQuery] int page = 1, [FromQuery] int itemInPage = 10)
+        public async Task<PagedResult<Orders>> GetAllAsync(Guid? userId, string? sortBy, bool isDESC = true, int page = 1, int itemInPage = 10)
         {
-            var query = dbContext.Orders.AsQueryable();
+            var query = _dbContext.Orders.AsQueryable();
 
             if (userId.HasValue)
             {
@@ -48,11 +51,11 @@ namespace ECommerce.API.Repositories.Impemention
 
             switch (sortBy?.ToLower())
             {
-                case "orderdate": 
-                    query = isDESC ? query.OrderByDescending(x => x.OrderDate) : query.OrderBy(x => x.OrderDate); 
+                case "orderdate":
+                    query = isDESC ? query.OrderByDescending(x => x.OrderDate) : query.OrderBy(x => x.OrderDate);
                     break;
-                case "totalamount": 
-                    query = isDESC ? query.OrderByDescending(x => x.TotalAmount) : query.OrderBy(x => x.TotalAmount); 
+                case "totalamount":
+                    query = isDESC ? query.OrderByDescending(x => x.TotalAmount) : query.OrderBy(x => x.TotalAmount);
                     break;
                 case "pending":
                     query = isDESC ? query.Where(x => x.Status == 0).OrderByDescending(x => x.OrderDate) : query.Where(x => x.Status == 0);
@@ -69,8 +72,8 @@ namespace ECommerce.API.Repositories.Impemention
                 case "confirmed":
                     query = isDESC ? query.Where(x => x.Status == 4).OrderByDescending(x => x.OrderDate) : query.Where(x => x.Status == 4);
                     break;
-                default: 
-                    query = isDESC ? query.OrderByDescending(x => x.OrderDate) : query.OrderBy(x => x.OrderDate); 
+                default:
+                    query = isDESC ? query.OrderByDescending(x => x.OrderDate) : query.OrderBy(x => x.OrderDate);
                     break;
             }
 
@@ -89,7 +92,7 @@ namespace ECommerce.API.Repositories.Impemention
 
         public async Task<IEnumerable<Orders>?> GetAllByUserIdAsync(Guid userId)
         {
-            var orders = await dbContext.Orders.Where(o => o.UserID == userId).Include(x => x.Shippings).OrderByDescending(x => x.OrderDate).ToListAsync();
+            var orders = await _dbContext.Orders.Where(o => o.UserID == userId).Include(x => x.Shippings).OrderByDescending(x => x.OrderDate).ToListAsync();
             if (!orders.Any() || orders == null)
             {
                 return null;
@@ -99,27 +102,27 @@ namespace ECommerce.API.Repositories.Impemention
 
         public async Task<Orders?> GetByIdAsync(Guid id, Guid? userId)
         {
-            var existing = await dbContext.Orders.FirstOrDefaultAsync(x => x.OrderID == id && x.UserID == userId);
+            var existing = await _dbContext.Orders.FirstOrDefaultAsync(x => x.OrderID == id && x.UserID == userId);
             return existing;
         }
 
         public async Task<Orders?> UpdateAsync(Orders order)
         {
-            var existing = await dbContext.Orders.FirstOrDefaultAsync(x => x.OrderID == order.OrderID);
+            var existing = await _dbContext.Orders.FirstOrDefaultAsync(x => x.OrderID == order.OrderID);
             if (existing == null)
             {
                 return null;
             }
             order.UpdatedAt = DateTime.Now;
-            dbContext.Orders.Entry(existing).CurrentValues.SetValues(order);
-            await dbContext.SaveChangesAsync();
+            _dbContext.Orders.Entry(existing).CurrentValues.SetValues(order);
+            await _dbContext.SaveChangesAsync();
             return existing;
         }
 
 
         public async Task<Orders?> GetByIdAdminAsync(Guid id)
         {
-            var existing = await dbContext.Orders
+            var existing = await _dbContext.Orders
                             .Include(x => x.Payments)
                             .Include(x => x.Shippings)
                             .Include(x => x.OrderDetails)
@@ -135,16 +138,16 @@ namespace ECommerce.API.Repositories.Impemention
 
         public async Task<Orders?> UpdateOrderStatus(Guid id, int status)
         {
-            var existing = await dbContext.Orders.FirstOrDefaultAsync(x => x.OrderID == id);
-            if(existing == null)
+            var existing = await _dbContext.Orders.FirstOrDefaultAsync(x => x.OrderID == id);
+            if (existing == null)
             {
                 return null;
             }
-            if(status >= 0 && status <= 4 && status != 1 )
+            if (status >= 0 && status <= 4 && status != 1)
             {
                 existing.Status = status;
-                dbContext.Entry(existing).CurrentValues.SetValues(existing);
-                await dbContext.SaveChangesAsync(); 
+                _dbContext.Entry(existing).CurrentValues.SetValues(existing);
+                await _dbContext.SaveChangesAsync();
                 return existing;
             }
             return null;

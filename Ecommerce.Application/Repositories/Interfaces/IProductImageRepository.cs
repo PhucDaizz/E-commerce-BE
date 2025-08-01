@@ -1,7 +1,11 @@
-﻿using ECommerce.API.Models.Domain;
-using ECommerce.API.Models.DTO.ProductImage;
+﻿using Ecommerce.Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace ECommerce.API.Repositories.Interface
+namespace Ecommerce.Application.Repositories.Interfaces
 {
     public interface IProductImageRepository
     {
@@ -11,7 +15,5 @@ namespace ECommerce.API.Repositories.Interface
         Task<ProductImages?> DeleteAsync(int id);
         Task<IEnumerable<ProductImages>> GetAllByProductIDAsync(int productId);
         Task<IEnumerable<ProductImages>> CreateImagesAsync(IEnumerable<ProductImages> imagesList);
-        /*Task<bool> retainProductFeaturedImage(IEnumerable<ProductImages> productImages);*/
-        Task<bool> DeleteProductImagesAsync(int productId);
     }
 }

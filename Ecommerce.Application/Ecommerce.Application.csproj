@@ -11,12 +11,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Services\Impemention\" />
-    <Folder Include="Services\Interfaces\" />
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <Folder Include="Services\Impemention\" />
+    <Folder Include="Services\Interfaces\" />
   </ItemGroup>
 
 </Project>

@@ -1,8 +1,12 @@
-﻿using ECommerce.API.Models.Domain;
-using ECommerce.API.Models.DTO.CartItem;
-using ECommerce.API.Models.DTO.Order;
+﻿using Ecommerce.Application.DTOS.CartItem;
+using Ecommerce.Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace ECommerce.API.Repositories.Interface
+namespace Ecommerce.Application.Repositories.Interfaces
 {
     public interface IOrderDetailRepository
     {

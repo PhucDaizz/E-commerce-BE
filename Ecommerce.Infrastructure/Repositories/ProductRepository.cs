@@ -1,30 +1,34 @@
 ﻿using AutoMapper;
-using ECommerce.API.Data;
-using ECommerce.API.Models.Domain;
-using ECommerce.API.Models.DTO.Product;
-using ECommerce.API.Repositories.Interface;
+using Ecommerce.Application.DTOS.Common;
+using Ecommerce.Application.DTOS.Product;
+using Ecommerce.Application.Repositories.Interfaces;
+using Ecommerce.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace ECommerce.API.Repositories.Impemention
+namespace Ecommerce.Infrastructure.Repositories
 {
     public class ProductRepository : IProductRepository
     {
-        private readonly AppDbContext dbContext;
-        private readonly IMapper mapper;
+        private readonly AppDbContext _dbContext;
+        private readonly IMapper _mapper;
 
         public ProductRepository(AppDbContext dbContext, IMapper mapper)
         {
-            this.dbContext = dbContext;
-            this.mapper = mapper;
+            _dbContext = dbContext;
+            _mapper = mapper;
         }
         public async Task<Products> CreateAsync(Products products)
         {
             try
             {
-                await dbContext.Products.AddAsync(products);
-                await dbContext.SaveChangesAsync();
+                await _dbContext.Products.AddAsync(products);
+                await _dbContext.SaveChangesAsync();
                 return products;
             }
             catch (DbUpdateException ex)
@@ -36,19 +40,19 @@ namespace ECommerce.API.Repositories.Impemention
 
         public async Task<Products?> DeleteAsync(int id)
         {
-            var existing = await dbContext.Products.FirstOrDefaultAsync(x => x.ProductID == id);
+            var existing = await _dbContext.Products.FirstOrDefaultAsync(x => x.ProductID == id);
             if (existing == null)
             {
-                 return null;
+                return null;
             }
-            dbContext.Products.Remove(existing);
-            await dbContext.SaveChangesAsync();
+            _dbContext.Products.Remove(existing);
+            await _dbContext.SaveChangesAsync();
             return existing;
         }
 
         public async Task<PagedResult<ListProductDTO>> GetAllAsync(string? productName, bool isDESC = false, int page = 1, int itemInPage = 20, string sortBy = "CreatedAt", int? categoryId = null)
         {
-            var query = dbContext.Products.AsQueryable();
+            var query = _dbContext.Products.AsQueryable();
             if (!string.IsNullOrEmpty(productName))
             {
                 var unsignedKeyword = RemoveDiacritics(productName.ToLower());
@@ -58,7 +62,7 @@ namespace ECommerce.API.Repositories.Impemention
                     p.ProductNameUnsigned.ToLower().Contains(unsignedKeyword));
             }
 
-            if(categoryId.HasValue)
+            if (categoryId.HasValue)
             {
                 query = query.Where(p => p.CategoryID == categoryId.Value);
             }
@@ -81,10 +85,10 @@ namespace ECommerce.API.Repositories.Impemention
 
             query = query.Where(x => x.IsPublic == true);
             int totalCounts = await query.CountAsync();
-            var  products = await query.Skip((page - 1) * itemInPage).Take(itemInPage).Include(x => x.ProductImages).ToListAsync();
+            var products = await query.Skip((page - 1) * itemInPage).Take(itemInPage).Include(x => x.ProductImages).ToListAsync();
             int pageSize = totalCounts % itemInPage != 0 ? totalCounts / itemInPage + 1 : totalCounts / itemInPage;
 
-            var productsDTO = mapper.Map<List<ListProductDTO>>(products);
+            var productsDTO = _mapper.Map<List<ListProductDTO>>(products);
 
             return new PagedResult<ListProductDTO>
             {
@@ -97,8 +101,8 @@ namespace ECommerce.API.Repositories.Impemention
 
         public async Task<Products?> GetByIdAsync(int id)
         {
-            var existing = await dbContext.Products.FirstOrDefaultAsync(x => x.ProductID == id);
-            if(existing == null)
+            var existing = await _dbContext.Products.FirstOrDefaultAsync(x => x.ProductID == id);
+            if (existing == null)
             {
                 return null;
             }
@@ -108,25 +112,25 @@ namespace ECommerce.API.Repositories.Impemention
 
         public async Task<Products?> UpdateAsync(Products products)
         {
-            var existing = await dbContext.Products.FirstOrDefaultAsync(x => x.ProductID == products.ProductID);
+            var existing = await _dbContext.Products.FirstOrDefaultAsync(x => x.ProductID == products.ProductID);
             if (existing == null)
             {
                 return null;
             }
             products.CreatedAt = existing.CreatedAt;
-            dbContext.Products.Entry(existing).CurrentValues.SetValues(products);
-            await dbContext.SaveChangesAsync();
+            _dbContext.Products.Entry(existing).CurrentValues.SetValues(products);
+            await _dbContext.SaveChangesAsync();
             return existing;
         }
 
         public async Task<bool> ExistsAsync(int id)
         {
-            return await dbContext.Products.AnyAsync(x => x.ProductID == id);
+            return await _dbContext.Products.AnyAsync(x => x.ProductID == id);
         }
 
         public async Task<PagedResult<ListProductAdminDTO>> GetAllAdminAsync(string? productName, bool isDESC = false, int page = 1, int itemInPage = 20, string sortBy = "CreatedAt", int? categoryId = null)
         {
-            var query = dbContext.Products
+            var query = _dbContext.Products
                 .Include(x => x.ProductColors)
                     .ThenInclude(x => x.ProductSizes)
                 .AsQueryable();
@@ -166,7 +170,7 @@ namespace ECommerce.API.Repositories.Impemention
             var products = await query.Skip((page - 1) * itemInPage).Take(itemInPage).Include(x => x.ProductImages).ToListAsync();
             int pageSize = totalCounts % itemInPage != 0 ? totalCounts / itemInPage + 1 : totalCounts / itemInPage;
 
-            var productsDTO = mapper.Map<List<ListProductAdminDTO>>(products);
+            var productsDTO = _mapper.Map<List<ListProductAdminDTO>>(products);
 
             return new PagedResult<ListProductAdminDTO>
             {
@@ -179,7 +183,7 @@ namespace ECommerce.API.Repositories.Impemention
 
         public async Task<bool> ToPublicAync(int id)
         {
-            var existing = await dbContext.Products.FirstOrDefaultAsync(x => x.ProductID == id);
+            var existing = await _dbContext.Products.FirstOrDefaultAsync(x => x.ProductID == id);
             if (existing == null)
             {
                 return false;
@@ -187,14 +191,14 @@ namespace ECommerce.API.Repositories.Impemention
 
             existing.IsPublic = !existing.IsPublic;
 
-            dbContext.Entry(existing).CurrentValues.SetValues(existing);
-            await dbContext.SaveChangesAsync();
+            _dbContext.Entry(existing).CurrentValues.SetValues(existing);
+            await _dbContext.SaveChangesAsync();
             return true;
         }
 
         public async Task<Products?> GetDetailAsync(int id)
         {
-            var product = await dbContext.Products
+            var product = await _dbContext.Products
                 .Include(x => x.ProductImages)
                 .Include(x => x.Categories)
                 .FirstOrDefaultAsync(x => x.ProductID == id);
