@@ -1,14 +1,18 @@
-﻿using ECommerce.API.Models.Domain;
-using ECommerce.API.Models.DTO.Discount;
-using Microsoft.AspNetCore.Mvc;
+﻿using Ecommerce.Application.DTOS.Discount;
+using Ecommerce.Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace ECommerce.API.Repositories.Interface
+namespace Ecommerce.Application.Repositories.Interfaces
 {
     public interface IDiscountRepository
     {
         Task<Discounts> CreateAsync(Discounts discounts);
         Task<Discounts?> GetByIdAsync(int id);
-        Task<ListDiscountDTO?> GetAllAsync([FromQuery] int page = 1, [FromQuery] int itemsInPage = 20, [FromQuery] string sortBy = "IsActive", [FromQuery] bool isDESC = false);
+        Task<ListDiscountDTO?> GetAllAsync(int page = 1, int itemsInPage = 20, string sortBy = "IsActive", bool isDESC = false);
         Task<Discounts?> UpdateAsync(Discounts discounts);
         Task<Discounts?> DeleteAsync(int id);
         Task<Discounts?> GetDiscountByCodeAsync(string code);

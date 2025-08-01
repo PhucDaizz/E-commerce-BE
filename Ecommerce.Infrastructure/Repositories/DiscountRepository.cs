@@ -1,13 +1,15 @@
 ﻿using AutoMapper;
-using ECommerce.API.Data;
-using ECommerce.API.Models.Domain;
-using ECommerce.API.Models.DTO.Discount;
-using ECommerce.API.Repositories.Interface;
-using Microsoft.AspNetCore.Mvc;
+using Ecommerce.Application.DTOS.Discount;
+using Ecommerce.Application.Repositories.Interfaces;
+using Ecommerce.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace ECommerce.API.Repositories.Impemention
+namespace Ecommerce.Infrastructure.Repositories
 {
     public class DiscountRepository : IDiscountRepository
     {
@@ -23,7 +25,7 @@ namespace ECommerce.API.Repositories.Impemention
         public async Task<Discounts?> ActiveAsync(int discountId)
         {
             var existing = await dbContext.Discounts.FirstOrDefaultAsync(x => x.DiscountID == discountId);
-            if(existing == null)
+            if (existing == null)
             {
                 return null;
             }
@@ -48,17 +50,17 @@ namespace ECommerce.API.Repositories.Impemention
             {
                 return null;
             }
-            
+
             if (existing.Orders.Any())  // existing.Orders.Count > 0
             {
                 return null;
             }
             dbContext.Discounts.Remove(existing);
-            await dbContext.SaveChangesAsync(); 
+            await dbContext.SaveChangesAsync();
             return existing;
         }
 
-        public async Task<ListDiscountDTO?> GetAllAsync([FromQuery] int page = 1, [FromQuery] int itemsInPage = 20, [FromQuery] string sortBy = "all", [FromQuery] bool isDESC = true)
+        public async Task<ListDiscountDTO?> GetAllAsync(int page = 1, int itemsInPage = 20, string sortBy = "all", bool isDESC = true)
         {
             var discountQuery = dbContext.Discounts.AsQueryable();
             if (!string.IsNullOrEmpty(sortBy))
@@ -81,13 +83,13 @@ namespace ECommerce.API.Repositories.Impemention
             var itemList = await discountQuery.Skip((page - 1) * itemsInPage).Take(itemsInPage).ToListAsync();
 
 
-            return new ListDiscountDTO 
+            return new ListDiscountDTO
             {
                 Discounts = mapper.Map<IEnumerable<DiscountDTO>>(itemList),
                 TotalCount = totalCounts,
                 Page = page,
                 PageSize = totalPages
-            }; 
+            };
         }
 
         public async Task<Discounts?> GetByIdAsync(int id)
@@ -123,7 +125,7 @@ namespace ECommerce.API.Repositories.Impemention
             {
                 return null;
             }
-            if(!existing.Orders.Any()) // if voucher is not used
+            if (!existing.Orders.Any()) // if voucher is not used
             {
                 dbContext.Discounts.Entry(existing).CurrentValues.SetValues(discounts);
             }

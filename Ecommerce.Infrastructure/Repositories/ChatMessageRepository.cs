@@ -1,9 +1,14 @@
-﻿using ECommerce.API.Data;
-using ECommerce.API.Models.Domain;
-using ECommerce.API.Repositories.Interface;
+﻿using Ecommerce.Application.Repositories.Interfaces;
+using Ecommerce.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace ECommerce.API.Repositories.Impemention
+namespace Ecommerce.Infrastructure.Repositories
 {
     public class ChatMessageRepository : IChatMessageRepository
     {
@@ -49,10 +54,10 @@ namespace ECommerce.API.Repositories.Impemention
 
         public async Task<ChatMessage> GetLastMessagePreviewAsync(Guid conversationId)
         {
-           return await _dbContext.ChatMessage
-                .Where(c => c.ConversationId == conversationId)
-                .OrderByDescending(c => c.SentTimeUtc)
-                .FirstOrDefaultAsync();
+            return await _dbContext.ChatMessage
+                 .Where(c => c.ConversationId == conversationId)
+                 .OrderByDescending(c => c.SentTimeUtc)
+                 .FirstOrDefaultAsync();
         }
 
         public async Task MarkMessagesAsReadAsync(Guid conversationId, string currentUserId, bool isAdmin)

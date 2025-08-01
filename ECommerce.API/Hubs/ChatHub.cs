@@ -1,15 +1,12 @@
 ﻿using AutoMapper;
+using Ecommerce.Application.Repositories.Interfaces;
+using Ecommerce.Domain.Entities;
+using Ecommerce.Domain.Enums;
 using Ecommerce.Infrastructure;
-using ECommerce.API.Models.Domain;
 using ECommerce.API.Models.DTO.ChatMessage;
 using ECommerce.API.Models.DTO.Conversation;
-using ECommerce.API.Models.Enums;
-using ECommerce.API.Repositories.Interface;
-using ECommerce.API.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.VisualBasic;
-using Org.BouncyCastle.Utilities.Collections;
 using System.Collections.Concurrent;
 
 namespace ECommerce.API.Hubs
@@ -76,7 +73,7 @@ namespace ECommerce.API.Hubs
                         activeConversationInfos.Add(new
                         {
                             ConversationId = conversation.ConversationId,
-                            ClientUserName = conversation.ClientUser?.UserName ?? "Unknown",
+                            ClientUserName = conversation.ClientUserName ?? "Unknown",
                             ClientUserId = conversation.ClientUserId,
                             LastMessageContent = lastMessage?.MessageContent ?? "No messages yet",
                             LastMessageUserId = lastMessage?.SenderUserId,
@@ -101,9 +98,13 @@ namespace ECommerce.API.Hubs
                     await Clients.Caller.SendAsync("LoadChatHistory", openConversation.ConversationId, historyChatDto);
 
 
-                    if (openConversation.Status == ConversationStatus.Active && openConversation.AdminUser != null)
+                    if (openConversation.Status == ConversationStatus.Active && openConversation.AdminUserId != null)
                     {
-                        await Clients.Caller.SendAsync("AdminJoined", openConversation.ConversationId, openConversation.AdminUser.UserName ?? "Admin", openConversation.AdminUser.Id);
+                        await Clients.Caller.SendAsync("AdminJoined", 
+                                                            openConversation.ConversationId, 
+                                                            openConversation.AdminUserName, 
+                                                            openConversation.AdminUserId);
+
                         if (OnlineAdmins.TryGetValue(openConversation.AdminUserId, out string adminConnectionId))
                         {
                             await Clients.Client(adminConnectionId).SendAsync("ClientReconnected", openConversation.ConversationId, userId);
@@ -294,10 +295,7 @@ namespace ECommerce.API.Hubs
             }
 
             // Cập nhật thông tin cuộc trò chuyện
-            conversation.AdminUserId = adminUserId;
-            conversation.Status = ConversationStatus.Active;
-            conversation.LastActivityTimeUtc = DateTime.UtcNow;
-            await _conversationRepository.UpdateAsync(conversation);
+            await _conversationRepository.AcceptChatAsync(conversationId, adminUserId);
 
             // Thêm admin vào nhóm trò chuyện
             await Groups.AddToGroupAsync(Context.ConnectionId, conversationId.ToString());
@@ -323,7 +321,7 @@ namespace ECommerce.API.Hubs
             var activeConversationInfo = new
             {
                 ConversationId = conversation.ConversationId,
-                ClientUserName = conversation.ClientUser?.UserName ?? "Unknown",
+                ClientUserName = conversation.ClientUserName ?? "Unknown",
                 ClientUserId = conversation.ClientUserId,
                 LastMessageContent = lastMessage?.MessageContent ?? "No messages yet",
                 LastMessageTime = lastMessage?.SentTimeUtc.ToString("g") ?? "N/A",
@@ -412,9 +410,7 @@ namespace ECommerce.API.Hubs
             };
 
             await _chatMessageRepository.AddAsync(message);
-
-            conversation.LastActivityTimeUtc = DateTime.UtcNow;
-            await _conversationRepository.UpdateAsync(conversation);
+            await _conversationRepository.UpdateLastActivityTimeAsync(conversationId);
 
             var messageDto = _mapper.Map<ChatMessageDTO>(message);
             messageDto.SenderName = senderInfor?.UserName ?? "User";
@@ -451,9 +447,12 @@ namespace ECommerce.API.Hubs
                 return;
             }
 
-            conversation.Status = ConversationStatus.Closed;
-            conversation.EndTimeUtc = DateTime.UtcNow;
-            await _conversationRepository.UpdateAsync(conversation);
+            var updateResult = await _conversationRepository.CloseChatAsync(conversationId);
+            if (!updateResult)
+            {
+                await Clients.Caller.SendAsync("ChatError", "Không thể đóng cuộc hội thoại này.");
+                return;
+            }
 
             var admin = await _authRepository.GetInforAsync(adminUserId);
             await Clients.Group(conversationId.ToString()).SendAsync("ChatClosed", conversationId, $"Cuộc hội thoại đã được đóng bởi {admin.UserName}.");

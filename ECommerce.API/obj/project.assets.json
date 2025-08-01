@@ -2707,6 +2707,7 @@
         "type": "project",
         "framework": ".NETCoreApp,Version=v8.0",
         "dependencies": {
+          "AutoMapper": "13.0.1",
           "Ecommerce.Domain": "1.0.0"
         },
         "compile": {
