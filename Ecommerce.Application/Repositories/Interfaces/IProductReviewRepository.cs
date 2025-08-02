@@ -15,5 +15,7 @@ namespace Ecommerce.Application.Repositories.Interfaces
         Task<IEnumerable<ProductReviewDTO>?> GetAllAsync(int productId);
 
         Task<ProductReviews?> DeleteAync(int reviewId);
+        Task<int> GetReviewCountByUserAsync(Guid userId, int productId);
+
     }
 }

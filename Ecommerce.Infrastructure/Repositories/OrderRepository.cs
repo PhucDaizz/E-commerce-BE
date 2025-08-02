@@ -152,5 +152,13 @@ namespace Ecommerce.Infrastructure.Repositories
             }
             return null;
         }
+
+        public async Task<int> GetPurchaseCountAsync(Guid userId, int productId)
+        {
+            return await _dbContext.OrderDetails
+                .CountAsync(od => od.ProductID == productId &&
+                                   _dbContext.Orders
+                                             .Any(o => o.OrderID == od.OrderID && o.UserID == userId));
+        }
     }
 }

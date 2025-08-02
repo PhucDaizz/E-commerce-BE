@@ -15,5 +15,7 @@ namespace Ecommerce.Application.Repositories.Interfaces
         Task<IEnumerable<CartItems>?> GetAllAsync(Guid UserID);
         Task<bool> DeleteAllByUserIDAsync(Guid UserID);
         Task<bool> ClearAllByProductIDAsync(int ProductID);
+        Task<CartItems?> FindByUserAndProductAndSizeAsync(Guid userId, int productId, int productSizeId);
+        Task<CartItems?> FindByUserAndCartItemIdAsync(Guid userId, int cartItemId);
     }
 }

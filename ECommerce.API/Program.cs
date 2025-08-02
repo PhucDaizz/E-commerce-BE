@@ -2,6 +2,8 @@
 using dotenv.net;
 using Ecommerce.Application.Common.Mappings;
 using Ecommerce.Application.Repositories.Interfaces;
+using Ecommerce.Application.Services.Impemention;
+using Ecommerce.Application.Services.Interfaces;
 using Ecommerce.Infrastructure;
 using Ecommerce.Infrastructure.Contracts.Infrastructure;
 using Ecommerce.Infrastructure.Repositories;
@@ -59,20 +61,14 @@ builder.Services.AddSignalR();
 
 
 // repositories
-builder.Services.AddScoped<IProductImageRepository, ProductImageRepository>();
 builder.Services.AddScoped<ITokenRepository, TokenRepository>();
-builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddSingleton<IVnpay, Vnpay>();
 
 
 // services
 builder.Services.AddScoped<IProductServices,ProductServices>();
-builder.Services.AddScoped<IProductColorServices,ProductColorServices>();
 builder.Services.AddScoped<IProductImageServices,ProductImageServices>();
-builder.Services.AddScoped<ICartItemServices, CartItemServices>();
 builder.Services.AddScoped<IPaymentServices, PaymentServices>();
-builder.Services.AddScoped<IDiscountServices, DiscountServices>();
-builder.Services.AddScoped<IProductReviewServices, ProductReviewServices>();
 builder.Services.AddScoped<IProductSizeServices, ProductSizeServices>();
 builder.Services.AddScoped<IEmailServices, EmailServices>();
 builder.Services.AddScoped<IShippingServices, ShippingServices>();
@@ -102,11 +98,18 @@ builder.Services.AddScoped<IProductReviewRepository, ProductReviewRepository>();
 builder.Services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
-
-
+builder.Services.AddScoped<IProductImageRepository, ProductImageRepository>();
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 
 
 // services new
+builder.Services.AddScoped<IDiscountServices, DiscountServices>();
+builder.Services.AddScoped<ICartItemServices, CartItemServices>();
+builder.Services.AddScoped<IProductColorServices, ProductColorServices>();
+builder.Services.AddScoped<IProductReviewServices, ProductReviewServices>();
+
+
+
 
 builder.Services.AddCors(options =>
 {

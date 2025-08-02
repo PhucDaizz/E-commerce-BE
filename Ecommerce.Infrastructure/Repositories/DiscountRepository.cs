@@ -13,39 +13,56 @@ namespace Ecommerce.Infrastructure.Repositories
 {
     public class DiscountRepository : IDiscountRepository
     {
-        private readonly AppDbContext dbContext;
-        private readonly IMapper mapper;
+        private readonly AppDbContext _dbContext;
+        private readonly IMapper _mapper;
 
         public DiscountRepository(AppDbContext dbContext, IMapper mapper)
         {
-            this.dbContext = dbContext;
-            this.mapper = mapper;
+            _dbContext = dbContext;
+            _mapper = mapper;
         }
 
         public async Task<Discounts?> ActiveAsync(int discountId)
         {
-            var existing = await dbContext.Discounts.FirstOrDefaultAsync(x => x.DiscountID == discountId);
+            var existing = await _dbContext.Discounts.FirstOrDefaultAsync(x => x.DiscountID == discountId);
             if (existing == null)
             {
                 return null;
             }
             existing.IsActive = !existing.IsActive;
             // cach 2
-            dbContext.Discounts.Update(existing);
-            await dbContext.SaveChangesAsync();
+            _dbContext.Discounts.Update(existing);
+            await _dbContext.SaveChangesAsync();
             return existing;
         }
 
         public async Task<Discounts> CreateAsync(Discounts discounts)
         {
-            await dbContext.Discounts.AddAsync(discounts);
-            await dbContext.SaveChangesAsync();
+            await _dbContext.Discounts.AddAsync(discounts);
+            await _dbContext.SaveChangesAsync();
             return discounts;
+        }
+
+        public async Task<bool> DecrementDiscountQuantityAsync(int discountId)
+        {
+            var discount = await _dbContext.Discounts.FindAsync(discountId);
+            if (discount == null || discount.Quantity <= 0)
+            {
+                return false;
+            }
+
+            discount.Quantity -= 1;
+
+            if (discount.Quantity == 0)
+            {
+                discount.IsActive = false;
+            }
+            return await _dbContext.SaveChangesAsync() > 0;
         }
 
         public async Task<Discounts?> DeleteAsync(int id)
         {
-            var existing = await dbContext.Discounts.Include(x => x.Orders).FirstOrDefaultAsync(x => x.DiscountID == id);
+            var existing = await _dbContext.Discounts.Include(x => x.Orders).FirstOrDefaultAsync(x => x.DiscountID == id);
             if (existing == null)
             {
                 return null;
@@ -55,14 +72,14 @@ namespace Ecommerce.Infrastructure.Repositories
             {
                 return null;
             }
-            dbContext.Discounts.Remove(existing);
-            await dbContext.SaveChangesAsync();
+            _dbContext.Discounts.Remove(existing);
+            await _dbContext.SaveChangesAsync();
             return existing;
         }
 
         public async Task<ListDiscountDTO?> GetAllAsync(int page = 1, int itemsInPage = 20, string sortBy = "all", bool isDESC = true)
         {
-            var discountQuery = dbContext.Discounts.AsQueryable();
+            var discountQuery = _dbContext.Discounts.AsQueryable();
             if (!string.IsNullOrEmpty(sortBy))
             {
                 switch (sortBy.ToLower())
@@ -85,7 +102,7 @@ namespace Ecommerce.Infrastructure.Repositories
 
             return new ListDiscountDTO
             {
-                Discounts = mapper.Map<IEnumerable<DiscountDTO>>(itemList),
+                Discounts = _mapper.Map<IEnumerable<DiscountDTO>>(itemList),
                 TotalCount = totalCounts,
                 Page = page,
                 PageSize = totalPages
@@ -94,7 +111,7 @@ namespace Ecommerce.Infrastructure.Repositories
 
         public async Task<Discounts?> GetByIdAsync(int id)
         {
-            var existing = await dbContext.Discounts.Include(x => x.Orders).FirstOrDefaultAsync(x => x.DiscountID == id);
+            var existing = await _dbContext.Discounts.Include(x => x.Orders).FirstOrDefaultAsync(x => x.DiscountID == id);
             if (existing == null)
             {
                 return null;
@@ -110,7 +127,7 @@ namespace Ecommerce.Infrastructure.Repositories
 
         public async Task<Discounts?> GetDiscountByCodeAsync(string code)
         {
-            var existing = await dbContext.Discounts.FirstOrDefaultAsync(x => x.Code == code);
+            var existing = await _dbContext.Discounts.FirstOrDefaultAsync(x => x.Code == code);
             if (existing != null && DateTime.Now < existing.EndDate && existing.IsActive)
             {
                 return existing;
@@ -118,16 +135,23 @@ namespace Ecommerce.Infrastructure.Repositories
             return null;
         }
 
+        public async Task<int> GetUserUsageCountAsync(Guid userId, int discountId)
+        {
+            return await _dbContext.Orders
+                               .Where(o => o.UserID == userId && o.DiscountID == discountId)
+                               .CountAsync();
+        }
+
         public async Task<Discounts?> UpdateAsync(Discounts discounts)
         {
-            var existing = await dbContext.Discounts.Include(x => x.Orders).FirstOrDefaultAsync(x => x.DiscountID == discounts.DiscountID);
+            var existing = await _dbContext.Discounts.Include(x => x.Orders).FirstOrDefaultAsync(x => x.DiscountID == discounts.DiscountID);
             if (existing == null)
             {
                 return null;
             }
             if (!existing.Orders.Any()) // if voucher is not used
             {
-                dbContext.Discounts.Entry(existing).CurrentValues.SetValues(discounts);
+                _dbContext.Discounts.Entry(existing).CurrentValues.SetValues(discounts);
             }
             else
             {
@@ -146,10 +170,10 @@ namespace Ecommerce.Infrastructure.Repositories
                     StartDate = existing.StartDate,
                     EndDate = endDate
                 };
-                dbContext.Discounts.Entry(existing).CurrentValues.SetValues(discountNew);
+                _dbContext.Discounts.Entry(existing).CurrentValues.SetValues(discountNew);
             }
 
-            await dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
             return existing;
         }
     }

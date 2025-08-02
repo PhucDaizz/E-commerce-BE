@@ -12,34 +12,34 @@ namespace Ecommerce.Infrastructure.Repositories
 {
     public class ProductReviewRepository : IProductReviewRepository
     {
-        private readonly AppDbContext dbContext;
+        private readonly AppDbContext _dbContext;
 
         public ProductReviewRepository(AppDbContext dbContext)
         {
-            this.dbContext = dbContext;
+            _dbContext = dbContext;
         }
         public async Task<ProductReviews> CreateAsync(ProductReviews productReview)
         {
-            await dbContext.ProductReviews.AddAsync(productReview);
-            await dbContext.SaveChangesAsync();
+            await _dbContext.ProductReviews.AddAsync(productReview);
+            await _dbContext.SaveChangesAsync();
             return productReview;
         }
 
         public async Task<ProductReviews?> DeleteAync(int reviewId)
         {
-            var exising = await dbContext.ProductReviews.FirstOrDefaultAsync(x => x.ReviewID == reviewId);
+            var exising = await _dbContext.ProductReviews.FirstOrDefaultAsync(x => x.ReviewID == reviewId);
             if (exising == null)
             {
                 return null;
             }
-            dbContext.ProductReviews.Remove(exising);
-            await dbContext.SaveChangesAsync();
+            _dbContext.ProductReviews.Remove(exising);
+            await _dbContext.SaveChangesAsync();
             return exising;
         }
 
         public async Task<IEnumerable<ProductReviewDTO>?> GetAllAsync(int productId)
         {
-            var productReviews = await dbContext.ProductReviews.Where(x => x.ProductID == productId).OrderByDescending(x => x.CreatedAt).ToListAsync();
+            var productReviews = await _dbContext.ProductReviews.Where(x => x.ProductID == productId).OrderByDescending(x => x.CreatedAt).ToListAsync();
 
             if (!productReviews.Any())
             {
@@ -48,7 +48,7 @@ namespace Ecommerce.Infrastructure.Repositories
 
             var userIds = productReviews.Select(x => x.UserID.ToString()).Distinct();
 
-            var users = await dbContext.Users
+            var users = await _dbContext.Users
                                    .Where(user => userIds.Contains(user.Id))
                                    .ToDictionaryAsync(user => user.Id, user => user.UserName);
 
@@ -63,6 +63,12 @@ namespace Ecommerce.Infrastructure.Repositories
             });
 
             return result;
+        }
+
+        public async Task<int> GetReviewCountByUserAsync(Guid userId, int productId)
+        {
+            return await _dbContext.ProductReviews
+                .CountAsync(pr => pr.ProductID == productId && pr.UserID == userId);
         }
     }
 }

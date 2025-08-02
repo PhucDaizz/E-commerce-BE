@@ -17,5 +17,7 @@ namespace Ecommerce.Application.Repositories.Interfaces
         Task<Discounts?> DeleteAsync(int id);
         Task<Discounts?> GetDiscountByCodeAsync(string code);
         Task<Discounts?> ActiveAsync(int discountId);
+        Task<int> GetUserUsageCountAsync(Guid userId, int discountId);
+        Task<bool> DecrementDiscountQuantityAsync(int discountId);
     }
 }
