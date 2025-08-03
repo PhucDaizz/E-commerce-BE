@@ -118,7 +118,7 @@ namespace ECommerce.API.Controllers
         [Route("ToPublic/{productID:int}")]
         public async Task<IActionResult> ToPublic([FromRoute] int productID)
         {
-            var result = await productRepository.ToPublicAync(productID);
+            var result = await productServices.ChangeStatusProduct(productID);
             if (!result)
             {
                 return BadRequest("Id is not existing!");

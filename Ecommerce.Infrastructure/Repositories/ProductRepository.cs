@@ -192,7 +192,6 @@ namespace Ecommerce.Infrastructure.Repositories
             existing.IsPublic = !existing.IsPublic;
 
             _dbContext.Entry(existing).CurrentValues.SetValues(existing);
-            await _dbContext.SaveChangesAsync();
             return true;
         }
 

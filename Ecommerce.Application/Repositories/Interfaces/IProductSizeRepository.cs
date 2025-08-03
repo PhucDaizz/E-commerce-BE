@@ -19,5 +19,6 @@ namespace Ecommerce.Application.Repositories.Interfaces
         Task<bool> DeleteByColorIDAsync(int colorID);
         Task<ProductSizes?> DeleteByColorAndSizeAsync(int colorID, string size);
         Task<bool> UpdateRangeAsync(IEnumerable<CartItems> cartItems);
+        Task<bool> UpsertRangeAsync(IEnumerable<ProductSizes> productSizesToUpsert);
     }
 }

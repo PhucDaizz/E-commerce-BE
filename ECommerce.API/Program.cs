@@ -2,10 +2,12 @@
 using dotenv.net;
 using Ecommerce.Application.Common.Mappings;
 using Ecommerce.Application.Repositories.Interfaces;
+using Ecommerce.Application.Repositories.Persistence;
 using Ecommerce.Application.Services.Impemention;
 using Ecommerce.Application.Services.Interfaces;
 using Ecommerce.Infrastructure;
 using Ecommerce.Infrastructure.Contracts.Infrastructure;
+using Ecommerce.Infrastructure.Contracts.Persistence;
 using Ecommerce.Infrastructure.Repositories;
 using Ecommerce.Infrastructure.Settings;
 using ECommerce.API.BackgroundServices;
@@ -66,19 +68,18 @@ builder.Services.AddSingleton<IVnpay, Vnpay>();
 
 
 // services
-builder.Services.AddScoped<IProductServices,ProductServices>();
 builder.Services.AddScoped<IProductImageServices,ProductImageServices>();
 builder.Services.AddScoped<IPaymentServices, PaymentServices>();
-builder.Services.AddScoped<IProductSizeServices, ProductSizeServices>();
 builder.Services.AddScoped<IEmailServices, EmailServices>();
 builder.Services.AddScoped<IShippingServices, ShippingServices>();
-builder.Services.AddScoped<IDashboardServices, DashboardServices>();
 builder.Services.AddScoped<IChatCleanupOrchestratorService, ChatCleanupOrchestratorService>();
 builder.Services.AddScoped<IClosedConversationCleanupService, ClosedConversationCleanupService>();
 builder.Services.AddScoped<IStalePendingConversationCleanupService,StalePendingConversationCleanupService>();
 builder.Services.AddScoped<IGoogleAuthServices, GoogleAuthServices>();
 builder.Services.AddSingleton(cloudinary);
 
+//unit of work
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // repositories new 
 builder.Services.AddScoped<ITokenGenerator, JwtTokenGenerator>();
@@ -100,6 +101,7 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductImageRepository, ProductImageRepository>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
 
 
 // services new
@@ -107,6 +109,8 @@ builder.Services.AddScoped<IDiscountServices, DiscountServices>();
 builder.Services.AddScoped<ICartItemServices, CartItemServices>();
 builder.Services.AddScoped<IProductColorServices, ProductColorServices>();
 builder.Services.AddScoped<IProductReviewServices, ProductReviewServices>();
+builder.Services.AddScoped<IProductSizeServices, ProductSizeServices>();
+builder.Services.AddScoped<IProductServices, ProductServices>();
 
 
 

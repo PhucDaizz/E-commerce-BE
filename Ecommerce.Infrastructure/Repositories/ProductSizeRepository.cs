@@ -142,5 +142,60 @@ namespace Ecommerce.Infrastructure.Repositories
             await _dbContext.SaveChangesAsync();
             return true;
         }
+
+        public async Task<bool> UpsertRangeAsync(IEnumerable<ProductSizes> productSizesToUpsert)
+        {
+            if (productSizesToUpsert == null || !productSizesToUpsert.Any())
+            {
+                return true;
+            }
+
+            // BƯỚC 1: Lấy tất cả các ProductColorID và Size từ danh sách đầu vào
+            var uniqueKeys = productSizesToUpsert
+                .Select(p => new { p.ProductColorID, p.Size })
+                .Distinct();
+
+            var productColorIds = uniqueKeys.Select(k => k.ProductColorID).ToList();
+            var sizes = uniqueKeys.Select(k => k.Size).ToList();
+
+            // BƯỚC 2: Tải tất cả các bản ghi có liên quan từ DB vào bộ nhớ trong một lần duy nhất
+            var existingProductSizes = await _dbContext.ProductSizes
+                .Where(ps => productColorIds.Contains(ps.ProductColorID) && sizes.Contains(ps.Size))
+                .ToListAsync();
+
+            // Chuyển sang Dictionary để tra cứu nhanh với key là "ProductColorID-Size"
+            var existingMap = existingProductSizes.ToDictionary(ps => $"{ps.ProductColorID}-{ps.Size}");
+
+            var sizesToInsert = new List<ProductSizes>();
+
+            // BƯƠC 3: Lặp qua danh sách đầu vào và xử lý logic trong bộ nhớ
+            foreach (var sizeToUpsert in productSizesToUpsert)
+            {
+                string key = $"{sizeToUpsert.ProductColorID}-{sizeToUpsert.Size}";
+
+                // Nếu tìm thấy trong map (đã tồn tại trong DB)
+                if (existingMap.TryGetValue(key, out var existingSize))
+                {
+                    // Logic cộng dồn Stock
+                    existingSize.Stock += sizeToUpsert.Stock;
+                    existingSize.UpdatedAt = DateTime.UtcNow;
+                    // Không cần gọi .Update() vì entity đã được DbContext theo dõi
+                }
+                else // Nếu không tìm thấy (chưa tồn tại trong DB)
+                {
+                    // Thêm vào danh sách để AddRange
+                    sizesToInsert.Add(sizeToUpsert);
+                }
+            }
+
+            // BƯỚC 4: Thêm tất cả các bản ghi mới (nếu có)
+            if (sizesToInsert.Any())
+            {
+                await _dbContext.ProductSizes.AddRangeAsync(sizesToInsert);
+            }
+
+            // BƯỚC 5: Lưu tất cả các thay đổi (cả UPDATE và INSERT) trong một giao dịch duy nhất
+            return await _dbContext.SaveChangesAsync() > 0;
+        }
     }
 }

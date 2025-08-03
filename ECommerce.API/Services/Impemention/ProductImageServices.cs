@@ -326,7 +326,7 @@ namespace ECommerce.API.Services.Impemention
             }
 
             dbContext.ProductImages.RemoveRange(imagesToDelete);
-            await dbContext.SaveChangesAsync();
+            //await dbContext.SaveChangesAsync(); UOW
 
             return true;
         }

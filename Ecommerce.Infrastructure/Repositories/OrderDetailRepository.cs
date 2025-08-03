@@ -47,5 +47,10 @@ namespace Ecommerce.Infrastructure.Repositories
             }
             return orderDetail;
         }
+
+        public async Task<bool> HasProductInAnyOrderAsync(int productId)
+        {
+            return await _dbContext.OrderDetails.AnyAsync(x => x.ProductID == productId);
+        }
     }
 }

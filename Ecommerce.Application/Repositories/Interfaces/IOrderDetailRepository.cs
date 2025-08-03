@@ -13,5 +13,6 @@ namespace Ecommerce.Application.Repositories.Interfaces
         Task<IEnumerable<OrderDetails>> CreateAsync(Guid orderID, IEnumerable<CartItemListDTO> cartItemListDTOs);
 
         Task<IEnumerable<OrderDetails>> GetListOrderDetailsAsync(Guid orderID);
+        Task<bool> HasProductInAnyOrderAsync(int productId);
     }
 }
