@@ -3,12 +3,14 @@ using dotenv.net;
 using Ecommerce.Application.Common.Mappings;
 using Ecommerce.Application.Repositories.Interfaces;
 using Ecommerce.Application.Repositories.Persistence;
+using Ecommerce.Application.Services.Contracts.Infrastructure;
 using Ecommerce.Application.Services.Impemention;
 using Ecommerce.Application.Services.Interfaces;
 using Ecommerce.Infrastructure;
 using Ecommerce.Infrastructure.Contracts.Infrastructure;
 using Ecommerce.Infrastructure.Contracts.Persistence;
 using Ecommerce.Infrastructure.Repositories;
+using Ecommerce.Infrastructure.Services;
 using Ecommerce.Infrastructure.Settings;
 using ECommerce.API.BackgroundServices;
 using ECommerce.API.Hubs;
@@ -30,14 +32,17 @@ DotEnv.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
-var account = new Account(
-    builder.Configuration["CLOUDINARY:CLOUD_NAME"],
-    builder.Configuration["CLOUDINARY:API_KEY"],
-    builder.Configuration["CLOUDINARY:API_SECRET"]
-);
+//var account = new Account(
+//    builder.Configuration["CLOUDINARY:CLOUD_NAME"],
+//    builder.Configuration["CLOUDINARY:API_KEY"],
+//    builder.Configuration["CLOUDINARY:API_SECRET"]
+//);
 
-Cloudinary cloudinary = new Cloudinary(account);
-cloudinary.Api.Secure = true;
+//Cloudinary cloudinary = new Cloudinary(account);
+//cloudinary.Api.Secure = true;
+builder.Services.Configure<CloudinarySettings>(
+    builder.Configuration.GetSection(CloudinarySettings.SectionName)
+);
 
 
 // Add services to the container.
@@ -68,7 +73,6 @@ builder.Services.AddSingleton<IVnpay, Vnpay>();
 
 
 // services
-builder.Services.AddScoped<IProductImageServices,ProductImageServices>();
 builder.Services.AddScoped<IPaymentServices, PaymentServices>();
 builder.Services.AddScoped<IEmailServices, EmailServices>();
 builder.Services.AddScoped<IShippingServices, ShippingServices>();
@@ -76,7 +80,6 @@ builder.Services.AddScoped<IChatCleanupOrchestratorService, ChatCleanupOrchestra
 builder.Services.AddScoped<IClosedConversationCleanupService, ClosedConversationCleanupService>();
 builder.Services.AddScoped<IStalePendingConversationCleanupService,StalePendingConversationCleanupService>();
 builder.Services.AddScoped<IGoogleAuthServices, GoogleAuthServices>();
-builder.Services.AddSingleton(cloudinary);
 
 //unit of work
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -105,12 +108,17 @@ builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
 
 
 // services new
+builder.Services.AddScoped<LocalFileStorageService>();
+builder.Services.AddScoped<CloudinaryImageStorageService>();
+builder.Services.AddScoped<IStorageServiceFactory, StorageServiceFactory>();
+
 builder.Services.AddScoped<IDiscountServices, DiscountServices>();
 builder.Services.AddScoped<ICartItemServices, CartItemServices>();
 builder.Services.AddScoped<IProductColorServices, ProductColorServices>();
 builder.Services.AddScoped<IProductReviewServices, ProductReviewServices>();
 builder.Services.AddScoped<IProductSizeServices, ProductSizeServices>();
 builder.Services.AddScoped<IProductServices, ProductServices>();
+builder.Services.AddScoped<IProductImageServices, ProductImageServices>();
 
 
 

@@ -1,83 +1,70 @@
-﻿using AutoMapper;
-using Ecommerce.Infrastructure;
-using ECommerce.API.Models.Domain;
+﻿using Ecommerce.Application.DTOS.ProductImage;
+using Ecommerce.Application.Repositories.Interfaces;
+using Ecommerce.Application.Repositories.Persistence;
+using Ecommerce.Application.Services.Interfaces;
 using ECommerce.API.Models.DTO.ProductImage;
-using ECommerce.API.Repositories.Interface;
-using ECommerce.API.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-
 namespace ECommerce.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class ProductImageController : ControllerBase
     {
-        private readonly AppDbContext dbContext;
-        private readonly IMapper mapper;
-        private readonly IProductImageRepository productImageRepository;
-        private readonly IProductImageServices productImageServices;
-        private readonly IProductRepository productRepository;
+        private readonly IProductImageServices _productImageServices;
+        private readonly IProductRepository _productRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ProductImageController(AppDbContext dbContext, IMapper mapper, IProductImageRepository productImageRepository, IProductImageServices productImageServices, IProductRepository productRepository)
+        public ProductImageController(IProductImageServices productImageServices, IProductRepository productRepository, IUnitOfWork unitOfWork)
         {
-            this.dbContext = dbContext;
-            this.mapper = mapper;
-            this.productImageRepository = productImageRepository;
-            this.productImageServices = productImageServices;
-            this.productRepository = productRepository;
+            _productImageServices = productImageServices;
+            _productRepository = productRepository;
+            _unitOfWork = unitOfWork;
         }
 
         [Authorize(Roles = "Admin, SuperAdmin")]
         [HttpPost]
         public async Task<IActionResult> Create(CreateProductImageDTO productImageDTO)
         {
+
             try
             {
-                var product = await productRepository.GetDetailAsync(productImageDTO.ProductID);
+                var product = await _productRepository.GetDetailAsync(productImageDTO.ProductID);
                 if (product == null)
                 {
                     return BadRequest("Product ID is not existing");
                 }
 
-                else if (productImageDTO.ImageURL?.Length > 10485760)
+                if (productImageDTO.ImageURL == null || productImageDTO.ImageURL.Length == 0)
                 {
-                    return StatusCode(StatusCodes.Status400BadRequest, "File size more than 10MB, please upload a maller size file.");
-                }
-                string[] allowedFileExtentions = [".jpg", ".jpeg", ".png"];
-
-
-                string createdImageName = null;
-                switch(productImageDTO.OnCloud)
-                {
-                    case true:
-                        if (productImageDTO.ImageURL != null || productImageDTO.ImageURL.Length > 0)
-                        {
-                            createdImageName = await productImageServices.UploadImageCloundinaryAsync(productImageDTO.ImageURL, allowedFileExtentions, product.ProductName, product.Categories.CategoryName.ToString(), "product");
-                        }
-                        break;
-                    case false:
-                        if (productImageDTO.ImageURL != null || productImageDTO.ImageURL.Length > 0)
-                        {
-                            createdImageName = await productImageServices.SaveImageAsync(productImageDTO.ImageURL, allowedFileExtentions,product.ProductName, product.ProductID);
-                        }
-                        break;
+                    return BadRequest("Image file is required.");
                 }
 
-                // map DTO to domain
-                var productImage = new ProductImages
+                if (productImageDTO.ImageURL.Length > 10485760)
                 {
-                    ProductID = productImageDTO.ProductID,
-                    ImageURL = createdImageName,
-                    IsPrimary = productImageDTO.IsPrimary,
-                    CreatedAt = DateTime.Now,
+                    return StatusCode(StatusCodes.Status400BadRequest, "File size more than 10MB, please upload a smaller file.");
+                }
+
+                string[] allowedFileExtensions = [".jpg", ".jpeg", ".png"];
+                var ext = Path.GetExtension(productImageDTO.ImageURL.FileName).ToLowerInvariant();
+                if (!allowedFileExtensions.Contains(ext))
+                {
+                    return BadRequest($"Only {string.Join(", ", allowedFileExtensions)} are allowed.");
+                }
+
+                var command = new AddImagesCommand
+                {
+                    ProductId = productImageDTO.ProductID,
+                    UseCloudStorage = productImageDTO.OnCloud,
+                    ImageFiles = new List<(Stream, string)>
+                    {
+                        (productImageDTO.ImageURL.OpenReadStream(), productImageDTO.ImageURL.FileName)
+                    }
                 };
 
-                var createImage = await productImageRepository.CreateAsync(productImage);
-                return Ok(createImage);
+                var result = await _productImageServices.AddImagesToProductAsync(command);
+
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -86,145 +73,64 @@ namespace ECommerce.API.Controllers
         }
 
 
-        /*[Authorize(Roles = "Admin, SuperAdmin")]
-        [HttpPost("UploadImageCloud")]
-        public async Task<IActionResult> UploadImage(CreateProductImageDTO productImageDTO)
-        {
-            try
-            {
-                if (productImageDTO.ImageURL == null || productImageDTO.ImageURL.Length <= 0)
-                {
-                    return BadRequest("Image file is required.");
-                }
-
-                string[] allowedFileExtensions = [".jpg", ".jpeg", ".png"];
-                var uploadResult = await productImageServices.UploadListImagesCloudinaryAsync(
-                    productImageDTO.ImageURL,
-                    allowedFileExtensions,
-                    "Dai phuc nguyen",
-                    null
-                );
-
-                return Ok(uploadResult);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Upload failed: {ex.Message}");
-            }
-        }*/
-
-        
-        
-        /*[HttpPost]
-        [Route("cloudinaryV2")]
-        public async Task<IActionResult> UploadImagePath([FromForm] CreateProductImageDTO productImageDTO)
-        {
-            try
-            {
-                if (productImageDTO.ImageURL == null || productImageDTO.ImageURL.Length <= 0)
-                {
-                    return BadRequest("Image file is required.");
-                }
-
-                string[] category = ["Quần"];
-                string[] allowedFileExtensions = [".jpg", ".jpeg", ".png"];
-                var uploadResult = await productImageServices.UploadImageCloundinaryAsync(
-                    productImageDTO.ImageURL,
-                    allowedFileExtensions,
-                    "Dai phuc nguyen",
-                    category
-                );
-
-                return Ok(uploadResult);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Upload failed: {ex.Message}");
-            }
-        }*/
-
-
 
         [Authorize(Roles = "Admin, SuperAdmin")]
         [HttpDelete]
         [Route("{id:int}")]
         public async Task<IActionResult> DeleteById([FromRoute] int id)
         {
-            var existing = await productImageRepository.DeleteAsync(id);
-            if (existing == null)
+
+            var success = await _productImageServices.DeleteImageAsync(id);
+            if (!success)
             {
-                return NotFound("ID is not existing");
+                return NotFound("Image not found.");
             }
-            var result = await productImageServices.DeleteImage(existing.ImageURL);
-            var productImage = mapper.Map<ProductImageDTO>(existing);
-            return Ok(productImage);
+            return NoContent();
         }
 
         [HttpGet]
         [Route("{idProduct:int}")] 
         public async Task<IActionResult> GetAllImgByIDProduct([FromRoute] int idProduct)
         {
-            var imageList = await productImageRepository.GetAllByProductIDAsync(idProduct);
-
-            if (imageList.Count() == 0)
+            try
             {
-                var productExists = await productRepository.ExistsAsync(idProduct); 
-                if (!productExists)
-                {
-                    return NotFound("ID is not existing");
-                }
-
-                return Ok("List img is empty"); 
+                var images = await _productImageServices.GetImagesByProductIdAsync(idProduct);
+                return Ok(images);
             }
-            var result = mapper.Map<IEnumerable<ProductImageDTO>>(imageList);
-            return Ok(result); 
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [Authorize(Roles = "Admin, SuperAdmin")]
         [HttpPost]
         [Route("UploadListImage/{idProduct:int}")]
-        public async Task<IActionResult> CreateImages([FromRoute] int idProduct, List<IFormFile> files, bool? onCloud = false)
+        public async Task<IActionResult> CreateImages([FromRoute] int idProduct, List<IFormFile> files, bool onCloud = false)
         {
-            int primary = 1;
-            var product = await productRepository.GetDetailAsync(idProduct);
-            if (product == null)
+            if (files == null || !files.Any()) return BadRequest("No files provided.");
+
+            var command = new AddImagesCommand
             {
-                return NotFound("ID product is not existing");
-            }
-            string[] allowedFileExtentions = [".jpg", ".jpeg", ".png"];
-            var length = await dbContext.ProductImages.Where(x => x.ProductID == idProduct).CountAsync();
+                ProductId = idProduct,
+                UseCloudStorage = onCloud,
+                ImageFiles = files.Select(f => (f.OpenReadStream(), f.FileName)).ToList()
+            };
 
-            var imagesList = await productImageServices.SaveImagesAsync(files, allowedFileExtentions, product, product.ProductID, length, onCloud);
-
-            if (imagesList.Count() == 0 || imagesList == null)
+            try
             {
-                return BadRequest("Empty image");
+                var result = await _productImageServices.AddImagesToProductAsync(command);
+                // Trả về kết quả tương tự như trước đây: danh sách các DTO của ảnh đã tạo
+                return Ok(result);
             }
-
-            List<ProductImages> images = new List<ProductImages>();
-            foreach (var image in imagesList)
+            catch (KeyNotFoundException ex)
             {
-                if (length > 5)
-                {
-                    continue;
-                }
-
-                var productImage = new ProductImages
-                {
-                    ProductID = idProduct,
-                    ImageURL = image,
-                    IsPrimary = (length == 0) ,
-                    CreatedAt = DateTime.Now
-                };
-
-                images.Add(productImage);
-                primary++;
-                length++;
+                return NotFound(ex.Message);
             }
-            var imageData = await productImageRepository.CreateImagesAsync(images);
-            var result = mapper.Map<IEnumerable<ProductImageDTO>>(imageData);
-
-            return Ok(result);
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
         }
     }
 }

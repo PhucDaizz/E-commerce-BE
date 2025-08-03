@@ -3,20 +3,24 @@
   "WorkspaceRootPath": "C:\\Workspace\\c#\\E-commerce\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{F245F81D-311B-4210-98D9-71EAA81FD614}|Ecommerce.Application\\Ecommerce.Application.csproj|c:\\workspace\\c#\\e-commerce\\ecommerce.application\\services\\impemention\\productservices.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F245F81D-311B-4210-98D9-71EAA81FD614}|Ecommerce.Application\\Ecommerce.Application.csproj|solutionrelative:ecommerce.application\\services\\impemention\\productservices.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{812C5E88-F341-4A49-9D42-0C7C6A0839B4}|Ecommerce.Domain\\Ecommerce.Domain.csproj|c:\\workspace\\c#\\e-commerce\\ecommerce.domain\\enums\\storagetype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{812C5E88-F341-4A49-9D42-0C7C6A0839B4}|Ecommerce.Domain\\Ecommerce.Domain.csproj|solutionrelative:ecommerce.domain\\enums\\storagetype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|c:\\workspace\\c#\\e-commerce\\ecommerce.api\\controllers\\productcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|solutionrelative:ecommerce.api\\controllers\\productcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|c:\\workspace\\c#\\e-commerce\\ecommerce.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|solutionrelative:ecommerce.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F245F81D-311B-4210-98D9-71EAA81FD614}|Ecommerce.Application\\Ecommerce.Application.csproj|c:\\workspace\\c#\\e-commerce\\ecommerce.application\\repositories\\interfaces\\iorderdetailrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F245F81D-311B-4210-98D9-71EAA81FD614}|Ecommerce.Application\\Ecommerce.Application.csproj|solutionrelative:ecommerce.application\\repositories\\interfaces\\iorderdetailrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|c:\\workspace\\c#\\e-commerce\\ecommerce.api\\controllers\\productimagecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|solutionrelative:ecommerce.api\\controllers\\productimagecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{5E451D7A-7A6A-45BA-8812-9B8B029F9F05}|Ecommerce.Infrastructure\\Ecommerce.Infrastructure.csproj|c:\\workspace\\c#\\e-commerce\\ecommerce.infrastructure\\contracts\\persistence\\unitofwork.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5E451D7A-7A6A-45BA-8812-9B8B029F9F05}|Ecommerce.Infrastructure\\Ecommerce.Infrastructure.csproj|solutionrelative:ecommerce.infrastructure\\contracts\\persistence\\unitofwork.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{5E451D7A-7A6A-45BA-8812-9B8B029F9F05}|Ecommerce.Infrastructure\\Ecommerce.Infrastructure.csproj|c:\\workspace\\c#\\e-commerce\\ecommerce.infrastructure\\services\\storageservicefactory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5E451D7A-7A6A-45BA-8812-9B8B029F9F05}|Ecommerce.Infrastructure\\Ecommerce.Infrastructure.csproj|solutionrelative:ecommerce.infrastructure\\services\\storageservicefactory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|c:\\workspace\\c#\\e-commerce\\ecommerce.api\\services\\impemention\\productimageservices.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|solutionrelative:ecommerce.api\\services\\impemention\\productimageservices.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -26,7 +30,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 1352,
-          "SelectedChildIndex": 11,
+          "SelectedChildIndex": 8,
           "Children": [
             {
               "$type": "Bookmark",
@@ -62,54 +66,67 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "UnitOfWork.cs",
-              "DocumentMoniker": "C:\\Workspace\\c#\\E-commerce\\Ecommerce.Infrastructure\\Contracts\\Persistence\\UnitOfWork.cs",
-              "RelativeDocumentMoniker": "Ecommerce.Infrastructure\\Contracts\\Persistence\\UnitOfWork.cs",
-              "ToolTip": "C:\\Workspace\\c#\\E-commerce\\Ecommerce.Infrastructure\\Contracts\\Persistence\\UnitOfWork.cs",
-              "RelativeToolTip": "Ecommerce.Infrastructure\\Contracts\\Persistence\\UnitOfWork.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAArAAAAAAAAAA==",
+              "DocumentIndex": 0,
+              "Title": "StorageType.cs",
+              "DocumentMoniker": "C:\\Workspace\\c#\\E-commerce\\Ecommerce.Domain\\Enums\\StorageType.cs",
+              "RelativeDocumentMoniker": "Ecommerce.Domain\\Enums\\StorageType.cs",
+              "ToolTip": "C:\\Workspace\\c#\\E-commerce\\Ecommerce.Domain\\Enums\\StorageType.cs",
+              "RelativeToolTip": "Ecommerce.Domain\\Enums\\StorageType.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-02T13:36:06.485Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "IOrderDetailRepository.cs",
-              "DocumentMoniker": "C:\\Workspace\\c#\\E-commerce\\Ecommerce.Application\\Repositories\\Interfaces\\IOrderDetailRepository.cs",
-              "RelativeDocumentMoniker": "Ecommerce.Application\\Repositories\\Interfaces\\IOrderDetailRepository.cs",
-              "ToolTip": "C:\\Workspace\\c#\\E-commerce\\Ecommerce.Application\\Repositories\\Interfaces\\IOrderDetailRepository.cs",
-              "RelativeToolTip": "Ecommerce.Application\\Repositories\\Interfaces\\IOrderDetailRepository.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-02T13:32:07.442Z",
+              "WhenOpened": "2025-08-03T06:03:38.98Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "ProductController.cs",
-              "DocumentMoniker": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Controllers\\ProductController.cs",
-              "RelativeDocumentMoniker": "ECommerce.API\\Controllers\\ProductController.cs",
-              "ToolTip": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Controllers\\ProductController.cs",
-              "RelativeToolTip": "ECommerce.API\\Controllers\\ProductController.cs",
-              "ViewState": "AgIAAGQAAAAAAAAAAAAwwH0AAAArAAAAAAAAAA==",
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Program.cs",
+              "RelativeDocumentMoniker": "ECommerce.API\\Program.cs",
+              "ToolTip": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Program.cs",
+              "RelativeToolTip": "ECommerce.API\\Program.cs",
+              "ViewState": "AgIAAFoAAAAAAAAAAAAAAH0AAAAjAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-02T13:26:57.795Z",
+              "WhenOpened": "2025-08-03T05:53:38.427Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "ProductServices.cs",
-              "DocumentMoniker": "C:\\Workspace\\c#\\E-commerce\\Ecommerce.Application\\Services\\Impemention\\ProductServices.cs",
-              "RelativeDocumentMoniker": "Ecommerce.Application\\Services\\Impemention\\ProductServices.cs",
-              "ToolTip": "C:\\Workspace\\c#\\E-commerce\\Ecommerce.Application\\Services\\Impemention\\ProductServices.cs",
-              "RelativeToolTip": "Ecommerce.Application\\Services\\Impemention\\ProductServices.cs",
-              "ViewState": "AgIAADAAAAAAAAAAAAAmwCAAAAA7AAAAAAAAAA==",
+              "DocumentIndex": 2,
+              "Title": "ProductImageController.cs",
+              "DocumentMoniker": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Controllers\\ProductImageController.cs",
+              "RelativeDocumentMoniker": "ECommerce.API\\Controllers\\ProductImageController.cs",
+              "ToolTip": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Controllers\\ProductImageController.cs",
+              "RelativeToolTip": "ECommerce.API\\Controllers\\ProductImageController.cs",
+              "ViewState": "AgIAALgAAAAAAAAAAAAkwM4AAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-02T08:28:48.55Z",
+              "WhenOpened": "2025-08-03T05:44:07.651Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "StorageServiceFactory.cs",
+              "DocumentMoniker": "C:\\Workspace\\c#\\E-commerce\\Ecommerce.Infrastructure\\Services\\StorageServiceFactory.cs",
+              "RelativeDocumentMoniker": "Ecommerce.Infrastructure\\Services\\StorageServiceFactory.cs",
+              "ToolTip": "C:\\Workspace\\c#\\E-commerce\\Ecommerce.Infrastructure\\Services\\StorageServiceFactory.cs",
+              "RelativeToolTip": "Ecommerce.Infrastructure\\Services\\StorageServiceFactory.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-03T05:14:22.589Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "ProductImageServices.cs",
+              "DocumentMoniker": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Services\\Impemention\\ProductImageServices.cs",
+              "RelativeDocumentMoniker": "ECommerce.API\\Services\\Impemention\\ProductImageServices.cs",
+              "ToolTip": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Services\\Impemention\\ProductImageServices.cs",
+              "RelativeToolTip": "ECommerce.API\\Services\\Impemention\\ProductImageServices.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEgAAAAoAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-03T02:34:31.859Z",
               "EditorCaption": ""
             }
           ]

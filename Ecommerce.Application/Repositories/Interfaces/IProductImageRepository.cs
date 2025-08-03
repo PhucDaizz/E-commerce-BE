@@ -15,5 +15,6 @@ namespace Ecommerce.Application.Repositories.Interfaces
         Task<ProductImages?> DeleteAsync(int id);
         Task<IEnumerable<ProductImages>> GetAllByProductIDAsync(int productId);
         Task<IEnumerable<ProductImages>> CreateImagesAsync(IEnumerable<ProductImages> imagesList);
+        Task<int> CountByProductIdAsync(int id);
     }
 }

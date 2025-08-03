@@ -20,7 +20,6 @@ namespace Ecommerce.Infrastructure.Repositories
         public async Task<ProductImages> CreateAsync(ProductImages productImages)
         {
             await dbContext.ProductImages.AddAsync(productImages);
-            await dbContext.SaveChangesAsync();
             return productImages;
         }
 
@@ -32,7 +31,6 @@ namespace Ecommerce.Infrastructure.Repositories
                 return null;
             }
             dbContext.ProductImages.Remove(existing);
-            await dbContext.SaveChangesAsync();
             return existing;
         }
 
@@ -74,6 +72,11 @@ namespace Ecommerce.Infrastructure.Repositories
             }
             await dbContext.SaveChangesAsync();
             return imagesList;
+        }
+
+        public async Task<int> CountByProductIdAsync(int id)
+        {
+            return await dbContext.ProductImages.CountAsync(x => x.ProductID == id);
         }
     }
 }
