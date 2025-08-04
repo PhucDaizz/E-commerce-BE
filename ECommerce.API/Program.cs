@@ -76,9 +76,6 @@ builder.Services.AddSingleton<IVnpay, Vnpay>();
 builder.Services.AddScoped<IPaymentServices, PaymentServices>();
 builder.Services.AddScoped<IEmailServices, EmailServices>();
 builder.Services.AddScoped<IShippingServices, ShippingServices>();
-builder.Services.AddScoped<IChatCleanupOrchestratorService, ChatCleanupOrchestratorService>();
-builder.Services.AddScoped<IClosedConversationCleanupService, ClosedConversationCleanupService>();
-builder.Services.AddScoped<IStalePendingConversationCleanupService,StalePendingConversationCleanupService>();
 builder.Services.AddScoped<IGoogleAuthServices, GoogleAuthServices>();
 
 //unit of work
@@ -119,6 +116,9 @@ builder.Services.AddScoped<IProductReviewServices, ProductReviewServices>();
 builder.Services.AddScoped<IProductSizeServices, ProductSizeServices>();
 builder.Services.AddScoped<IProductServices, ProductServices>();
 builder.Services.AddScoped<IProductImageServices, ProductImageServices>();
+builder.Services.AddScoped<IChatCleanupOrchestratorService, ChatCleanupOrchestratorService>();
+builder.Services.AddScoped<IClosedConversationCleanupService, ClosedConversationCleanupService>();
+builder.Services.AddScoped<IStalePendingConversationCleanupService, StalePendingConversationCleanupService>();
 
 
 

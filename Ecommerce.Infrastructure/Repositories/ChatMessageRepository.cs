@@ -44,6 +44,18 @@ namespace Ecommerce.Infrastructure.Repositories
             }
         }
 
+        public async Task DeleteMessagesByConversationIdsAsync(List<Guid> conversationIds)
+        {
+            var messagesToDelete = await _dbContext.ChatMessage
+                .Where(m => conversationIds.Contains(m.ConversationId))
+                .ToListAsync();
+
+            if (messagesToDelete.Any())
+            {
+                _dbContext.ChatMessage.RemoveRange(messagesToDelete);
+            }
+        }
+
         public async Task<IEnumerable<ChatMessage>?> GetChatHistoryAsync(Guid conversationId)
         {
             return await _dbContext.ChatMessage.Where(c => c.ConversationId == conversationId)

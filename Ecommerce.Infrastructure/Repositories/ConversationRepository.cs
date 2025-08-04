@@ -59,6 +59,11 @@ namespace Ecommerce.Infrastructure.Repositories
             return await _dbContext.SaveChangesAsync() > 0;
         }
 
+        public void DeleteRange(IEnumerable<Conversations> conversations)
+        {
+            _dbContext.Conversations.RemoveRange(conversations);
+        }
+
         public async Task<Conversations?> GetActiveConversationByClientForDisconnectAsync(string userId)
         {
             return await _dbContext.Conversations.FirstOrDefaultAsync(x => x.ClientUserId == userId);
@@ -128,6 +133,14 @@ namespace Ecommerce.Infrastructure.Repositories
             return await query.FirstOrDefaultAsync();
         }
 
+        public async Task<List<Conversations>> GetOldClosedConversationsForCleanupAsync(TimeSpan cleanupThreshold, CancellationToken cancellationToken)
+        {
+            var cutoffDate = DateTime.UtcNow.Subtract(cleanupThreshold);
+            return await _dbContext.Conversations
+                .Where(c => c.Status == ConversationStatus.Closed && c.EndTimeUtc.HasValue && c.EndTimeUtc < cutoffDate)
+                .ToListAsync(cancellationToken);
+        }
+
         public async Task<IEnumerable<PendingConversationInfo>?> GetPendingConversationsForAdminAsync()
         {
             var query = from conv in _dbContext.Conversations
@@ -154,6 +167,14 @@ namespace Ecommerce.Infrastructure.Repositories
         {
             return await _dbContext.Conversations.FirstOrDefaultAsync(c => c.ClientUserId == userId &&
                 (c.Status == ConversationStatus.Pending || c.Status == ConversationStatus.Active));
+        }
+
+        public async Task<List<Conversations>> GetStalePendingConversationsAsync(TimeSpan cleanupThreshold, CancellationToken cancellationToken)
+        {
+            var cutoffDate = DateTime.UtcNow.Subtract(cleanupThreshold);
+            return await _dbContext.Conversations
+                .Where(c => c.Status == ConversationStatus.Pending && c.StartTimeUtc < cutoffDate)
+                .ToListAsync(cancellationToken);
         }
 
         public async Task<bool> UpdateAsync(Conversations conversations)

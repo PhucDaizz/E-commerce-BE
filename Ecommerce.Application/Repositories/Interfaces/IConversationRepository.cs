@@ -21,6 +21,8 @@ namespace Ecommerce.Application.Repositories.Interfaces
         Task<bool> CloseChatAsync(Guid conversationId);
         Task<ConversationDetailsDto?> GetByIdAsync(Guid conversationId);
         Task<IEnumerable<ConversationDetailsDto>> GetActiveConversationsByAdminAsync(string userId);
-
+        Task<List<Conversations>> GetOldClosedConversationsForCleanupAsync(TimeSpan cleanupThreshold, CancellationToken cancellationToken);
+        Task<List<Conversations>> GetStalePendingConversationsAsync(TimeSpan cleanupThreshold, CancellationToken cancellationToken);
+        void DeleteRange(IEnumerable<Conversations> conversations);
     }
 }

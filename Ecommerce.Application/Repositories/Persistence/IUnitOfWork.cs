@@ -15,6 +15,8 @@ namespace Ecommerce.Application.Repositories.Persistence
         IProductImageRepository ProductImages { get; }
         IProductSizeRepository ProductSizes { get; }
         ICartItemRepository CartItems { get; }
+        IConversationRepository Conversation { get; }
+        IChatMessageRepository ChatMessage { get; }
 
         Task BeginTransactionAsync();
         Task CommitAsync();

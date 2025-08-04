@@ -1,6 +1,12 @@
-﻿using ECommerce.API.Services.Interface;
+﻿using Ecommerce.Application.Services.Interfaces;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace ECommerce.API.Services.Impemention
+namespace Ecommerce.Application.Services.Impemention
 {
     public class ChatCleanupOrchestratorService : IChatCleanupOrchestratorService
     {

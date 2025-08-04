@@ -13,6 +13,6 @@ namespace Ecommerce.Application.Repositories.Interfaces
         Task<ChatMessage> AddAsync(ChatMessage chatMessage);
         Task<ChatMessage> GetLastMessagePreviewAsync(Guid conversationId);
         Task MarkMessagesAsReadAsync(Guid conversationId, string currentUserId, bool isAdmin);
-
+        Task DeleteMessagesByConversationIdsAsync(List<Guid> conversationIds);
     }
 }
