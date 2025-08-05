@@ -5,7 +5,6 @@ using Ecommerce.Application.Services.Contracts.Infrastructure;
 using Ecommerce.Application.Services.Interfaces;
 using Ecommerce.Infrastructure;
 using ECommerce.API.Models.Domain;
-using ECommerce.API.Models.DTO.User;
 using ECommerce.API.Repositories.Interface;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -28,11 +27,13 @@ namespace ECommerce.API.Controllers
         private readonly AppDbContext dbContext;
         private readonly IConfiguration _configuration;
         private readonly IExternalAuthService _externalAuthService;
+        private readonly IAuthService _authService;
 
         public AuthController(ITokenRepository tokenRepository, 
             UserManager<ExtendedIdentityUser> userManager, 
             IMapper mapper, IEmailServices emailServices, IAuthRepository authRepository, 
-            AppDbContext dbContext, IConfiguration configuration, IExternalAuthService externalAuthService)
+            AppDbContext dbContext, IConfiguration configuration, IExternalAuthService externalAuthService, 
+            IAuthService authService)
         {
             this.tokenRepository = tokenRepository;
             this.userManager = userManager;
@@ -42,6 +43,7 @@ namespace ECommerce.API.Controllers
             this.dbContext = dbContext;
             _configuration = configuration;
             _externalAuthService = externalAuthService;
+            _authService = authService;
         }
 
         [HttpPost]
@@ -52,13 +54,14 @@ namespace ECommerce.API.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var loginResult = await tokenRepository.Login(loginDTO);
-            if (string.IsNullOrEmpty(loginResult.Token))
+
+            var result = await _authService.LoginAsync(loginDTO);
+            if (string.IsNullOrEmpty(result.Token))
             {
                 ModelState.AddModelError("", "Email or Password is not correct");
                 return ValidationProblem(ModelState);
             }
-            return Ok(loginResult);
+            return Ok(result);
         }
 
         [HttpGet("google-login")]
@@ -111,46 +114,15 @@ namespace ECommerce.API.Controllers
         [Route("RegisterUser")]
         public async Task<IActionResult> RegisterUser([FromBody] RegisterRequestDto registerRequestDto)
         {
-            var user = new ExtendedIdentityUser
-            {
-                UserName = registerRequestDto.UserName?.Trim(),
-                Email = registerRequestDto.Email?.Trim(),
-                PhoneNumber = registerRequestDto.PhoneNumber?.Trim()
-            };
 
-            var identityResult = await userManager.CreateAsync(user, registerRequestDto.Password);
-            if (identityResult.Succeeded)
+            var result = await _authService.RegisterUserAsync(registerRequestDto);
+
+            if (!result.IsSuccess)
             {
-                identityResult = await userManager.AddToRoleAsync(user, "User");
-                if (identityResult.Succeeded)
-                {
-                    await GenerateEmailConfirmationToken(user, registerRequestDto.Email);
-                    return Ok("Your account have been created");
-                }
-                else
-                {
-                    if (identityResult.Errors.Any())
-                    {
-                        foreach (var error in identityResult.Errors)
-                        {
-                            ModelState.AddModelError("", error.Description);
-                        }
-                    }
-                }
+                return BadRequest(result.Errors);
             }
 
-            // Account has been created
-            else
-            {
-                if (identityResult.Errors.Any())
-                {
-                    foreach (var error in identityResult.Errors)
-                    {
-                        ModelState.AddModelError("", error.Description);
-                    }
-                }
-            }
-            return ValidationProblem(ModelState);
+            return Ok("Your account has been created");
         }
 
         [HttpPost]
@@ -195,13 +167,15 @@ namespace ECommerce.API.Controllers
         [HttpPost]
         public async Task<IActionResult> RefreshToken(RefreshTokenModel refreshTokenModel)
         {
-            var loginResult = await tokenRepository.RefreshToken(refreshTokenModel);
-            if (string.IsNullOrEmpty(loginResult.Token))
+
+            var result = await _authService.RefreshTokenAsync(refreshTokenModel);
+            if (string.IsNullOrEmpty(result.Token))
             {
                 ModelState.AddModelError("", "Invalid Token or Refresh Token");
                 return ValidationProblem(ModelState);
             }
-            return Ok(loginResult);
+
+            return Ok(result);
         }
 
         [Route("GetnInfo")]
@@ -209,16 +183,14 @@ namespace ECommerce.API.Controllers
         [Authorize]
         public async Task<IActionResult> GetInfo()
         {
-            var user = await userManager.GetUserAsync(User);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _authService.GetInforAsync(userId);
             if (user == null)
             {
                 ModelState.AddModelError("", "User not found");
                 return ValidationProblem(ModelState);
             }
-
-            var result = mapper.Map<InforDTO>(user);
-
-            return Ok(result);
+            return Ok(user);
         }
 
 
@@ -232,70 +204,17 @@ namespace ECommerce.API.Controllers
                 return ValidationProblem(ModelState);
             }
 
-            var user = await userManager.FindByIdAsync(userId);
-            if (user == null)
-            {
-                ModelState.AddModelError("", "User not found");
-                return ValidationProblem(ModelState);
-            }
 
-            var decodedToken = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(token));
-            var result = await userManager.ConfirmEmailAsync(user, decodedToken);
-            if (result.Succeeded)
+            var result = await _authService.ConfirmEmailAsync(userId, token);
+
+            if (result.IsSuccess)
             {
                 return Ok("Email has been confirmed");
             }
             else
             {
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError("", error.Description);
-                }
-                return ValidationProblem(ModelState);
+                return BadRequest(new { Errors = result.Errors });
             }
-        }
-
-        private async Task GenerateEmailConfirmationToken(ExtendedIdentityUser user, string? email)
-        {
-            var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
-            var encodedToken = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(token));
-            var confirmationLink = $"http://localhost:5173/verifyemail?userId={user.Id}&token={encodedToken}";
-
-            string htmlBody = $@"
-                <!DOCTYPE html>
-                <html lang=""vi"">
-                <head>
-                    <meta charset=""UTF-8"">
-                    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
-                    <title>Xác nhận tài khoản của bạn</title>
-                </head>
-                <body style=""font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;"">
-                    <div style=""width: 100%; max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);"">
-                        <!-- Tiêu đề -->
-                        <div style=""text-align: center; padding: 20px 0;"">
-                            <h1 style=""color: #333333; font-size: 24px; margin: 0;"">Xác nhận tài khoản của bạn</h1>
-                        </div>
-            
-                        <!-- Nội dung chính -->
-                        <div style=""padding: 20px; text-align: center;"">
-                            <p style=""color: #666666; font-size: 16px; line-height: 1.5;"">Kính gửi quý khách,</p>
-                            <p style=""color: #666666; font-size: 16px; line-height: 1.5;"">Để hoàn tất quá trình đăng ký tài khoản của bạn, vui lòng xác nhận địa chỉ email bằng cách nhấp vào nút bên dưới:</p>
-                            <a href=""{confirmationLink}"" style=""display: inline-block; padding: 10px 20px; background-color: #007BFF; color: #ffffff; text-decoration: none; border-radius: 5px; font-size: 16px; margin: 20px 0;"">Xác nhận email</a>
-                            <p style=""color: #666666; font-size: 16px; line-height: 1.5;"">Nếu bạn không thực hiện yêu cầu đăng ký này, xin vui lòng bỏ qua email.</p>
-                        </div>
-            
-                        <!-- Footer -->
-                        <div style=""text-align: center; padding: 20px; font-size: 12px; color: #999999;"">
-                            <p>Trân trọng,<br>[Tên công ty của bạn]</p>
-                            <p>Nếu bạn cần hỗ trợ, vui lòng liên hệ với chúng tôi qua <a href=""mailto:support@yourcompany.com"" style=""color: #007BFF; text-decoration: none;"">support@yourcompany.com</a>.</p>
-                        </div>
-                    </div>
-                </body>
-                </html>
-                ";
-
-
-            await emailServices.SendEmailAsync(email, "PhucDaiStore - Xác nhận eamil của bạn", htmlBody, true);
         }
 
         [Authorize]
@@ -303,13 +222,14 @@ namespace ECommerce.API.Controllers
         [Route("confirmemail")]
         public async Task<IActionResult> ConfirmEmail()
         {
-            var user = await userManager.GetUserAsync(User);
-            if (user == null)
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userInfo = await _authService.GetInforAsync(userId);
+            if (userInfo == null)
             {
                 return BadRequest("User not found");
             }
 
-            await GenerateEmailConfirmationToken(user, user.Email);
+            await _authService.SendEmailConfirmationLinkAsync(userId);
             return Ok("Email has been sent");
         }
 
@@ -321,52 +241,12 @@ namespace ECommerce.API.Controllers
                 return BadRequest(ModelState);
             }
 
-            var user = await userManager.FindByEmailAsync(forgotPasswordDTO.Email);
-            if (user == null)
+            var result = await _authService.SendPasswordResetLinkAsync(forgotPasswordDTO);
+
+            if (!result.IsSuccess)
             {
-                return BadRequest("No Accounts found with this email");
+                return BadRequest(result.Errors);
             }
-
-            var token = await userManager.GeneratePasswordResetTokenAsync(user);
-            var encodedToken = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(token));
-
-            var param = new Dictionary<string, string>
-            {
-                {"token", encodedToken},
-                {"email", forgotPasswordDTO.Email}
-            };
-
-            var callback = QueryHelpers.AddQueryString(forgotPasswordDTO.ClientUrl, param);
-
-            string htmlBody = $@"
-                <!DOCTYPE html>
-                <html lang=""vi"">
-                <head>
-                    <meta charset=""UTF-8"">
-                    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
-                    <title>Đặt lại mật khẩu của bạn</title>
-                </head>
-                <body style=""font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;"">
-                    <div style=""width: 100%; max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);"">
-                        <div style=""text-align: center; padding: 20px 0;"">
-                            <h1 style=""color: #333333; font-size: 24px; margin: 0;"">Đặt lại mật khẩu của bạn</h1>
-                        </div>
-                        <div style=""padding: 20px; text-align: center;"">
-                            <p style=""color: #666666; font-size: 16px; line-height: 1.5;"">Kính gửi quý khách,</p>
-                            <p style=""color: #666666; font-size: 16px; line-height: 1.5;"">Bạn đã yêu cầu đặt lại mật khẩu cho tài khoản của mình. Vui lòng nhấp vào nút bên dưới để tiến hành:</p>
-                            <a href=""{callback}"" style=""display: inline-block; padding: 10px 20px; background-color: #007BFF; color: #ffffff; text-decoration: none; border-radius: 5px; font-size: 16px; margin: 20px 0;"">Đặt lại mật khẩu</a>
-                            <p style=""color: #666666; font-size: 16px; line-height: 1.5;"">Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này.</p>
-                        </div>
-                        <div style=""text-align: center; padding: 20px; font-size: 12px; color: #999999;"">
-                            <p>Trân trọng,<br>[Tên công ty của bạn]</p>
-                            <p>Nếu bạn cần hỗ trợ, vui lòng liên hệ qua <a href=""mailto:support@yourcompany.com"" style=""color: #007BFF; text-decoration: none;"">support@yourcompany.com</a>.</p>
-                        </div>
-                    </div>
-                </body>
-                </html>
-                ";
-
-            await emailServices.SendEmailAsync(forgotPasswordDTO.Email, "PhucDaiStore - Đặt lại mật khẩu", htmlBody, true);
 
             return Ok("Email has been sent");
         }
@@ -379,23 +259,16 @@ namespace ECommerce.API.Controllers
                 return BadRequest(ModelState);
             }
 
-            var user = await userManager.FindByEmailAsync(resetPasswordDTO.Email);
-            if (user == null)
-            {
-                return BadRequest("No Accounts found with this email");
-            }
-
-            var decodedToken = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(resetPasswordDTO.Token));
-            var result = await userManager.ResetPasswordAsync(user, decodedToken!, resetPasswordDTO.Password!);
-
-            if (result.Succeeded)
+            var result = await authRepository.ResetPasswordAsync(resetPasswordDTO.Email, resetPasswordDTO.Token, resetPasswordDTO.Password);
+            
+            if (result.IsSuccess)
             {
                 return Ok("Password has been reset");
             }
             else
             {
-                var erroes = result.Errors.Select(x => x.Description);
-                return BadRequest(new { Errors = erroes });
+                var errors = result.Errors.Select(x => x);
+                return BadRequest(new { Errors = errors });
             }
         }
 
@@ -409,39 +282,31 @@ namespace ECommerce.API.Controllers
                 return BadRequest(ModelState);
             }
 
-            var user = await userManager.GetUserAsync(User);
-            if (user == null)
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
             {
-                return BadRequest("User not found");
+                return Unauthorized();
             }
 
-            user.PhoneNumber = updateInforDTO.PhoneNumber;
-            user.Address = updateInforDTO.Address;
-            user.Gender = updateInforDTO.Gender;
+            var result = await authRepository.UpdateUserInfoAsync(userId, updateInforDTO);
 
-            var result = await userManager.UpdateAsync(user);
-            if (result.Succeeded)
+            if (!result.IsSuccess)
             {
-                return Ok("Your information has been updated");
+                return BadRequest(new { Errors = result.Errors });
             }
-            else
-            {
-                var errors = result.Errors.Select(x => x.Description);
-                return BadRequest(new { Errors = errors });
-            }
+            return Ok("Your information has been updated.");
         }
 
         [HttpGet("GetInforById")]
         [Authorize(Roles = "Admin, SuperAdmin")]
         public async Task<IActionResult> GetInforByID([FromQuery]Guid id)
         {
-            var user = await userManager.FindByIdAsync(id.ToString());
+            var user = await authRepository.GetInforAsync(id.ToString());
             if (user == null)
             {
                 return BadRequest("User not found");
             }
-            var result = mapper.Map<InforDTO>(user);
-            return Ok(result);
+            return Ok(user);
         }
 
         [HttpGet("GetAllUser")]

@@ -1,5 +1,4 @@
-﻿using CloudinaryDotNet;
-using dotenv.net;
+﻿using dotenv.net;
 using Ecommerce.Application.Common.Mappings;
 using Ecommerce.Application.DTOS.User;
 using Ecommerce.Application.Repositories.Interfaces;
@@ -7,6 +6,7 @@ using Ecommerce.Application.Repositories.Persistence;
 using Ecommerce.Application.Services.Contracts.Infrastructure;
 using Ecommerce.Application.Services.Impemention;
 using Ecommerce.Application.Services.Interfaces;
+using Ecommerce.Application.Settings;
 using Ecommerce.Infrastructure;
 using Ecommerce.Infrastructure.Contracts.Infrastructure;
 using Ecommerce.Infrastructure.Contracts.Persistence;
@@ -18,8 +18,6 @@ using ECommerce.API.Hubs;
 using ECommerce.API.Models.Domain;
 using ECommerce.API.Repositories.Impemention;
 using ECommerce.API.Repositories.Interface;
-using ECommerce.API.Services.Impemention;
-using ECommerce.API.Services.Interface;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OAuth;
@@ -57,7 +55,9 @@ builder.Services.Configure<EmailSettings>(
 builder.Services.Configure<GoogleSettings>(
     builder.Configuration.GetSection(GoogleSettings.SectionName)
 );
-
+builder.Services.Configure<FrontendSettings>(
+    builder.Configuration.GetSection(FrontendSettings.SectionName)
+);
 // Add services to the container.
 
 builder.Services.AddControllers();

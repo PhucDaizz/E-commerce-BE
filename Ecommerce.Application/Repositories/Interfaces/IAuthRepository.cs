@@ -1,4 +1,5 @@
-﻿using Ecommerce.Application.DTOS.User;
+﻿using Ecommerce.Application.Common;
+using Ecommerce.Application.DTOS.User;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,5 +20,14 @@ namespace Ecommerce.Application.Repositories.Interfaces
         Task AddLoginAsync(string userId, string loginProvider, string providerKey);
         Task<List<string>> GetRolesAsync(string userId);
         Task UpdateRefreshTokenAsync(string userId, string refreshToken);
+        Task<(bool IsAuthenticated, UserIdentityDto? User)> AuthenticateUserAsync(string email, string password);
+        Task<(bool IsSuccess, List<string> Errors, UserIdentityDto? NewUser)> CreateUserAsync(RegisterRequestDto command);
+        Task<(string? Token, string? UserEmail)> GenerateEmailConfirmationTokenAsync(string userId);
+        Task<string?> GeneratePasswordResetTokenAsync(string email);
+        Task<(bool IsSuccess, List<string> Errors)> ResetPasswordAsync(string email, string token, string newPassword);
+        Task<UserIdentityDto?> GetUserByEmailAndValidateRefreshTokenAsync(string email, string refreshToken);
+        Task<(bool IsSuccess, List<string> Errors)> ConfirmEmailAsync(string userId, string token);
+        Task<(bool IsSuccess, List<string> Errors)> UpdateUserInfoAsync(string userId, UpdateInforDTO command);
     }
 }
+

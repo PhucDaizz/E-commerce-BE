@@ -3033,6 +3033,7 @@
         "dependencies": {
           "AutoMapper": "13.0.1",
           "Ecommerce.Domain": "1.0.0",
+          "Microsoft.AspNetCore.WebUtilities": "2.3.0",
           "Microsoft.Extensions.Logging.Abstractions": "8.0.2",
           "VNPAY.NET": "8.5.0"
         },

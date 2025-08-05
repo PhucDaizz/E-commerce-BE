@@ -1,7 +1,9 @@
-﻿using Ecommerce.Application.DTOS.User;
+﻿using Ecommerce.Application.Common;
+using Ecommerce.Application.DTOS.User;
 using Ecommerce.Application.Repositories.Interfaces;
 using Ecommerce.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -40,6 +42,65 @@ namespace Ecommerce.Infrastructure.Repositories
             }
         }
 
+        public async Task<(bool IsAuthenticated, UserIdentityDto? User)> AuthenticateUserAsync(string email, string password)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return (false, null);
+            }
+
+            var isPasswordCorrect = await _userManager.CheckPasswordAsync(user, password);
+            if (!isPasswordCorrect)
+            {
+                return (false, null);
+            }
+
+            var userDto = new UserIdentityDto
+            {
+                Id = user.Id,
+                Email = user.Email
+            };
+
+            return (true, userDto);
+        }
+
+        public async Task<(bool IsSuccess, List<string> Errors)> ConfirmEmailAsync(string userId, string token)
+        {
+            if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(token))
+            {
+                return (false, new List<string> { "User Id and Token are required." });
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return (false, new List<string> { "User not found." });
+            }
+
+            // Giải mã token từ định dạng an toàn cho URL
+            try
+            {
+                var decodedTokenBytes = WebEncoders.Base64UrlDecode(token);
+                var decodedToken = Encoding.UTF8.GetString(decodedTokenBytes);
+
+                var result = await _userManager.ConfirmEmailAsync(user, decodedToken);
+
+                if (result.Succeeded)
+                {
+                    return (true, new List<string>());
+                }
+                else
+                {
+                    return (false, result.Errors.Select(e => e.Description).ToList());
+                }
+            }
+            catch (FormatException)
+            {
+                return (false, new List<string> { "Invalid token format." });
+            }
+        }
+
         public async Task<(bool IsSuccess, List<string> Errors, UserIdentityDto? NewUser)> CreateExternalUserAsync(ExternalAuthCommand command)
         {
             var newUser = new ExtendedIdentityUser
@@ -60,6 +121,33 @@ namespace Ecommerce.Infrastructure.Repositories
             return (true, new List<string>(), createdUserDto);
         }
 
+        public async Task<(bool IsSuccess, List<string> Errors, UserIdentityDto? NewUser)> CreateUserAsync(RegisterRequestDto command)
+        {
+            var user = new ExtendedIdentityUser
+            {
+                UserName = command.UserName?.Trim(),
+                Email = command.Email?.Trim(),
+                PhoneNumber = command.PhoneNumber?.Trim(),
+            };
+
+            var result = await _userManager.CreateAsync(user, command.Password);
+
+            if (result.Succeeded)
+            {
+                var userDto = new UserIdentityDto
+                {
+                    Id = user.Id,
+                    Email = user.Email
+                };
+                return (true, new List<string>(), userDto);
+            }
+            else
+            {
+                var errors = result.Errors.Select(e => e.Description).ToList();
+                return (false, errors, null);
+            }
+        }
+
         public async Task<UserIdentityDto?> FindByEmailAsync(string email)
         {
             var user = await _dbContext.ExtendedIdentityUsers.FirstOrDefaultAsync(u => u.Email == email);
@@ -68,6 +156,30 @@ namespace Ecommerce.Infrastructure.Repositories
                 Id = user.Id,
                 Email = user.Email,
             } : null;
+        }
+
+        public async Task<(string? Token, string? UserEmail)> GenerateEmailConfirmationTokenAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return (null, null); // User không tồn tại
+            }
+
+            // Gọi UserManager để tạo token
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+            return (token, user.Email);
+        }
+
+        public async Task<string?> GeneratePasswordResetTokenAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return null;
+            }
+            return await _userManager.GeneratePasswordResetTokenAsync(user);
         }
 
         public async Task<InforDTO?> GetInforAsync(string userId)
@@ -90,6 +202,18 @@ namespace Ecommerce.Infrastructure.Repositories
 
             var roles = await _userManager.GetRolesAsync(user);
             return roles.ToList();
+        }
+
+        public async Task<UserIdentityDto?> GetUserByEmailAndValidateRefreshTokenAsync(string email, string refreshToken)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null || user.RefreshToken != refreshToken || user.RefreshTokenExpiry < DateTime.UtcNow)
+            {
+                return null;
+            }
+
+            return new UserIdentityDto { Id = user.Id, Email = user.Email };
         }
 
         public async Task<bool> HasLoginAsync(string userId, string loginProvider)
@@ -146,6 +270,33 @@ namespace Ecommerce.Infrastructure.Repositories
             };
         }
 
+        public async Task<(bool IsSuccess, List<string> Errors)> ResetPasswordAsync(string email, string token, string newPassword)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return (false, new List<string> { "No Accounts found with this email" });
+            }
+
+            try
+            {
+                var decodedTokenBytes = WebEncoders.Base64UrlDecode(token);
+                var decodedToken = Encoding.UTF8.GetString(decodedTokenBytes);
+
+                var result = await _userManager.ResetPasswordAsync(user, decodedToken, newPassword);
+
+                if (result.Succeeded)
+                {
+                    return (true, new List<string>());
+                }
+                return (false, result.Errors.Select(e => e.Description).ToList());
+            }
+            catch (FormatException)
+            {
+                return (false, new List<string> { "Invalid token format." });
+            }
+        }
+
         public async Task UpdateRefreshTokenAsync(string userId, string refreshToken)
         {
             var user = await _userManager.FindByIdAsync(userId);
@@ -155,6 +306,28 @@ namespace Ecommerce.Infrastructure.Repositories
                 user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(12);
                 await _userManager.UpdateAsync(user);
             }
+        }
+
+        public async Task<(bool IsSuccess, List<string> Errors)> UpdateUserInfoAsync(string userId, UpdateInforDTO command)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return (false, new List<string> { "User not found." });
+            }
+
+            // Cập nhật các thuộc tính
+            user.PhoneNumber = command.PhoneNumber;
+            user.Address = command.Address;
+            user.Gender = command.Gender;
+
+            var result = await _userManager.UpdateAsync(user);
+
+            if (result.Succeeded)
+            {
+                return (true, new List<string>());
+            }
+            return (false, result.Errors.Select(e => e.Description).ToList());
         }
     }
 }

@@ -52,5 +52,35 @@ namespace Ecommerce.Infrastructure.Contracts.Infrastructure
             rng.GetBytes(randomnumber);
             return Convert.ToBase64String(randomnumber);
         }
+
+        public ClaimsPrincipal? GetPrincipalFromExpiredToken(string token)
+        {
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateAudience = true,
+                ValidateIssuer = true,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Value.Key)),
+                ValidateLifetime = false, 
+                ValidIssuer = _jwtOptions.Value.Issuer,
+                ValidAudience = _jwtOptions.Value.Audience
+            };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            try
+            {
+                var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
+                if (securityToken is not JwtSecurityToken jwtSecurityToken ||
+                    !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return null;
+                }
+                return principal;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
     }
 }
