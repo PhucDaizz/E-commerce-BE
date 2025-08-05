@@ -3,16 +3,28 @@
   "WorkspaceRootPath": "C:\\Workspace\\c#\\E-commerce\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|c:\\workspace\\c#\\e-commerce\\ecommerce.api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|solutionrelative:ecommerce.api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|c:\\workspace\\c#\\e-commerce\\ecommerce.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|solutionrelative:ecommerce.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|c:\\workspace\\c#\\e-commerce\\ecommerce.api\\services\\interface\\iemailservices.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|solutionrelative:ecommerce.api\\services\\interface\\iemailservices.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{F245F81D-311B-4210-98D9-71EAA81FD614}|Ecommerce.Application\\Ecommerce.Application.csproj|c:\\workspace\\c#\\e-commerce\\ecommerce.application\\services\\impemention\\externalauthservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F245F81D-311B-4210-98D9-71EAA81FD614}|Ecommerce.Application\\Ecommerce.Application.csproj|solutionrelative:ecommerce.application\\services\\impemention\\externalauthservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F245F81D-311B-4210-98D9-71EAA81FD614}|Ecommerce.Application\\Ecommerce.Application.csproj|c:\\workspace\\c#\\e-commerce\\ecommerce.application\\services\\impemention\\chatcleanuporchestratorservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F245F81D-311B-4210-98D9-71EAA81FD614}|Ecommerce.Application\\Ecommerce.Application.csproj|solutionrelative:ecommerce.application\\services\\impemention\\chatcleanuporchestratorservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{F245F81D-311B-4210-98D9-71EAA81FD614}|Ecommerce.Application\\Ecommerce.Application.csproj|c:\\workspace\\c#\\e-commerce\\ecommerce.application\\services\\interfaces\\iexternalauthservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F245F81D-311B-4210-98D9-71EAA81FD614}|Ecommerce.Application\\Ecommerce.Application.csproj|solutionrelative:ecommerce.application\\services\\interfaces\\iexternalauthservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|c:\\workspace\\c#\\e-commerce\\ecommerce.api\\services\\impemention\\googleauthservices.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{75D1D4B4-E489-41E9-A086-ABBD9C9BB285}|ECommerce.API\\ECommerce.API.csproj|solutionrelative:ecommerce.api\\services\\impemention\\googleauthservices.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F245F81D-311B-4210-98D9-71EAA81FD614}|Ecommerce.Application\\Ecommerce.Application.csproj|c:\\workspace\\c#\\e-commerce\\ecommerce.application\\services\\contracts\\infrastructure\\igoogleauthservices.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F245F81D-311B-4210-98D9-71EAA81FD614}|Ecommerce.Application\\Ecommerce.Application.csproj|solutionrelative:ecommerce.application\\services\\contracts\\infrastructure\\igoogleauthservices.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -21,8 +33,8 @@
       "VerticalTabListWidth": 256,
       "DocumentGroups": [
         {
-          "DockedWidth": 1788,
-          "SelectedChildIndex": 10,
+          "DockedWidth": 1761,
+          "SelectedChildIndex": 8,
           "Children": [
             {
               "$type": "Bookmark",
@@ -58,41 +70,80 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "IEmailServices.cs",
-              "DocumentMoniker": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Services\\Interface\\IEmailServices.cs",
-              "RelativeDocumentMoniker": "ECommerce.API\\Services\\Interface\\IEmailServices.cs",
-              "ToolTip": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Services\\Interface\\IEmailServices.cs",
-              "RelativeToolTip": "ECommerce.API\\Services\\Interface\\IEmailServices.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-03T14:17:13.603Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "ChatCleanupOrchestratorService.cs",
-              "DocumentMoniker": "C:\\Workspace\\c#\\E-commerce\\Ecommerce.Application\\Services\\Impemention\\ChatCleanupOrchestratorService.cs",
-              "RelativeDocumentMoniker": "Ecommerce.Application\\Services\\Impemention\\ChatCleanupOrchestratorService.cs",
-              "ToolTip": "C:\\Workspace\\c#\\E-commerce\\Ecommerce.Application\\Services\\Impemention\\ChatCleanupOrchestratorService.cs",
-              "RelativeToolTip": "Ecommerce.Application\\Services\\Impemention\\ChatCleanupOrchestratorService.cs",
-              "ViewState": "AgIAAAsAAAAAAAAAAAAAwCkAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-03T13:34:21.503Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "AuthController.cs",
+              "DocumentMoniker": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Controllers\\AuthController.cs",
+              "RelativeDocumentMoniker": "ECommerce.API\\Controllers\\AuthController.cs",
+              "ToolTip": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Controllers\\AuthController.cs",
+              "RelativeToolTip": "ECommerce.API\\Controllers\\AuthController.cs",
+              "ViewState": "AgIAADYAAAAAAAAAAAAYwFQAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-04T14:30:58.477Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "IGoogleAuthServices.cs",
+              "DocumentMoniker": "C:\\Workspace\\c#\\E-commerce\\Ecommerce.Application\\Services\\Contracts\\Infrastructure\\IGoogleAuthServices.cs",
+              "RelativeDocumentMoniker": "Ecommerce.Application\\Services\\Contracts\\Infrastructure\\IGoogleAuthServices.cs",
+              "ToolTip": "C:\\Workspace\\c#\\E-commerce\\Ecommerce.Application\\Services\\Contracts\\Infrastructure\\IGoogleAuthServices.cs",
+              "RelativeToolTip": "Ecommerce.Application\\Services\\Contracts\\Infrastructure\\IGoogleAuthServices.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-04T13:04:40.595Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Program.cs",
               "RelativeDocumentMoniker": "ECommerce.API\\Program.cs",
               "ToolTip": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Program.cs",
               "RelativeToolTip": "ECommerce.API\\Program.cs",
-              "ViewState": "AgIAAEIAAAAAAAAAAAAAAFwAAABMAAAAAAAAAA==",
+              "ViewState": "AgIAAOUAAAAAAAAAAAAUwPsAAABWAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-03T13:28:06.595Z",
+              "WhenOpened": "2025-08-04T12:51:22.11Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ExternalAuthService.cs",
+              "DocumentMoniker": "C:\\Workspace\\c#\\E-commerce\\Ecommerce.Application\\Services\\Impemention\\ExternalAuthService.cs",
+              "RelativeDocumentMoniker": "Ecommerce.Application\\Services\\Impemention\\ExternalAuthService.cs",
+              "ToolTip": "C:\\Workspace\\c#\\E-commerce\\Ecommerce.Application\\Services\\Impemention\\ExternalAuthService.cs",
+              "RelativeToolTip": "Ecommerce.Application\\Services\\Impemention\\ExternalAuthService.cs",
+              "ViewState": "AgIAAB0AAAAAAAAAAAAwwEwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-04T13:12:21.179Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "IExternalAuthService.cs",
+              "DocumentMoniker": "C:\\Workspace\\c#\\E-commerce\\Ecommerce.Application\\Services\\Interfaces\\IExternalAuthService.cs",
+              "RelativeDocumentMoniker": "Ecommerce.Application\\Services\\Interfaces\\IExternalAuthService.cs",
+              "ToolTip": "C:\\Workspace\\c#\\E-commerce\\Ecommerce.Application\\Services\\Interfaces\\IExternalAuthService.cs",
+              "RelativeToolTip": "Ecommerce.Application\\Services\\Interfaces\\IExternalAuthService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-04T13:12:07.169Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "GoogleAuthServices.cs",
+              "DocumentMoniker": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Services\\Impemention\\GoogleAuthServices.cs",
+              "RelativeDocumentMoniker": "ECommerce.API\\Services\\Impemention\\GoogleAuthServices.cs",
+              "ToolTip": "C:\\Workspace\\c#\\E-commerce\\ECommerce.API\\Services\\Impemention\\GoogleAuthServices.cs",
+              "RelativeToolTip": "ECommerce.API\\Services\\Impemention\\GoogleAuthServices.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFAAAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-04T12:43:05.481Z",
               "EditorCaption": ""
             }
           ]

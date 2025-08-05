@@ -1,15 +1,15 @@
-﻿using Ecommerce.Infrastructure.Identity;
+﻿using Ecommerce.Application.DTOS.User;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Ecommerce.Infrastructure.Contracts.Infrastructure
+namespace Ecommerce.Application.Services.Contracts.Infrastructure
 {
     public interface ITokenGenerator
     {
-        string CreateToken(ExtendedIdentityUser user, List<string> roles);
+        string CreateToken(CreateTokenDTO user, List<string> roles);
         string GenerateRefreshToken();
     }
 }

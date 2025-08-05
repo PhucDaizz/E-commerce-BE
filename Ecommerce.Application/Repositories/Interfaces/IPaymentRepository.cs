@@ -10,5 +10,6 @@ namespace Ecommerce.Application.Repositories.Interfaces
     public interface IPaymentRepository
     {
         Task<Payments> CreateAsync(Payments payment);
+        Task<bool> ExistsByTransactionIdAsync(string transactionId);
     }
 }

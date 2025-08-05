@@ -17,6 +17,11 @@ namespace Ecommerce.Infrastructure.Contracts.Persistence
         public ICartItemRepository CartItems { get; }
         public IConversationRepository Conversation { get; }
         public IChatMessageRepository ChatMessage { get; }
+        public IDiscountRepository Discount { get; }
+        public IOrderRepository Order { get; }
+        public IShippingRepository Shipping { get; }
+        public IOrderDetailRepository OrderDetail { get; }
+        public IPaymentRepository PaymentRepository { get; }
 
         public UnitOfWork(
             AppDbContext dbContext,
@@ -27,7 +32,12 @@ namespace Ecommerce.Infrastructure.Contracts.Persistence
             IProductSizeRepository productSizeRepository,
             ICartItemRepository cartItemRepository,
             IConversationRepository conversationRepository, 
-            IChatMessageRepository chatMessageRepository)
+            IChatMessageRepository chatMessageRepository,
+            IDiscountRepository discountRepository,
+            IOrderRepository orderRepository, 
+            IShippingRepository shippingRepository,
+            IOrderDetailRepository orderDetailRepository,
+            IPaymentRepository paymentRepository)
         {
             _dbContext = dbContext;
             Products = productRepository;
@@ -38,6 +48,11 @@ namespace Ecommerce.Infrastructure.Contracts.Persistence
             CartItems = cartItemRepository;
             Conversation = conversationRepository;
             ChatMessage = chatMessageRepository;
+            Discount = discountRepository;
+            Order = orderRepository;
+            Shipping = shippingRepository;
+            OrderDetail = orderDetailRepository;
+            PaymentRepository = paymentRepository;
         }
 
         public async Task BeginTransactionAsync()

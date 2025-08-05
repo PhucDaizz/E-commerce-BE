@@ -24,7 +24,6 @@ namespace Ecommerce.Infrastructure.Repositories
             order.CreatedAt = DateTime.Now;
             order.UpdatedAt = DateTime.Now;
             await _dbContext.AddAsync(order);
-            await _dbContext.SaveChangesAsync();
             return order;
         }
 

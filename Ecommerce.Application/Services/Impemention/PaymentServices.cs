@@ -1,54 +1,40 @@
 ﻿using AutoMapper;
-using ECommerce.API.Data;
-using ECommerce.API.Models.Domain;
-using ECommerce.API.Models.DTO.CartItem;
-using ECommerce.API.Models.DTO.Payment;
-using ECommerce.API.Repositories.Interface;
-using ECommerce.API.Services.Interface;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using System.Transactions;
+using Ecommerce.Application.DTOS.CartItem;
+using Ecommerce.Application.DTOS.Payment;
+using Ecommerce.Application.Repositories.Interfaces;
+using Ecommerce.Application.Repositories.Persistence;
+using Ecommerce.Application.Services.Interfaces;
+using Ecommerce.Domain.Entities;
 using VNPAY.NET.Models;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
-namespace ECommerce.API.Services.Impemention
+namespace Ecommerce.Application.Services.Impemention
 {
     public class PaymentServices : IPaymentServices
     {
-        private readonly IPaymentRepository paymentRepository;
-        private readonly IDiscountRepository discountRepository;
-        private readonly ICartItemRepository cartItemRepository;
-        private readonly IOrderRepository orderRepository;
-        private readonly IDiscountServices discountServices;
-        private readonly IOrderDetailRepository orderDetailRepository;
-        private readonly IMapper mapper;
-        private readonly AppDbContext dbContext;
-        private readonly UserManager<ExtendedIdentityUser> userManager;
-        private readonly IShippingRepository shippingRepository;
-        private readonly IProductSizeRepository productSizeRepository;
+        private readonly IPaymentRepository _paymentRepository;
+        private readonly ICartItemRepository _cartItemRepository;
+        private readonly IDiscountServices _discountServices;
+        private readonly IMapper _mapper;
+        private readonly IAuthRepository _authRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public PaymentServices(IPaymentRepository paymentRepository,IDiscountRepository discountRepository, 
-                            ICartItemRepository cartItemRepository, IOrderRepository orderRepository, 
-                            IDiscountServices discountServices, IOrderDetailRepository orderDetailRepository,
-                            IMapper mapper, AppDbContext dbContext, UserManager<ExtendedIdentityUser> userManager,
-                            IShippingRepository shippingRepository, IProductSizeRepository productSizeRepository)
+        public PaymentServices(IPaymentRepository paymentRepository,
+                            ICartItemRepository cartItemRepository, 
+                            IDiscountServices discountServices, 
+                            IMapper mapper,
+                            IAuthRepository authRepository, IUnitOfWork unitOfWork)
         {
-            this.paymentRepository = paymentRepository;
-            this.discountRepository = discountRepository;
-            this.cartItemRepository = cartItemRepository;
-            this.orderRepository = orderRepository;
-            this.discountServices = discountServices;
-            this.orderDetailRepository = orderDetailRepository;
-            this.mapper = mapper;
-            this.dbContext = dbContext;
-            this.userManager = userManager;
-            this.shippingRepository = shippingRepository;
-            this.productSizeRepository = productSizeRepository;
+            _paymentRepository = paymentRepository;
+            _cartItemRepository = cartItemRepository;
+            _discountServices = discountServices;
+            _mapper = mapper;
+            _authRepository = authRepository;
+            _unitOfWork = unitOfWork;
         }
         public async Task<PaymentProcessResult> processPaymentTWO(PaymentResult paymentResult, Guid userID, int PaymentMethodId, int? discountId)
         {
             // Lấy giỏ hàng
-            var cartItems = await cartItemRepository.GetAllAsync(userID);
+            var cartItems = await _cartItemRepository.GetAllAsync(userID);
             if (cartItems?.Any() != true)
             {
                 return new PaymentProcessResult
@@ -65,7 +51,7 @@ namespace ECommerce.API.Services.Impemention
             // Áp dụng mã giảm giá (nếu có)
             if (discountId.HasValue)
             {
-                var discountAmount = await discountServices.ApplyDiscountAsync(discountId.Value, userID, amount);
+                var discountAmount = await _discountServices.ApplyDiscountAsync(discountId.Value, userID, amount);
                 if (discountAmount >= 0)
                 {
                     amountFix = discountAmount;
@@ -87,21 +73,22 @@ namespace ECommerce.API.Services.Impemention
             };
 
             // Sử dụng TransactionScope nếu không có BeginTransactionAsync
-            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            await _unitOfWork.BeginTransactionAsync();
             {
                 try
                 {
                     // Lưu đơn hàng
-                    await orderRepository.CreateAsync(order);
+                    await _unitOfWork.Orders.CreateAsync(order);
 
                     // Thêm chi tiết đơn hàng
-                    var listCart = mapper.Map<IEnumerable<CartItemListDTO>>(cartItems);
-                    await orderDetailRepository.CreateAsync(order.OrderID, listCart);
+                    var listCart = _mapper.Map<IEnumerable<CartItemListDTO>>(cartItems);
+                    await _unitOfWork.OrderDetails.CreateAsync(order.OrderID, listCart);
 
                     // Xóa giỏ hàng
-                    await cartItemRepository.DeleteAllByUserIDAsync(userID);
+                    await _unitOfWork.CartItems.DeleteAllByUserIDAsync(userID);
 
-                    scope.Complete(); // Đánh dấu thành công
+                    await _unitOfWork.SaveChangesAsync(); // Lưu thay đổi vào cơ sở dữ liệu
+                    await _unitOfWork.CommitAsync();// Đánh dấu thành công
                     return new PaymentProcessResult
                     {
                         IsSuccess = true,
@@ -122,59 +109,39 @@ namespace ECommerce.API.Services.Impemention
         public async Task<PaymentProcessResult> processPayment(PaymentResult paymentResult, Guid userID, int PaymentMethodId, int? discountId)
         {
             // Lấy giỏ hàng
-            var cartItems = await cartItemRepository.GetAllAsync(userID);
+            var cartItems = await _cartItemRepository.GetAllAsync(userID);
             if (cartItems == null || !cartItems.Any())
-            {
-                return new PaymentProcessResult
-                {
-                    IsSuccess = false,
-                    Message = "Cart is empty"
-                };
-            }
+                return new PaymentProcessResult { IsSuccess = false, Message = "Cart is empty" };
+            
 
             // Tính tổng tiền
             var amount = cartItems.Sum(item => item.Quantity * item.Products.Price);
             var amountFix = amount;
 
-            var isExisting = await dbContext.Payments.AnyAsync(x => x.TransactionID == paymentResult.VnpayTransactionId.ToString());
+            var isExisting = await _paymentRepository.ExistsByTransactionIdAsync(paymentResult.VnpayTransactionId.ToString());
             if (isExisting)
-            {
-                return new PaymentProcessResult
-                {
-                    IsSuccess = false,
-                    Message = "Transaction already exists"
-                };
-            }
-
-            await using var transaction = await dbContext.Database.BeginTransactionAsync();
-
+                return new PaymentProcessResult { IsSuccess = false, Message = "Transaction already exists" };
+            
+            await _unitOfWork.BeginTransactionAsync();
             try
             {
                 // Áp dụng mã giảm giá (nếu có)
                 if (discountId.HasValue)
                 {
-                    var discountAmount = await discountServices.ApplyDiscountAsync(discountId.Value, userID, amount);
+                    var discountAmount = await _discountServices.ApplyDiscountAsync(discountId.Value, userID, amount);
                     if (discountAmount < 0)
                     {
-                        return new PaymentProcessResult
-                        {
-                            IsSuccess = false,
-                            Message = "Invalid discount code"
-                        };
+                        return new PaymentProcessResult { IsSuccess = false, Message = "Invalid discount code" };
                     }
                     amountFix = discountAmount;
                 }
 
                 // Kiểm tra và cập nhật tồn kho
-                var isStockUpdated = await productSizeRepository.UpdateRangeAsync(cartItems);
+                var isStockUpdated = await _unitOfWork.ProductSizes.UpdateRangeAsync(cartItems);
                 if (!isStockUpdated)
                 {
-                    await transaction.RollbackAsync(); // Rollback giao dịch nếu lỗi tồn kho
-                    return new PaymentProcessResult
-                    {
-                        IsSuccess = false,
-                        Message = "Not found for one or more products"
-                    };
+                    await _unitOfWork.RollbackAsync(); // Rollback giao dịch nếu lỗi tồn kho
+                    return new PaymentProcessResult { IsSuccess = false, Message = "Not found for one or more products" };
                 }
 
 
@@ -192,7 +159,7 @@ namespace ECommerce.API.Services.Impemention
                     UpdatedAt = DateTime.Now
                 };
                 // Lưu đơn hàng
-                await orderRepository.CreateAsync(order);
+                await _unitOfWork.Orders.CreateAsync(order);
 
                 // Tạo thanh toán
                 var payment = new Payments
@@ -207,7 +174,7 @@ namespace ECommerce.API.Services.Impemention
                 };
 
                 // Tạo Shipping
-                var user = await userManager.FindByIdAsync(userID.ToString());
+                var user = await _authRepository.GetInforAsync(userID.ToString());
                 var shipping = new Shippings
                 {
                     ShippingID = Guid.NewGuid(),
@@ -223,19 +190,20 @@ namespace ECommerce.API.Services.Impemention
                 };
 
                 // Lưu Shipping
-                await shippingRepository.CreateAsync(shipping);
+                await _unitOfWork.shipping.CreateAsync(shipping);
 
                 // Thêm chi tiết đơn hàng
-                var listCart = mapper.Map<IEnumerable<CartItemListDTO>>(cartItems);
-                await orderDetailRepository.CreateAsync(order.OrderID, listCart);
+                var listCart = _mapper.Map<IEnumerable<CartItemListDTO>>(cartItems);
+                await _unitOfWork.OrderDetails.CreateAsync(order.OrderID, listCart);
 
                 // Xóa giỏ hàng
-                await cartItemRepository.DeleteAllByUserIDAsync(userID);
+                await _unitOfWork.CartItems.DeleteAllByUserIDAsync(userID);
 
                 // Lưu thanh toán
-                await paymentRepository.CreateAsync(payment); 
+                await _unitOfWork.Payment.CreateAsync(payment);
 
-                await transaction.CommitAsync(); // Commit transaction
+                await _unitOfWork.SaveChangesAsync(); // Save changes to the database
+                await _unitOfWork.CommitAsync(); // Commit transaction
 
                 return new PaymentProcessResult
                 {
@@ -244,9 +212,10 @@ namespace ECommerce.API.Services.Impemention
                 };
 
 
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
-                await transaction.RollbackAsync(); // Rollback transaction
+                await _unitOfWork.RollbackAsync(); // Rollback transaction
                 return new PaymentProcessResult
                 {
                     IsSuccess = false,
@@ -258,7 +227,7 @@ namespace ECommerce.API.Services.Impemention
         public async Task<PaymentAmountDTO> checkAmount(Guid userId, int? discountId)
         {
             // Get cartItem from database
-            var cartItems = await cartItemRepository.GetAllAsync(userId);
+            var cartItems = await _unitOfWork.CartItems.GetAllAsync(userId);
             if (cartItems == null || !cartItems.Any())
             {
                 return new PaymentAmountDTO
@@ -276,13 +245,15 @@ namespace ECommerce.API.Services.Impemention
             // Check discount code if available
             if (discountId.HasValue)
             {
-                var discountAmount = await discountServices.ApplyDiscountAsync(discountId.Value, userId, amount, false);
+                var discountAmount = await _discountServices.ApplyDiscountAsync(discountId.Value, userId, amount, false);
                 if (discountAmount >= 0)
                 {
                     finalAmount = (float)discountAmount;
                 }
             }
             finalAmount += 30000; // Shipping fee
+
+            _unitOfWork.SaveChangesAsync();
 
             return new PaymentAmountDTO
             {
@@ -296,7 +267,7 @@ namespace ECommerce.API.Services.Impemention
         public async Task<PaymentProcessResult> processPaymentCOD(Guid userID, int? discountId, int PaymentMethodId = 2)
         {
             // Lấy giỏ hàng
-            var cartItems = await cartItemRepository.GetAllAsync(userID);
+            var cartItems = await _unitOfWork.CartItems.GetAllAsync(userID);
             if (cartItems == null || !cartItems.Any())
             {
                 return new PaymentProcessResult
@@ -310,14 +281,14 @@ namespace ECommerce.API.Services.Impemention
             var amount = cartItems.Sum(item => item.Quantity * item.Products.Price);
             var amountFix = amount;
 
-            await using var transaction = await dbContext.Database.BeginTransactionAsync();
+            await _unitOfWork.BeginTransactionAsync();  
 
             try
             {
                 // Áp dụng mã giảm giá (nếu có)
                 if (discountId.HasValue)
                 {
-                    var discountAmount = await discountServices.ApplyDiscountAsync(discountId.Value, userID, amount);
+                    var discountAmount = await _discountServices.ApplyDiscountAsync(discountId.Value, userID, amount);
                     if (discountAmount < 0)
                     {
                         return new PaymentProcessResult
@@ -330,10 +301,10 @@ namespace ECommerce.API.Services.Impemention
                 }
 
                 // Kiểm tra và cập nhật tồn kho
-                var isStockUpdated = await productSizeRepository.UpdateRangeAsync(cartItems);
+                var isStockUpdated = await _unitOfWork.ProductSizes.UpdateRangeAsync(cartItems);
                 if (!isStockUpdated)
                 {
-                    await transaction.RollbackAsync(); // Rollback giao dịch nếu lỗi tồn kho
+                    await _unitOfWork.RollbackAsync(); // Rollback giao dịch nếu lỗi tồn kho
                     return new PaymentProcessResult
                     {
                         IsSuccess = false,
@@ -356,7 +327,7 @@ namespace ECommerce.API.Services.Impemention
                     UpdatedAt = DateTime.Now
                 };
                 // Lưu đơn hàng
-                await orderRepository.CreateAsync(order);
+                await _unitOfWork.Orders.CreateAsync(order);
 
                 // Tạo thanh toán
                 var payment = new Payments
@@ -371,7 +342,7 @@ namespace ECommerce.API.Services.Impemention
                 };
 
                 // Tạo Shipping
-                var user = await userManager.FindByIdAsync(userID.ToString());
+                var user = await _authRepository.GetInforAsync(userID.ToString());
                 var shipping = new Shippings
                 {
                     ShippingID = Guid.NewGuid(),
@@ -387,19 +358,20 @@ namespace ECommerce.API.Services.Impemention
                 };
 
                 // Lưu Shipping
-                await shippingRepository.CreateAsync(shipping);
+                await _unitOfWork.shipping.CreateAsync(shipping);
 
                 // Thêm chi tiết đơn hàng
-                var listCart = mapper.Map<IEnumerable<CartItemListDTO>>(cartItems);
-                await orderDetailRepository.CreateAsync(order.OrderID, listCart);
+                var listCart = _mapper.Map<IEnumerable<CartItemListDTO>>(cartItems);
+                await _unitOfWork.OrderDetails.CreateAsync(order.OrderID, listCart);
 
                 // Xóa giỏ hàng
-                await cartItemRepository.DeleteAllByUserIDAsync(userID);
+                await _unitOfWork.CartItems.DeleteAllByUserIDAsync(userID);
 
                 // Lưu thanh toán
-                await paymentRepository.CreateAsync(payment);
+                await _unitOfWork.Payment.CreateAsync(payment);
 
-                await transaction.CommitAsync(); // Commit transaction
+                await _unitOfWork.SaveChangesAsync(); // Save changes to the database
+                await _unitOfWork.CommitAsync(); // Commit transaction
 
                 return new PaymentProcessResult
                 {
@@ -412,7 +384,7 @@ namespace ECommerce.API.Services.Impemention
             }
             catch (Exception ex)
             {
-                await transaction.RollbackAsync(); // Rollback transaction
+                await _unitOfWork.RollbackAsync(); // Rollback transaction
                 return new PaymentProcessResult
                 {
                     IsSuccess = false,

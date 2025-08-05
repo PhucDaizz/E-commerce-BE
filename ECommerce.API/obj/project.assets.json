@@ -3033,7 +3033,8 @@
         "dependencies": {
           "AutoMapper": "13.0.1",
           "Ecommerce.Domain": "1.0.0",
-          "Microsoft.Extensions.Logging.Abstractions": "8.0.2"
+          "Microsoft.Extensions.Logging.Abstractions": "8.0.2",
+          "VNPAY.NET": "8.5.0"
         },
         "compile": {
           "bin/placeholder/Ecommerce.Application.dll": {}

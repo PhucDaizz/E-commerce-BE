@@ -139,7 +139,6 @@ namespace Ecommerce.Infrastructure.Repositories
                 productSizesUpdate.Add(productSize);
             }
             _dbContext.ProductSizes.UpdateRange(productSizesUpdate);
-            await _dbContext.SaveChangesAsync();
             return true;
         }
 

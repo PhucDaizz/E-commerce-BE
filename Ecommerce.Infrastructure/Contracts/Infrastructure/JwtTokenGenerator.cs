@@ -1,15 +1,13 @@
-﻿using Ecommerce.Infrastructure.Identity;
+﻿using Ecommerce.Application.DTOS.User;
+using Ecommerce.Application.Services.Contracts.Infrastructure;
+using Ecommerce.Infrastructure.Identity;
 using Ecommerce.Infrastructure.Settings;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Ecommerce.Infrastructure.Contracts.Infrastructure
 {
@@ -21,12 +19,12 @@ namespace Ecommerce.Infrastructure.Contracts.Infrastructure
         {
             _jwtOptions = jwtOptions;
         }
-        public string CreateToken(ExtendedIdentityUser user, List<string> roles)
+        public string CreateToken(CreateTokenDTO user, List<string> roles)
         {
             var claim = new List<Claim>
             {
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.NameIdentifier, user.Id)
+                new Claim(ClaimTypes.NameIdentifier, user.UserId)
             };
             foreach (var role in roles)
             {

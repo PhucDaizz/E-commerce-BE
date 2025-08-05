@@ -1,20 +1,14 @@
-﻿using Azure.Core;
-using Ecommerce.Application.DTOS.User;
+﻿using Ecommerce.Application.DTOS.User;
 using Ecommerce.Application.Repositories.Interfaces;
-using Ecommerce.Infrastructure.Contracts.Infrastructure;
+using Ecommerce.Application.Services.Contracts.Infrastructure;
 using Ecommerce.Infrastructure.Identity;
 using Ecommerce.Infrastructure.Settings;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Ecommerce.Infrastructure.Repositories
 {
@@ -40,7 +34,13 @@ namespace Ecommerce.Infrastructure.Repositories
             }
 
             var roles = await _userManager.GetRolesAsync(identityUser);
-            var token = _tokenGenerator.CreateToken(identityUser, roles.ToList());
+            var createTokenDto = new CreateTokenDTO
+            {
+                Email = identityUser.Email,
+                UserId = identityUser.Id,
+            };
+
+            var token = _tokenGenerator.CreateToken(createTokenDto, roles.ToList());
             var refreshToken = _tokenGenerator.GenerateRefreshToken();
 
             identityUser.RefreshToken = refreshToken;
@@ -76,7 +76,13 @@ namespace Ecommerce.Infrastructure.Repositories
 
             response.Email = user.Email;
             response.Roles = await _userManager.GetRolesAsync(user);
-            response.Token = _tokenGenerator.CreateToken(user, response.Roles.ToList());
+
+            var createTokenDto = new CreateTokenDTO
+            {
+                Email = user.Email,
+                UserId = user.Id,
+            };
+            response.Token = _tokenGenerator.CreateToken(createTokenDto, response.Roles.ToList());
             response.RefreshToken = _tokenGenerator.GenerateRefreshToken();
 
             user.RefreshToken = response.RefreshToken;

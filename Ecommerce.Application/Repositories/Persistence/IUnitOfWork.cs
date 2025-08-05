@@ -1,9 +1,4 @@
 ﻿using Ecommerce.Application.Repositories.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ecommerce.Application.Repositories.Persistence
 {
@@ -17,7 +12,11 @@ namespace Ecommerce.Application.Repositories.Persistence
         ICartItemRepository CartItems { get; }
         IConversationRepository Conversation { get; }
         IChatMessageRepository ChatMessage { get; }
-
+        IDiscountRepository Discounts { get; }
+        IOrderRepository Orders { get; }
+        IShippingRepository shipping { get; }
+        IOrderDetailRepository OrderDetails { get; }
+        IPaymentRepository Payment { get; }
         Task BeginTransactionAsync();
         Task CommitAsync();
         Task RollbackAsync();

@@ -1,6 +1,7 @@
 ﻿using CloudinaryDotNet;
 using dotenv.net;
 using Ecommerce.Application.Common.Mappings;
+using Ecommerce.Application.DTOS.User;
 using Ecommerce.Application.Repositories.Interfaces;
 using Ecommerce.Application.Repositories.Persistence;
 using Ecommerce.Application.Services.Contracts.Infrastructure;
@@ -21,10 +22,12 @@ using ECommerce.API.Services.Impemention;
 using ECommerce.API.Services.Interface;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
 using VNPAY.NET;
 
@@ -40,10 +43,20 @@ var builder = WebApplication.CreateBuilder(args);
 
 //Cloudinary cloudinary = new Cloudinary(account);
 //cloudinary.Api.Secure = true;
+
+// Setting
 builder.Services.Configure<CloudinarySettings>(
     builder.Configuration.GetSection(CloudinarySettings.SectionName)
 );
-
+builder.Services.Configure<JwtSettings>(
+    builder.Configuration.GetSection(JwtSettings.SectionName)
+);
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection(EmailSettings.SectionName)
+);
+builder.Services.Configure<GoogleSettings>(
+    builder.Configuration.GetSection(GoogleSettings.SectionName)
+);
 
 // Add services to the container.
 
@@ -59,9 +72,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("ECommerceConnectionstring"));
 });
 
-builder.Services.Configure<JwtSettings>(
-    builder.Configuration.GetSection(JwtSettings.SectionName)
-);
+
 
 
 builder.Services.AddSignalR();
@@ -73,10 +84,6 @@ builder.Services.AddSingleton<IVnpay, Vnpay>();
 
 
 // services
-builder.Services.AddScoped<IPaymentServices, PaymentServices>();
-builder.Services.AddScoped<IEmailServices, EmailServices>();
-builder.Services.AddScoped<IShippingServices, ShippingServices>();
-builder.Services.AddScoped<IGoogleAuthServices, GoogleAuthServices>();
 
 //unit of work
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -119,6 +126,10 @@ builder.Services.AddScoped<IProductImageServices, ProductImageServices>();
 builder.Services.AddScoped<IChatCleanupOrchestratorService, ChatCleanupOrchestratorService>();
 builder.Services.AddScoped<IClosedConversationCleanupService, ClosedConversationCleanupService>();
 builder.Services.AddScoped<IStalePendingConversationCleanupService, StalePendingConversationCleanupService>();
+builder.Services.AddScoped<IPaymentServices, PaymentServices>();
+builder.Services.AddScoped<IShippingServices, ShippingServices>();
+builder.Services.AddScoped<IEmailServices, EmailServices>();
+builder.Services.AddScoped<IExternalAuthService, ExternalAuthService>();
 
 
 
@@ -209,11 +220,70 @@ builder.Services.AddAuthentication(options =>
         options.ClientSecret = builder.Configuration["Google:ClientSecret"];
         options.CallbackPath = "/signin-google";
 
-        options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.Events = new OAuthEvents
+        {
+            OnCreatingTicket = async context =>
+            {
+                var externalAuthService = context.HttpContext.RequestServices
+                                         .GetRequiredService<IExternalAuthService>();
+
+                // 2. TRÍCH XUẤT DỮ LIỆU "SẠCH" TỪ GOOGLE CLAIMS
+                var email = context.Principal?.FindFirstValue(ClaimTypes.Email);
+                var givenName = context.Principal?.FindFirstValue(ClaimTypes.GivenName);
+                var surname = context.Principal?.FindFirstValue(ClaimTypes.Surname);
+                var providerKey = context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                if (string.IsNullOrEmpty(email))
+                {
+                    context.Fail("Email claim is missing from Google account.");
+                    return;
+                }
+
+                // 3. TẠO COMMAND VÀ GỌI APPLICATION SERVICE
+                var command = new ExternalAuthCommand
+                {
+                    Email = email,
+                    FirstName = givenName ?? "",
+                    LastName = surname ?? "",
+                    Provider = "Google",
+                    ProviderKey = providerKey
+                };
+
+                var authResult = await externalAuthService.AuthenticateAsync(command);
+                // 4. XỬ LÝ KẾT QUẢ
+                if (!authResult.IsSuccess)
+                {
+                    context.Fail($"Authentication failed: {authResult.ErrorMessage}");
+                    return;
+                }
+
+                // 5. GẮN TOKEN VÀO PROPERTIES ĐỂ CHUYỂN TIẾP
+                // Một trang callback ở frontend sẽ nhận các token này
+                context.Properties.Items["access_token"] = authResult.AccessToken;
+                context.Properties.Items["refresh_token"] = authResult.RefreshToken;
+                context.Properties.Items["roles"] = string.Join(",", authResult.Roles ?? new List<string>());
+
+
+                context.Properties.RedirectUri = "/google-callback-handler";
+                // Chuyển hướng người dùng về frontend với các token
+                // RedirectUri thường được cấu hình trong `options.Challenge()` ở Controller
+                // nhưng chúng ta có thể ghi đè ở đây nếu muốn.
+                // Ví dụ: context.Response.Redirect($"{frontendUrl}?token={authResult.AccessToken}");
+            },
+            OnRemoteFailure = context =>
+            {
+                // Xử lý khi Google trả về lỗi (ví dụ: user từ chối quyền)
+                context.HandleResponse();
+                var frontendUrl = builder.Configuration["FrontendUrl"] ?? "http://localhost:5173";
+                context.Response.Redirect($"{frontendUrl}/login-failed?error={Uri.EscapeDataString(context.Failure.Message)}");
+                return Task.CompletedTask;
+            }
+        };
+        /*options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
         options.Scope.Add("profile");
         options.Scope.Add("email");
 
-        options.SaveTokens = true;
+        options.SaveTokens = true;*/
     });
 
 builder.Services.AddHostedService<ChatCleanupService>();

@@ -13,6 +13,7 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
+    <PackageReference Include="VNPAY.NET" Version="8.5.0" />
   </ItemGroup>
 
 </Project>

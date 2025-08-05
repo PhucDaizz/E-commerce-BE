@@ -21,7 +21,6 @@ namespace Ecommerce.Infrastructure.Repositories
         public async Task<Shippings> CreateAsync(Shippings shipping)
         {
             await dbContext.Shippings.AddAsync(shipping);
-            await dbContext.SaveChangesAsync();
             return shipping;
         }
 

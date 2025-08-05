@@ -1,23 +1,25 @@
-﻿using ECommerce.API.Services.Interface;
+﻿using Ecommerce.Application.Services.Contracts.Infrastructure;
+using Ecommerce.Infrastructure.Settings;
+using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.Mail;
 
-namespace ECommerce.API.Services.Impemention
+namespace Ecommerce.Infrastructure.Services
 {
     public class EmailServices : IEmailServices
     {
-        private readonly IConfiguration configuration;
+        private readonly IOptions<EmailSettings> _options;
 
-        public EmailServices(IConfiguration configuration)
+        public EmailServices(IOptions<EmailSettings> options)
         {
-            this.configuration = configuration;
+            _options = options;
         }
         public Task SendEmailAsync(string toEmail, string subject, string body, bool isBodyHTML)
         {
-            string MailServer = configuration["EmailSettings:MailServer"];
-            string FromEmail = configuration["EmailSettings:FromEmail"];
-            string Password = configuration["EmailSettings:Password"];
-            int Port = int.Parse(configuration["EmailSettings:MailPort"]);
+            string MailServer = _options.Value.MailServer;
+            string FromEmail = _options.Value.FromEmail;
+            string Password = _options.Value.Password;
+            int Port = _options.Value.MailPort;
 
             var smtpClient = new SmtpClient(MailServer, Port)
             {
@@ -34,7 +36,6 @@ namespace ECommerce.API.Services.Impemention
                 IsBodyHtml = isBodyHTML
             };
             return smtpClient.SendMailAsync(mailMessage);
-
         }
     }
 }

@@ -57,7 +57,7 @@ namespace Ecommerce.Infrastructure.Repositories
             {
                 discount.IsActive = false;
             }
-            return await _dbContext.SaveChangesAsync() > 0;
+            return true;
         }
 
         public async Task<Discounts?> DeleteAsync(int id)

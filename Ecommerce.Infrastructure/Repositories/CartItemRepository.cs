@@ -44,7 +44,6 @@ namespace Ecommerce.Infrastructure.Repositories
             if (cartItems.Any())
             {
                 _dbContext.CartItems.RemoveRange(cartItems);
-                await _dbContext.SaveChangesAsync();
                 return true;
             }
             return false;
