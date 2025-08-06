@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,7 @@ namespace Ecommerce.Domain.Entities
 {
     public class Conversations
     {
+        [Key]
         public Guid ConversationId { get; set; }
         public string ClientUserId { get; set; }
         public string? AdminUserId { get; set; }

@@ -11,7 +11,6 @@ namespace Ecommerce.Application.Services.Interfaces
 
         Task<Result> SendEmailConfirmationLinkAsync(string userId);
         Task<Result> SendPasswordResetLinkAsync(ForgotPasswordDTO command);
-        Task<Result> ResetPasswordAsync(ResetPasswordDTO command);
         Task<LoginResponseDto> RefreshTokenAsync(RefreshTokenModel refreshTokenModel);
 
         Task<InforDTO?> GetInforAsync(string userId);

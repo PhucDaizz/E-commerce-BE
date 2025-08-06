@@ -1,11 +1,9 @@
 ﻿using AutoMapper;
-using Ecommerce.Infrastructure;
-using ECommerce.API.Models.Domain;
-using ECommerce.API.Models.DTO.ProductReview;
-using ECommerce.API.Repositories.Interface;
-using ECommerce.API.Services.Interface;
+using Ecommerce.Application.DTOS.ProductReview;
+using Ecommerce.Application.Repositories.Interfaces;
+using Ecommerce.Application.Services.Interfaces;
+using Ecommerce.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -15,17 +13,15 @@ namespace ECommerce.API.Controllers
     [ApiController]
     public class ProductReviewController : ControllerBase
     {
-        private readonly AppDbContext dbContext;
-        private readonly IMapper mapper;
-        private readonly IProductReviewServices productReviewServices;
-        private readonly IProductReviewRepository productReviewRepository;
+        private readonly IMapper _mapper;
+        private readonly IProductReviewServices _productReviewServices;
+        private readonly IProductReviewRepository _productReviewRepository;
 
-        public ProductReviewController(AppDbContext dbContext, IMapper mapper, IProductReviewServices productReviewServices, IProductReviewRepository productReviewRepository)
+        public ProductReviewController(IMapper mapper, IProductReviewServices productReviewServices, IProductReviewRepository productReviewRepository)
         {
-            this.dbContext = dbContext;
-            this.mapper = mapper;
-            this.productReviewServices = productReviewServices;
-            this.productReviewRepository = productReviewRepository;
+            _mapper = mapper;
+            _productReviewServices = productReviewServices;
+            _productReviewRepository = productReviewRepository;
         }
 
         [HttpPost]
@@ -45,14 +41,14 @@ namespace ECommerce.API.Controllers
                     return Unauthorized("Please login again!.");
                 }
 
-                var productReview = mapper.Map<ProductReviews>(createProductReviewDTO);
+                var productReview = _mapper.Map<ProductReviews>(createProductReviewDTO);
                 productReview.CreatedAt = DateTime.Now;
                 productReview.UpdatedAt = DateTime.Now;
                 productReview.UserID = Guid.Parse(useridClaim.Value);
                 
-                var productReviewResult = await productReviewServices.CreateAsync(productReview);
+                var productReviewResult = await _productReviewServices.CreateAsync(productReview);
 
-                return Ok(mapper.Map<ProductReviewDTO>(productReviewResult));
+                return Ok(_mapper.Map<ProductReviewDTO>(productReviewResult));
             }
 
             catch (Exception ex)
@@ -68,7 +64,7 @@ namespace ECommerce.API.Controllers
         {
             try
             {
-                var productReviews = await productReviewRepository.GetAllAsync(productID);
+                var productReviews = await _productReviewRepository.GetAllAsync(productID);
 
                 return Ok(productReviews);
             }
@@ -84,12 +80,12 @@ namespace ECommerce.API.Controllers
         {
             try
             {
-                var productReviews = await productReviewRepository.DeleteAync(reviewID);
+                var productReviews = await _productReviewRepository.DeleteAync(reviewID);
                 if (productReviews == null)
                 {
                     return NotFound("Can't find this review");
                 }
-                return Ok(mapper.Map<ProductReviewDTO>(productReviews));
+                return Ok(_mapper.Map<ProductReviewDTO>(productReviews));
             }
             catch (Exception ex)
             {

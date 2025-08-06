@@ -162,3 +162,10 @@ C:\Workspace\c#\E-commerce\ECommerce.API\obj\Debug\net8.0\staticwebassets.build.
 C:\Workspace\c#\E-commerce\ECommerce.API\obj\Debug\net8.0\staticwebassets.build.endpoints.json
 C:\Workspace\c#\E-commerce\ECommerce.API\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Workspace\c#\E-commerce\ECommerce.API\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.Google.dll
+C:\Workspace\c#\E-commerce\ECommerce.API\bin\Debug\net8.0\Ecommerce.Application.dll
+C:\Workspace\c#\E-commerce\ECommerce.API\bin\Debug\net8.0\Ecommerce.Domain.dll
+C:\Workspace\c#\E-commerce\ECommerce.API\bin\Debug\net8.0\Ecommerce.Infrastructure.dll
+C:\Workspace\c#\E-commerce\ECommerce.API\bin\Debug\net8.0\Ecommerce.Application.pdb
+C:\Workspace\c#\E-commerce\ECommerce.API\bin\Debug\net8.0\Ecommerce.Domain.pdb
+C:\Workspace\c#\E-commerce\ECommerce.API\bin\Debug\net8.0\Ecommerce.Infrastructure.pdb
+C:\Workspace\c#\E-commerce\ECommerce.API\bin\Debug\net8.0\ECommerce.API.staticwebassets.runtime.json

@@ -5,19 +5,21 @@ namespace Ecommerce.Infrastructure.Services
 {
     public class StorageServiceFactory : IStorageServiceFactory
     {
-        private readonly IEnumerable<IFileStorageService> _services;
+        private readonly LocalFileStorageService _localFileStorageService;
+        private readonly CloudinaryImageStorageService _cloudinaryImageStorageService;
 
-        public StorageServiceFactory(IEnumerable<IFileStorageService> services)
+        public StorageServiceFactory(LocalFileStorageService localFileStorageService, CloudinaryImageStorageService cloudinaryImageStorageService)
         {
-            _services = services;
+            _localFileStorageService = localFileStorageService;
+            _cloudinaryImageStorageService = cloudinaryImageStorageService;
         }
         public IFileStorageService GetService(StorageType storageType)
         {
             return storageType switch
             {
-                StorageType.Cloudinary => _services.OfType<CloudinaryImageStorageService>().First(),
-                StorageType.Local => _services.OfType<LocalFileStorageService>().First(),
-                _ => throw new NotSupportedException("Storage type not supported.")
+                StorageType.Cloudinary => _cloudinaryImageStorageService,
+                StorageType.Local => _localFileStorageService,
+                _ => throw new NotSupportedException($"Storage type '{storageType}' is not supported.")
             };
         }
     }

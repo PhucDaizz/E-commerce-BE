@@ -1,15 +1,21 @@
 ﻿using AutoMapper;
+using Ecommerce.Application.DTOS.CartItem;
+using Ecommerce.Application.DTOS.Category;
+using Ecommerce.Application.DTOS.ChatMessage;
 using Ecommerce.Application.DTOS.Conversation;
 using Ecommerce.Application.DTOS.Discount;
+using Ecommerce.Application.DTOS.Order;
+using Ecommerce.Application.DTOS.OrderDetail;
+using Ecommerce.Application.DTOS.Payment;
+using Ecommerce.Application.DTOS.PaymentMethod;
+using Ecommerce.Application.DTOS.Product;
+using Ecommerce.Application.DTOS.ProductColor;
+using Ecommerce.Application.DTOS.ProductImage;
+using Ecommerce.Application.DTOS.ProductReview;
+using Ecommerce.Application.DTOS.ProductSize;
 using Ecommerce.Application.DTOS.Shipping;
 using Ecommerce.Application.DTOS.User;
 using Ecommerce.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Ecommerce.Application.Common.Mappings
 {
@@ -53,7 +59,6 @@ namespace Ecommerce.Application.Common.Mappings
 
             // CartItem
             CreateMap<CreateCartItemDTO, CartItems>().ReverseMap();
-            CreateMap<AddCartItemDTO, CartItems>().ReverseMap();
             CreateMap<EditCartItemDTO, CartItems>().ReverseMap();
             CreateMap<CartItemDTO, CartItems>().ReverseMap();
             CreateMap<CartItems, CartItemListDTO>()
@@ -89,9 +94,6 @@ namespace Ecommerce.Application.Common.Mappings
             CreateMap<ShippingDTO, Shippings>().ReverseMap();
             CreateMap<UpdateShippingDTO, Shippings>().ReverseMap();
 
-            //User
-            CreateMap<ExtendedIdentityUser, InforDTO>().ReverseMap();
-
             //OrderDetail
             CreateMap<OrderDetails, GetOrderDetailDTO>().ForMember(dest => dest.ProductDTO, opt => opt.MapFrom(src => src.Products));
 
@@ -99,10 +101,8 @@ namespace Ecommerce.Application.Common.Mappings
             CreateMap<Payments, PaymentDTO>().ReverseMap();
 
             // Conversation
-            CreateMap<Conversations, ListConversationsDTO>()
-                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.ClientUser.UserName))
-                .ForMember(dest => dest.InitialMessage,
-                    opt => opt.MapFrom(src => src.ChatMessages.OrderBy(m => m.SentTimeUtc).Select(x => x.MessageContent).FirstOrDefault()));
+            CreateMap<PendingConversationInfo, ListConversationsDTO>()
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.ClientUserName));
             CreateMap<PendingConversationInfo, ListConversationsDTO>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.ClientUserName));
 

@@ -1,16 +1,11 @@
-﻿using AutoMapper;
-using Ecommerce.Application.DTOS.User;
+﻿using Ecommerce.Application.DTOS.User;
 using Ecommerce.Application.Repositories.Interfaces;
-using Ecommerce.Application.Services.Contracts.Infrastructure;
 using Ecommerce.Application.Services.Interfaces;
-using Ecommerce.Infrastructure;
-using ECommerce.API.Models.Domain;
-using ECommerce.API.Repositories.Interface;
+using Ecommerce.Infrastructure.Identity;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.WebUtilities;
 using System.Security.Claims;
 
 namespace ECommerce.API.Controllers
@@ -19,30 +14,20 @@ namespace ECommerce.API.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly ITokenRepository tokenRepository;
         private readonly UserManager<ExtendedIdentityUser> userManager;
-        private readonly IMapper mapper;
-        private readonly IEmailServices emailServices;
         private readonly IAuthRepository authRepository;
-        private readonly AppDbContext dbContext;
         private readonly IConfiguration _configuration;
-        private readonly IExternalAuthService _externalAuthService;
         private readonly IAuthService _authService;
 
-        public AuthController(ITokenRepository tokenRepository, 
+        public AuthController(
             UserManager<ExtendedIdentityUser> userManager, 
-            IMapper mapper, IEmailServices emailServices, IAuthRepository authRepository, 
-            AppDbContext dbContext, IConfiguration configuration, IExternalAuthService externalAuthService, 
+            IAuthRepository authRepository, 
+            IConfiguration configuration,
             IAuthService authService)
         {
-            this.tokenRepository = tokenRepository;
             this.userManager = userManager;
-            this.mapper = mapper;
-            this.emailServices = emailServices;
             this.authRepository = authRepository;
-            this.dbContext = dbContext;
             _configuration = configuration;
-            _externalAuthService = externalAuthService;
             _authService = authService;
         }
 

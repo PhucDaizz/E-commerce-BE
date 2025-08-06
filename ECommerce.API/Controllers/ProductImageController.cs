@@ -1,8 +1,6 @@
 ﻿using Ecommerce.Application.DTOS.ProductImage;
 using Ecommerce.Application.Repositories.Interfaces;
-using Ecommerce.Application.Repositories.Persistence;
 using Ecommerce.Application.Services.Interfaces;
-using ECommerce.API.Models.DTO.ProductImage;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 namespace ECommerce.API.Controllers
@@ -13,13 +11,11 @@ namespace ECommerce.API.Controllers
     {
         private readonly IProductImageServices _productImageServices;
         private readonly IProductRepository _productRepository;
-        private readonly IUnitOfWork _unitOfWork;
 
-        public ProductImageController(IProductImageServices productImageServices, IProductRepository productRepository, IUnitOfWork unitOfWork)
+        public ProductImageController(IProductImageServices productImageServices, IProductRepository productRepository)
         {
             _productImageServices = productImageServices;
             _productRepository = productRepository;
-            _unitOfWork = unitOfWork;
         }
 
         [Authorize(Roles = "Admin, SuperAdmin")]
@@ -85,7 +81,7 @@ namespace ECommerce.API.Controllers
             {
                 return NotFound("Image not found.");
             }
-            return NoContent();
+            return Ok();
         }
 
         [HttpGet]

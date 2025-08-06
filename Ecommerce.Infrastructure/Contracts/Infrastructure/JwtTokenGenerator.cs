@@ -1,6 +1,5 @@
 ﻿using Ecommerce.Application.DTOS.User;
 using Ecommerce.Application.Services.Contracts.Infrastructure;
-using Ecommerce.Infrastructure.Identity;
 using Ecommerce.Infrastructure.Settings;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;

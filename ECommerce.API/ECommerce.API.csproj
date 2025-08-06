@@ -28,9 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\Enums\" />
-    <Folder Include="Services\Impemention\" />
-    <Folder Include="Services\Interface\" />
+    <Folder Include="wwwroot\" />
     <Folder Include="Uploads\" />
   </ItemGroup>
 

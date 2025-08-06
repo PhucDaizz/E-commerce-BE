@@ -1,11 +1,9 @@
 ﻿using AutoMapper;
-using Ecommerce.Infrastructure;
-using ECommerce.API.Models.Domain;
-using ECommerce.API.Models.DTO.Product;
-using ECommerce.API.Repositories.Interface;
-using ECommerce.API.Services.Interface;
+using Ecommerce.Application.DTOS.Product;
+using Ecommerce.Application.Repositories.Interfaces;
+using Ecommerce.Application.Services.Interfaces;
+using Ecommerce.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.API.Controllers
@@ -14,28 +12,26 @@ namespace ECommerce.API.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        private readonly AppDbContext dbContext;
-        private readonly IProductRepository productRepository;
-        private readonly IMapper mapper;
-        private readonly IProductServices productServices;
+        private readonly IProductRepository _productRepository;
+        private readonly IMapper _mapper;
+        private readonly IProductServices _productServices;
 
-        public ProductController(AppDbContext dbContext, IProductRepository productRepository, IMapper mapper, IProductServices productServices)
+        public ProductController(IProductRepository productRepository, IMapper mapper, IProductServices productServices)
         {
-            this.dbContext = dbContext;
-            this.productRepository = productRepository;
-            this.mapper = mapper;
-            this.productServices = productServices;
+            _productRepository = productRepository;
+            _mapper = mapper;
+            _productServices = productServices;
         }
 
         [Authorize(Roles = "Admin, SuperAdmin")]
         [HttpPost]
         [Route("Add")]
-        public async Task<IActionResult> Create([FromBody] CreateProductDTO productDTO)
+        public async Task<IActionResult> Create([FromBody]CreateProductDTO productDTO)
         {
-            var product = mapper.Map<Products>(productDTO);
+            var product = _mapper.Map<Products>(productDTO);
             product.CreatedAt = DateTime.Now;
             product.UpdatedAt = DateTime.Now;
-            product = await productRepository.CreateAsync(product);
+            product = await _productRepository.CreateAsync(product);
             return Ok(product);
         }
 
@@ -43,7 +39,7 @@ namespace ECommerce.API.Controllers
         [Route("{id:int}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
-            var products = await productRepository.GetByIdAsync(id);
+            var products = await _productRepository.GetByIdAsync(id);
             if (products == null)
             {
                 return BadRequest("Id is not existing!");
@@ -55,19 +51,19 @@ namespace ECommerce.API.Controllers
         [Route("GetAll")]
         public async Task<IActionResult> GetAll([FromQuery] string? productName, [FromQuery] bool isDESC = false, [FromQuery] int page = 1, [FromQuery] int itemInPage = 20, [FromQuery] string sortBy = "CreatedAt", [FromQuery] int? categoryId = null)
         {
-            var products = await productRepository.GetAllAsync(productName, isDESC, page, itemInPage, sortBy, categoryId);
+            var products = await _productRepository.GetAllAsync(productName, isDESC, page, itemInPage, sortBy, categoryId);
             return Ok(products);
         }
 
         [Authorize(Roles = "Admin, SuperAdmin")]
         [HttpPut]
         [Route("edit/{id:int}")]
-        public async Task<IActionResult> Edit([FromRoute] int id, [FromBody] EditProductDTO productDTO)
+        public async Task<IActionResult> Edit([FromRoute] int id, [FromBody]EditProductDTO productDTO)
         {
-            var product = mapper.Map<Products>(productDTO);
+            var product = _mapper.Map<Products>(productDTO);
             product.ProductID = id;
             product.UpdatedAt = DateTime.Now;
-            var existing = await productRepository.UpdateAsync(product);
+            var existing = await _productRepository.UpdateAsync(product);
             if (existing == null)
             {
                 return BadRequest("Id is not existing!");
@@ -82,7 +78,7 @@ namespace ECommerce.API.Controllers
         {
             try
             {
-                await productServices.DeleteAsync(id);
+                await _productServices.DeleteAsync(id);
                 return Ok("Product is deleted");
             }
             catch (Exception ex)
@@ -95,7 +91,7 @@ namespace ECommerce.API.Controllers
         [Route("Detail/{id:int}")]
         public async Task<IActionResult> GetDetailById([FromRoute] int id)
         {
-            var existing = await productServices.GetProductDetailAsync(id);
+            var existing = await _productServices.GetProductDetailAsync(id);
             if (existing == null)
             {
                 return BadRequest("Id is not existing!");
@@ -109,7 +105,7 @@ namespace ECommerce.API.Controllers
         [Route("GetAllAdmin")]
         public async Task<IActionResult> GetAllAdmin([FromQuery] string? productName, [FromQuery] bool isDESC = false, [FromQuery] int page = 1, [FromQuery] int itemInPage = 20, [FromQuery] string sortBy = "CreatedAt", [FromQuery] int? categoryId = null)
         {
-            var products = await productRepository.GetAllAdminAsync(productName, isDESC, page, itemInPage, sortBy, categoryId);
+            var products = await _productRepository.GetAllAdminAsync(productName, isDESC, page, itemInPage, sortBy, categoryId);
             return Ok(products);
         }
 
@@ -118,7 +114,7 @@ namespace ECommerce.API.Controllers
         [Route("ToPublic/{productID:int}")]
         public async Task<IActionResult> ToPublic([FromRoute] int productID)
         {
-            var result = await productServices.ChangeStatusProduct(productID);
+            var result = await _productServices.ChangeStatusProduct(productID);
             if (!result)
             {
                 return BadRequest("Id is not existing!");
@@ -131,7 +127,7 @@ namespace ECommerce.API.Controllers
         [Route("pausesale/{productId:int}")]
         public async Task<IActionResult> PauseSale([FromRoute] int productId)
         {
-            var result = await productServices.PauseSalesAsync(productId);
+            var result = await _productServices.PauseSalesAsync(productId);
             if (!result)
             {
                 return BadRequest("Id is not existing!");

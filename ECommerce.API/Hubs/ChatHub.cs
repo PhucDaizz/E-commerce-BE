@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
+using Ecommerce.Application.DTOS.ChatMessage;
+using Ecommerce.Application.DTOS.Conversation;
 using Ecommerce.Application.Repositories.Interfaces;
 using Ecommerce.Domain.Entities;
 using Ecommerce.Domain.Enums;
 using Ecommerce.Infrastructure;
-using ECommerce.API.Models.DTO.ChatMessage;
-using ECommerce.API.Models.DTO.Conversation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
@@ -13,7 +13,6 @@ namespace ECommerce.API.Hubs
 {
     public class ChatHub : Hub
     {
-        private readonly AppDbContext _dbContext;
         private readonly IConversationRepository _conversationRepository;
         private readonly IMapper _mapper;
         private readonly IChatMessageRepository _chatMessageRepository;
@@ -21,9 +20,8 @@ namespace ECommerce.API.Hubs
         private readonly ILogger<ChatHub> _logger;
         private static readonly ConcurrentDictionary<string, string> OnlineAdmins = new ConcurrentDictionary<string, string>();  // Key: AdminUserId, Value: ConnectionId
 
-        public ChatHub(AppDbContext dbContext, IConversationRepository conversationRepository, IMapper mapper, IChatMessageRepository chatMessageRepository, ILogger<ChatHub> logger, IAuthRepository authRepository)
+        public ChatHub(IConversationRepository conversationRepository, IMapper mapper, IChatMessageRepository chatMessageRepository, ILogger<ChatHub> logger, IAuthRepository authRepository)
         {
-            _dbContext = dbContext;
             _conversationRepository = conversationRepository;
             _mapper = mapper;
             _chatMessageRepository = chatMessageRepository;

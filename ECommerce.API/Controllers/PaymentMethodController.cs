@@ -1,9 +1,8 @@
 ﻿using AutoMapper;
-using ECommerce.API.Models.Domain;
-using ECommerce.API.Models.DTO.PaymentMethod;
-using ECommerce.API.Repositories.Interface;
+using Ecommerce.Application.DTOS.PaymentMethod;
+using Ecommerce.Application.Repositories.Interfaces;
+using Ecommerce.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.API.Controllers
@@ -12,13 +11,13 @@ namespace ECommerce.API.Controllers
     [ApiController]
     public class PaymentMethodController : ControllerBase
     {
-        private readonly IPaymentMethodRepository paymentMethodRepository;
-        private readonly IMapper mapper;
+        private readonly IPaymentMethodRepository _paymentMethodRepository;
+        private readonly IMapper _mapper;
 
         public PaymentMethodController(IPaymentMethodRepository paymentMethodRepository, IMapper mapper)
         {
-            this.paymentMethodRepository = paymentMethodRepository;
-            this.mapper = mapper;
+            _paymentMethodRepository = paymentMethodRepository;
+            _mapper = mapper;
         }
 
         [HttpPost]
@@ -26,16 +25,16 @@ namespace ECommerce.API.Controllers
         [Route("Create")]
         public async Task<IActionResult> Create([FromBody]CreatePaymentMethodDTO createPaymentMethodDTO)
         {
-            var paymentMethod = mapper.Map<PaymentMethods>(createPaymentMethodDTO);
-            var result = mapper.Map<PaymentMethodDTO>(await paymentMethodRepository.AddAsync(paymentMethod));
+            var paymentMethod = _mapper.Map<PaymentMethods>(createPaymentMethodDTO);
+            var result = _mapper.Map<PaymentMethodDTO>(await _paymentMethodRepository.AddAsync(paymentMethod));
             return Ok(result);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var paymentMethodList = await paymentMethodRepository.GetAllAsync();
-            return Ok(mapper.Map<IEnumerable<PaymentMethodDTO>>(paymentMethodList));
+            var paymentMethodList = await _paymentMethodRepository.GetAllAsync();
+            return Ok(_mapper.Map<IEnumerable<PaymentMethodDTO>>(paymentMethodList));
         }
     }
 }

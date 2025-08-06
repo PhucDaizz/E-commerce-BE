@@ -1,15 +1,11 @@
-﻿using Ecommerce.Application.Common;
+﻿using Ecommerce.Application.Common.Utils;
 using Ecommerce.Application.DTOS.User;
 using Ecommerce.Application.Repositories.Interfaces;
 using Ecommerce.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Ecommerce.Infrastructure.Repositories
 {
@@ -103,9 +99,10 @@ namespace Ecommerce.Infrastructure.Repositories
 
         public async Task<(bool IsSuccess, List<string> Errors, UserIdentityDto? NewUser)> CreateExternalUserAsync(ExternalAuthCommand command)
         {
+            var userName = StringUtils.Slugify($"{command.FirstName} {command.LastName}");
             var newUser = new ExtendedIdentityUser
             {
-                UserName = $"{command.FirstName} {command.LastName}",
+                UserName = userName,
                 Email = command.Email,
                 EmailConfirmed = true
             };

@@ -10,14 +10,12 @@ using Ecommerce.Application.Settings;
 using Ecommerce.Infrastructure;
 using Ecommerce.Infrastructure.Contracts.Infrastructure;
 using Ecommerce.Infrastructure.Contracts.Persistence;
+using Ecommerce.Infrastructure.Identity;
 using Ecommerce.Infrastructure.Repositories;
 using Ecommerce.Infrastructure.Services;
 using Ecommerce.Infrastructure.Settings;
 using ECommerce.API.BackgroundServices;
 using ECommerce.API.Hubs;
-using ECommerce.API.Models.Domain;
-using ECommerce.API.Repositories.Impemention;
-using ECommerce.API.Repositories.Interface;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OAuth;
@@ -77,18 +75,11 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddSignalR();
 
-
-// repositories
-builder.Services.AddScoped<ITokenRepository, TokenRepository>();
-builder.Services.AddSingleton<IVnpay, Vnpay>();
-
-
-// services
-
 //unit of work
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-// repositories new 
+// repositories 
+builder.Services.AddSingleton<IVnpay, Vnpay>();
 builder.Services.AddScoped<ITokenGenerator, JwtTokenGenerator>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IIdentityRepository, IdentityRepository>(); //TokenRepository cũ
@@ -111,11 +102,16 @@ builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
 
 
-// services new
-builder.Services.AddScoped<LocalFileStorageService>();
+// services 
+builder.Services.AddScoped<LocalFileStorageService>(provider =>
+{
+    var webHostEnvironment = provider.GetRequiredService<IWebHostEnvironment>();
+    var webRootPath = webHostEnvironment.WebRootPath;
+    return new LocalFileStorageService(webRootPath);
+});
 builder.Services.AddScoped<CloudinaryImageStorageService>();
 builder.Services.AddScoped<IStorageServiceFactory, StorageServiceFactory>();
-
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IDiscountServices, DiscountServices>();
 builder.Services.AddScoped<ICartItemServices, CartItemServices>();
 builder.Services.AddScoped<IProductColorServices, ProductColorServices>();
@@ -227,7 +223,6 @@ builder.Services.AddAuthentication(options =>
                 var externalAuthService = context.HttpContext.RequestServices
                                          .GetRequiredService<IExternalAuthService>();
 
-                // 2. TRÍCH XUẤT DỮ LIỆU "SẠCH" TỪ GOOGLE CLAIMS
                 var email = context.Principal?.FindFirstValue(ClaimTypes.Email);
                 var givenName = context.Principal?.FindFirstValue(ClaimTypes.GivenName);
                 var surname = context.Principal?.FindFirstValue(ClaimTypes.Surname);
@@ -264,7 +259,7 @@ builder.Services.AddAuthentication(options =>
                 context.Properties.Items["roles"] = string.Join(",", authResult.Roles ?? new List<string>());
 
 
-                context.Properties.RedirectUri = "/google-callback-handler";
+                context.Properties.RedirectUri = "/api/Auth/google-callback-handler";
                 // Chuyển hướng người dùng về frontend với các token
                 // RedirectUri thường được cấu hình trong `options.Challenge()` ở Controller
                 // nhưng chúng ta có thể ghi đè ở đây nếu muốn.
@@ -299,12 +294,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(
-        Path.Combine(builder.Environment.ContentRootPath,"Uploads")),
-    RequestPath = "/Resources"
-});
+app.UseStaticFiles();
 
 app.UseCors();
 app.UseAuthentication();

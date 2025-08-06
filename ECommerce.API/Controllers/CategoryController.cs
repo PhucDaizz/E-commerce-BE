@@ -1,8 +1,7 @@
 ﻿using AutoMapper;
-using Ecommerce.Infrastructure;
-using ECommerce.API.Models.Domain;
-using ECommerce.API.Models.DTO.Category;
-using ECommerce.API.Repositories.Interface;
+using Ecommerce.Application.DTOS.Category;
+using Ecommerce.Application.Repositories.Interfaces;
+using Ecommerce.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,25 +11,23 @@ namespace ECommerce.API.Controllers
     [Route("api/[controller]")]
     public class CategoryController : ControllerBase
     {
-        private readonly AppDbContext dbContext;
-        private readonly IMapper mapper;
-        private readonly ICategoryRepository categoryRepository;
+        private readonly IMapper _mapper;
+        private readonly ICategoryRepository _categoryRepository;
 
-        public CategoryController(AppDbContext dbContext, IMapper mapper, ICategoryRepository categoryRepository)
+        public CategoryController(IMapper mapper, ICategoryRepository categoryRepository)
         {
-            this.dbContext = dbContext;
-            this.mapper = mapper;
-            this.categoryRepository = categoryRepository;
+            _mapper = mapper;
+            _categoryRepository = categoryRepository;
         }
 
         [Authorize(Roles = "Admin, SuperAdmin")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody]CreateCategoryDTO categoryDTO)
         {
-            var category = mapper.Map<Categories>(categoryDTO);
+            var category = _mapper.Map<Categories>(categoryDTO);
             category.CreatedAt = DateTime.Now;
             category.UpdatedAt = DateTime.Now;
-            category =  await categoryRepository.CreateAsync(category);
+            category =  await _categoryRepository.CreateAsync(category);
             return Ok(category);
         }
 
@@ -39,14 +36,14 @@ namespace ECommerce.API.Controllers
         [Route("{id:int}")]
         public async Task<IActionResult> Edit([FromRoute]int id,[FromBody]EditCategoryDTO categoryDTO)
         {
-            var category = mapper.Map<Categories>(categoryDTO);
+            var category = _mapper.Map<Categories>(categoryDTO);
             category.CategoryID = id;
-            var existing = await categoryRepository.UpdateAsync(category);
+            var existing = await _categoryRepository.UpdateAsync(category);
             if(existing == null)
             {
                 return NotFound("Id is not existing!");
             }
-            var result = mapper.Map<CategoryDTO>(existing);
+            var result = _mapper.Map<CategoryDTO>(existing);
             return Ok(result);
         }
 
@@ -54,19 +51,19 @@ namespace ECommerce.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetById([FromRoute]int id)
         {
-            var categories = await categoryRepository.GetByIdAsync(id);
+            var categories = await _categoryRepository.GetByIdAsync(id);
             if (categories == null)
             {
                 return BadRequest("Id is not existing!");
             }
-            var result = mapper.Map<CategoryDTO>(categories);
+            var result = _mapper.Map<CategoryDTO>(categories);
             return Ok(result);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var categories = await categoryRepository.GetAllAsync();
+            var categories = await _categoryRepository.GetAllAsync();
             return Ok(categories);
         }
 
@@ -75,7 +72,7 @@ namespace ECommerce.API.Controllers
         [HttpDelete]
         public async Task<IActionResult> Delete([FromRoute]int id)
         {
-            var existing = await categoryRepository.DeleteAsync(id);
+            var existing = await _categoryRepository.DeleteAsync(id);
 
             if(existing == null)
             {

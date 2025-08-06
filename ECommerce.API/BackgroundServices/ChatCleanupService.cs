@@ -1,5 +1,4 @@
-﻿
-using ECommerce.API.Services.Interface;
+﻿using Ecommerce.Application.Services.Interfaces;
 
 namespace ECommerce.API.BackgroundServices
 {

@@ -1,8 +1,7 @@
 ﻿using AutoMapper;
-using ECommerce.API.Models.DTO.OrderDetail;
-using ECommerce.API.Repositories.Interface;
+using Ecommerce.Application.DTOS.OrderDetail;
+using Ecommerce.Application.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.API.Properties
