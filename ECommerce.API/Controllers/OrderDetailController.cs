@@ -4,7 +4,7 @@ using Ecommerce.Application.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ECommerce.API.Properties
+namespace ECommerce.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

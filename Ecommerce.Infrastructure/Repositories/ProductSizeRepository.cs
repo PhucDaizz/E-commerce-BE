@@ -171,7 +171,7 @@ namespace Ecommerce.Infrastructure.Repositories
                 if (existingMap.TryGetValue(key, out var existingSize))
                 {
                     // Logic cộng dồn Stock
-                    existingSize.Stock += sizeToUpsert.Stock;
+                    existingSize.Stock = sizeToUpsert.Stock;
                     existingSize.UpdatedAt = DateTime.UtcNow;
                     // Không cần gọi .Update() vì entity đã được DbContext theo dõi
                 }

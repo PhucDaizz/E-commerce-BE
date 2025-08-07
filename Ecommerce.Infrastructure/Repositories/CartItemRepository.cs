@@ -76,6 +76,7 @@ namespace Ecommerce.Infrastructure.Repositories
             var existing = await _dbContext.CartItems
                             .Where(x => x.UserID == UserID)
                             .Include(x => x.ProductSizes)
+                                .ThenInclude(ps => ps.ProductColors)
                             .Include(x => x.Products)
                                 .ThenInclude(p => p.ProductImages)
                             .OrderBy(x => x.CreatedAt).ToListAsync();

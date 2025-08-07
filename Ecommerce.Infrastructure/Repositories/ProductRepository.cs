@@ -23,6 +23,7 @@ namespace Ecommerce.Infrastructure.Repositories
         {
             try
             {
+                products.ProductNameUnsigned = RemoveDiacritics(products.ProductName);
                 await _dbContext.Products.AddAsync(products);
                 await _dbContext.SaveChangesAsync();
                 return products;

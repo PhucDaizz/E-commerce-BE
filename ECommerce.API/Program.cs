@@ -31,15 +31,6 @@ DotEnv.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
-//var account = new Account(
-//    builder.Configuration["CLOUDINARY:CLOUD_NAME"],
-//    builder.Configuration["CLOUDINARY:API_KEY"],
-//    builder.Configuration["CLOUDINARY:API_SECRET"]
-//);
-
-//Cloudinary cloudinary = new Cloudinary(account);
-//cloudinary.Api.Secure = true;
-
 // Setting
 builder.Services.Configure<CloudinarySettings>(
     builder.Configuration.GetSection(CloudinarySettings.SectionName)
@@ -260,9 +251,6 @@ builder.Services.AddAuthentication(options =>
 
 
                 context.Properties.RedirectUri = "/api/Auth/google-callback-handler";
-                // Chuyển hướng người dùng về frontend với các token
-                // RedirectUri thường được cấu hình trong `options.Challenge()` ở Controller
-                // nhưng chúng ta có thể ghi đè ở đây nếu muốn.
                 // Ví dụ: context.Response.Redirect($"{frontendUrl}?token={authResult.AccessToken}");
             },
             OnRemoteFailure = context =>
@@ -274,11 +262,6 @@ builder.Services.AddAuthentication(options =>
                 return Task.CompletedTask;
             }
         };
-        /*options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-        options.Scope.Add("profile");
-        options.Scope.Add("email");
-
-        options.SaveTokens = true;*/
     });
 
 builder.Services.AddHostedService<ChatCleanupService>();

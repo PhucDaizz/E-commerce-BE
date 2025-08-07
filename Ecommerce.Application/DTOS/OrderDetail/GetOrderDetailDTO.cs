@@ -1,4 +1,5 @@
 ﻿using Ecommerce.Application.DTOS.Product;
+using Ecommerce.Application.DTOS.ProductSize;
 
 namespace Ecommerce.Application.DTOS.OrderDetail
 {
@@ -10,5 +11,6 @@ namespace Ecommerce.Application.DTOS.OrderDetail
         public int Quantity { get; set; }
         public double UnitPrice { get; set; }
         public ProductImageCartDTO ProductDTO { get; set; }
+        public GetProductSizeDTO ProductSizeDTO { get; set; }
     }
 }

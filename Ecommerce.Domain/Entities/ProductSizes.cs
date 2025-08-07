@@ -15,12 +15,13 @@ namespace Ecommerce.Domain.Entities
         public int ProductColorID { get; set; }
         public string Size { get; set; }
         public int Stock { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
         // Navigation Properties
         [ForeignKey("ProductColorID")]
         public ProductColors ProductColors { get; set; }
+        public ICollection<OrderDetails> OrderDetails { get; set; }
         public ICollection<CartItems> CartItems { get; set; }
     }
 }

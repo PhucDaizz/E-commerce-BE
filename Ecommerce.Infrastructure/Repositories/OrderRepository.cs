@@ -120,7 +120,9 @@ namespace Ecommerce.Infrastructure.Repositories
                             .Include(x => x.Payments)
                             .Include(x => x.Shippings)
                             .Include(x => x.OrderDetails)
-                                .ThenInclude(x => x.Products)
+                                .ThenInclude(x => x.ProductSizes)
+                                    .ThenInclude(x => x.ProductColors)
+                                .ThenInclude(x =>  x.Products)
                                     .ThenInclude(pd => pd.ProductImages)
                             .FirstOrDefaultAsync(x => x.OrderID == id);
             if (existing == null)

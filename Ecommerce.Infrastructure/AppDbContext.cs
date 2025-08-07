@@ -139,6 +139,12 @@ namespace Ecommerce.Infrastructure
                 .HasForeignKey(od => od.OrderID)
                 .OnDelete(DeleteBehavior.NoAction); // Tránh các vấn đề xóa cascade 
 
+            builder.Entity<OrderDetails>()
+                .HasOne(ps => ps.ProductSizes)
+                .WithMany(ps => ps.OrderDetails)
+                .HasForeignKey(od => od.ProductSizeId)
+                .OnDelete(DeleteBehavior.NoAction); 
+
             builder.Entity<CartItems>()
                 .HasOne(ci => ci.Products)  // CartItems có 1 Products
                 .WithMany(p => p.CartItems) // Products có nhiều CartItems

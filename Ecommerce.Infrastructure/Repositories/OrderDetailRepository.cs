@@ -23,8 +23,9 @@ namespace Ecommerce.Infrastructure.Repositories
                 {
                     OrderID = orderID,
                     ProductID = cartItem.ProductID,
+                    ProductSizeId = cartItem.ProductSizeID,
                     Quantity = cartItem.Quantity,
-                    UnitPrice = cartItem.productDTO.Price
+                    UnitPrice = cartItem.productDTO.Price,
                 };
                 _dbContext.OrderDetails.Add(orderDetail);
                 orderDetailsList.Add(orderDetail);
@@ -35,7 +36,11 @@ namespace Ecommerce.Infrastructure.Repositories
 
         public async Task<IEnumerable<OrderDetails>> GetListOrderDetailsAsync(Guid orderID)
         {
-            var orderDetail = await _dbContext.OrderDetails.Where(x => x.OrderID == orderID).Include(x => x.Products).ToListAsync();
+            var orderDetail = await _dbContext.OrderDetails.Where(x => x.OrderID == orderID)
+                                        .Include(x => x.ProductSizes)
+                                            .ThenInclude(ps => ps.ProductColors)
+                                                .ThenInclude(px => px.Products)
+                                        .ToListAsync();
             if (orderDetail == null)
             {
                 return null;

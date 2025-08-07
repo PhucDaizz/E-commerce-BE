@@ -14,7 +14,6 @@ using Ecommerce.Application.DTOS.ProductImage;
 using Ecommerce.Application.DTOS.ProductReview;
 using Ecommerce.Application.DTOS.ProductSize;
 using Ecommerce.Application.DTOS.Shipping;
-using Ecommerce.Application.DTOS.User;
 using Ecommerce.Domain.Entities;
 
 namespace Ecommerce.Application.Common.Mappings
@@ -62,6 +61,7 @@ namespace Ecommerce.Application.Common.Mappings
             CreateMap<EditCartItemDTO, CartItems>().ReverseMap();
             CreateMap<CartItemDTO, CartItems>().ReverseMap();
             CreateMap<CartItems, CartItemListDTO>()
+                .ForMember(dest => dest.ColorName, opt => opt.MapFrom(src => src.ProductSizes.ProductColors.ColorName))
                 .ForMember(dest => dest.productDTO, opt => opt.MapFrom(src => src.Products))
                 .ForMember(dest => dest.productSizeDTO, opt => opt.MapFrom(src => src.ProductSizes));
 
@@ -95,7 +95,14 @@ namespace Ecommerce.Application.Common.Mappings
             CreateMap<UpdateShippingDTO, Shippings>().ReverseMap();
 
             //OrderDetail
-            CreateMap<OrderDetails, GetOrderDetailDTO>().ForMember(dest => dest.ProductDTO, opt => opt.MapFrom(src => src.Products));
+            CreateMap<OrderDetails, GetOrderDetailDTO>()
+                .ForMember(dest => dest.ProductDTO, opt => opt.MapFrom(src => src.Products))
+                .ForMember(dest => dest.ProductSizeDTO, opt => opt.MapFrom(src => new GetProductSizeDTO
+                {
+                    ProductSizeID = src.ProductSizeId,
+                    ColorName = src.ProductSizes.ProductColors.ColorName,
+                    Size = src.ProductSizes.Size
+                }));
 
             //Payment
             CreateMap<Payments, PaymentDTO>().ReverseMap();
