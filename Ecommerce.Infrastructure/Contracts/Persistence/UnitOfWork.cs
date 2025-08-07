@@ -22,6 +22,7 @@ namespace Ecommerce.Infrastructure.Contracts.Persistence
         public IShippingRepository shipping { get; }
         public IOrderDetailRepository OrderDetails { get; }
         public IPaymentRepository Payment { get; }
+        public IBannerRepository Banners { get; }
 
         public UnitOfWork(
             AppDbContext dbContext,
@@ -37,7 +38,8 @@ namespace Ecommerce.Infrastructure.Contracts.Persistence
             IOrderRepository orderRepository, 
             IShippingRepository shippingRepository,
             IOrderDetailRepository orderDetailRepository,
-            IPaymentRepository paymentRepository)
+            IPaymentRepository paymentRepository,
+            IBannerRepository bannerRepository)
         {
             _dbContext = dbContext;
             Products = productRepository;
@@ -53,6 +55,7 @@ namespace Ecommerce.Infrastructure.Contracts.Persistence
             shipping = shippingRepository;
             OrderDetails = orderDetailRepository;
             Payment = paymentRepository;
+            Banners = bannerRepository;
         }
 
         public async Task BeginTransactionAsync()

@@ -21,7 +21,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
@@ -91,6 +90,7 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductImageRepository, ProductImageRepository>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
+builder.Services.AddScoped<IBannerRepository, BannerRepository>();
 
 
 // services 
@@ -117,7 +117,7 @@ builder.Services.AddScoped<IPaymentServices, PaymentServices>();
 builder.Services.AddScoped<IShippingServices, ShippingServices>();
 builder.Services.AddScoped<IEmailServices, EmailServices>();
 builder.Services.AddScoped<IExternalAuthService, ExternalAuthService>();
-
+builder.Services.AddScoped<IBannerServices, BannerServices>();
 
 
 

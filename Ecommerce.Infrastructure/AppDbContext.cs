@@ -36,6 +36,7 @@ namespace Ecommerce.Infrastructure
         public DbSet<Payments> Payments { get; set; }
         public DbSet<Conversations> Conversations { get; set; }
         public DbSet<ChatMessage> ChatMessage { get; set; }
+        public DbSet<Banners> Banners { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
