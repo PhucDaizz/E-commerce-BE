@@ -1,12 +1,9 @@
 ﻿using AutoMapper;
-using ECommerce.API.Data;
-using ECommerce.API.Models.Domain;
-using ECommerce.API.Models.DTO.ProductColor;
-using ECommerce.API.Repositories.Impemention;
-using ECommerce.API.Repositories.Interface;
-using ECommerce.API.Services.Interface;
+using Ecommerce.Application.DTOS.ProductColor;
+using Ecommerce.Application.Repositories.Interfaces;
+using Ecommerce.Application.Services.Interfaces;
+using Ecommerce.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.API.Controllers
@@ -15,28 +12,26 @@ namespace ECommerce.API.Controllers
     [ApiController]
     public class ProductColorController : ControllerBase
     {
-        private readonly AppDbContext dbContext;
-        private readonly IMapper mapper;
-        private readonly IProductColorRepository productColorRepository;
-        private readonly IProductColorServices productColorServices;
+        private readonly IMapper _mapper;
+        private readonly IProductColorRepository _productColorRepository;
+        private readonly IProductColorServices _productColorServices;
 
-        public ProductColorController(AppDbContext dbContext, IMapper mapper, IProductColorRepository productColorRepository, IProductColorServices productColorServices)
+        public ProductColorController(IMapper mapper, IProductColorRepository productColorRepository, IProductColorServices productColorServices)
         {
-            this.dbContext = dbContext;
-            this.mapper = mapper;
-            this.productColorRepository = productColorRepository;
-            this.productColorServices = productColorServices;
+            _mapper = mapper;
+            _productColorRepository = productColorRepository;
+            _productColorServices = productColorServices;
         }
 
         [Authorize(Roles = "Admin, SuperAdmin")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody]CreateProductColorDTO productColorDTO)
         {
-            var productColor = mapper.Map<ProductColors>(productColorDTO);
+            var productColor = _mapper.Map<ProductColors>(productColorDTO);
             productColor.CreatedAt = DateTime.Now;
             productColor.UpdatedAt = DateTime.Now;
-            var createdProductColor = await productColorRepository.CreateAsync(productColor);
-            var result = mapper.Map<ProductColorDTO>(createdProductColor);
+            var createdProductColor = await _productColorRepository.CreateAsync(productColor);
+            var result = _mapper.Map<ProductColorDTO>(createdProductColor);
             return Ok(result);
         }
 
@@ -54,15 +49,15 @@ namespace ECommerce.API.Controllers
                 }
             }
 
-            var productColors = mapper.Map<IEnumerable<ProductColors>>(createProductColorDTOs);
+            var productColors = _mapper.Map<IEnumerable<ProductColors>>(createProductColorDTOs);
             
             foreach (var productColor in productColors)
             {
                 productColor.CreatedAt = DateTime.Now;
                 productColor.UpdatedAt = DateTime.Now;
             }
-            var createProductColors = await productColorRepository.CreateRangeAsync(productColors);
-            var result = mapper.Map<IEnumerable<ProductColorDTO>>(createProductColors);
+            var createProductColors = await _productColorRepository.CreateRangeAsync(productColors);
+            var result = _mapper.Map<IEnumerable<ProductColorDTO>>(createProductColors);
             return Ok(result);
         }
 
@@ -70,20 +65,20 @@ namespace ECommerce.API.Controllers
         [Route("{id:int}")]
         public async Task<IActionResult> GetById([FromRoute]int id)
         {
-            var existing =  await productColorRepository.GetByIdAsync(id);
+            var existing =  await _productColorRepository.GetByIdAsync(id);
             if (existing == null)
             {
                 return NotFound("ID is not existing!");
             }
-            var result =  mapper.Map<ProductColorDTO>(existing);
+            var result =  _mapper.Map<ProductColorDTO>(existing);
             return Ok(result);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var productColors= await productColorRepository.GetAllAsync();
-            var result = mapper.Map<IEnumerable<ProductColorDTO>>(productColors);
+            var productColors= await _productColorRepository.GetAllAsync();
+            var result = _mapper.Map<IEnumerable<ProductColorDTO>>(productColors);
             return Ok(result);
         }
 
@@ -92,7 +87,7 @@ namespace ECommerce.API.Controllers
         [Route("{id:int}")]
         public async Task<IActionResult> DeletebyId([FromRoute]int id)
         {
-            var existing = await productColorServices.DeleteColorAsync(id);
+            var existing = await _productColorServices.DeleteColorAsync(id);
             if (existing == null)
             {
                 return NotFound("Id is not existing");
@@ -106,15 +101,15 @@ namespace ECommerce.API.Controllers
         [Route("{id:int}")]
         public async Task<IActionResult> Edit([FromRoute]int id, [FromBody]EditProductColorDTO productColorDTO)
         {
-            var productColor = mapper.Map<ProductColors>(productColorDTO);
+            var productColor = _mapper.Map<ProductColors>(productColorDTO);
             productColor.ProductColorID = id;
             productColor.UpdatedAt = DateTime.Now;
-            var existing = await productColorRepository.UpdateAsync(productColor);
+            var existing = await _productColorRepository.UpdateAsync(productColor);
             if (existing == null)
             {
                 return NotFound("Id is not existing");
             }
-            var result = mapper.Map<ProductColorDTO>(existing);
+            var result = _mapper.Map<ProductColorDTO>(existing);
             return Ok(result);
         }
 
@@ -122,12 +117,12 @@ namespace ECommerce.API.Controllers
         [Route("GetAllByProductId/{ProductId:int}")]
         public async Task<IActionResult> GetAllByProduct(int ProductId)
         {
-            var existing = await productColorRepository.GetProductColorSizeAsync(ProductId);
+            var existing = await _productColorRepository.GetProductColorSizeAsync(ProductId);
             if(existing == null)
             {
                 return NotFound("Product not found or does not have any colors.");
             }
-            var result = mapper.Map<IEnumerable<ProductColorDTO>>(existing);
+            var result = _mapper.Map<IEnumerable<ProductColorDTO>>(existing);
             return Ok(result);
         }
     }

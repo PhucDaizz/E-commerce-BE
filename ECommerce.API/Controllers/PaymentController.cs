@@ -1,9 +1,6 @@
-﻿using ECommerce.API.Models.DTO.Payment;
-using ECommerce.API.Repositories.Impemention;
-using ECommerce.API.Repositories.Interface;
-using ECommerce.API.Services.Interface;
+﻿using Ecommerce.Application.Repositories.Interfaces;
+using Ecommerce.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using VNPAY.NET;
@@ -23,17 +20,15 @@ namespace ECommerce.API.Controllers
         private readonly string _callbackUrl;
 
         private readonly IVnpay _vnpay;
-        private readonly IPaymentServices paymentServices;
-        private readonly ICartItemRepository cartItemRepository;
+        private readonly IPaymentServices _paymentServices;
 
-        public PaymentController(IVnpay vnpay, IConfiguration configuration, IPaymentServices paymentServices, ICartItemRepository cartItemRepository)
+        public PaymentController(IVnpay vnpay, IConfiguration configuration, IPaymentServices paymentServices)
         {
             _tmnCode = configuration["Vnpay:TmnCode"];
             _hashSecret = configuration["Vnpay:HashSecret"];
             _baseUrl = configuration["Vnpay:BaseUrl"];
             _callbackUrl = configuration["Vnpay:ReturnUrl"];
-            this.paymentServices = paymentServices;
-            this.cartItemRepository = cartItemRepository;
+            _paymentServices = paymentServices;
             _vnpay = vnpay;
             _vnpay.Initialize(_tmnCode, _hashSecret, _baseUrl, _callbackUrl);
         }
@@ -55,7 +50,7 @@ namespace ECommerce.API.Controllers
                 }
                 var userId = Guid.Parse(userIdClaim.Value);
 
-                var checkAmount =await paymentServices.checkAmount(userId, discountId);
+                var checkAmount =await _paymentServices.checkAmount(userId, discountId);
 
                 if(checkAmount.IsSuccess == false)
                 {
@@ -114,7 +109,7 @@ namespace ECommerce.API.Controllers
                         }
 
                             // Lưu thông tin thanh toán vào cơ sở dữ liệu
-                            await paymentServices.processPayment(paymentResult, userId, 1, discountId);
+                            await _paymentServices.processPayment(paymentResult, userId, 1, discountId);
 
                         // Thực hiện hành động nếu thanh toán thành công tại đây. Ví dụ: Cập nhật trạng thái đơn hàng trong cơ sở dữ liệu.
 
@@ -147,7 +142,7 @@ namespace ECommerce.API.Controllers
                 }
                 var userId = Guid.Parse(userIdClaim.Value);
 
-                var paymentResult = await paymentServices.processPaymentCOD(userId, discountId);
+                var paymentResult = await _paymentServices.processPaymentCOD(userId, discountId);
 
                 if (paymentResult.IsSuccess)
                 {

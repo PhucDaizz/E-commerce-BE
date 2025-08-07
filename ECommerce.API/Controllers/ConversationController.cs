@@ -1,7 +1,5 @@
-﻿using ECommerce.API.Repositories.Interface;
+﻿using Ecommerce.Application.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 

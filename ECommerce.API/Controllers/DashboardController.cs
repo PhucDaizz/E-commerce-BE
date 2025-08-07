@@ -1,9 +1,7 @@
-﻿using ECommerce.API.Data;
-using ECommerce.API.Services.Interface;
+﻿using Ecommerce.Application.Repositories.Interfaces;
+using Ecommerce.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace ECommerce.API.Controllers
 {
@@ -12,12 +10,12 @@ namespace ECommerce.API.Controllers
     public class DashboardController : ControllerBase
     {
         private readonly AppDbContext dbContext;
-        private readonly IDashboardServices dashboardServices;
+        private readonly IDashboardRepository _dashboardRepository;
 
-        public DashboardController(AppDbContext dbContext, IDashboardServices dashboardServices)
+        public DashboardController(AppDbContext dbContext, IDashboardRepository dashboardRepository)
         {
             this.dbContext = dbContext;
-            this.dashboardServices = dashboardServices;
+            _dashboardRepository = dashboardRepository;
         }
 
         [Authorize(Roles = "SuperAdmin, Admin")]
@@ -26,7 +24,7 @@ namespace ECommerce.API.Controllers
         {
             try
             {
-                var result = await dashboardServices.GetSalesRevenueAsync();
+                var result = await _dashboardRepository.GetSalesRevenueAsync();
                 return Ok(result);
             }
             catch (Exception ex)
@@ -41,7 +39,7 @@ namespace ECommerce.API.Controllers
         {
             try
             {
-                var result = await dashboardServices.GetReportOrderAsync();
+                var result = await _dashboardRepository.GetReportOrderAsync();
                 return Ok(result);
             }
             catch (Exception ex)
@@ -56,7 +54,7 @@ namespace ECommerce.API.Controllers
         {
             try
             {
-                var result = await dashboardServices.GetReportInventoryAsync();
+                var result = await _dashboardRepository.GetReportInventoryAsync();
                 return Ok(result);
             }
             catch (Exception ex)
@@ -71,7 +69,7 @@ namespace ECommerce.API.Controllers
         {
             try
             {
-                var result = await dashboardServices.GetReportUserAsync();
+                var result = await _dashboardRepository.GetReportUserAsync();
                 return Ok(result);
             }
             catch (Exception ex)
@@ -86,7 +84,7 @@ namespace ECommerce.API.Controllers
         {
             try
             {
-                var result = await dashboardServices.TopSellingProducts(items);
+                var result = await _dashboardRepository.TopSellingProductsAsync(items);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -101,7 +99,7 @@ namespace ECommerce.API.Controllers
         {
             try
             {
-                var result = await dashboardServices.GetReportTopGenderAsync();
+                var result = await _dashboardRepository.GetReportTopGenderAsync();
                 return Ok(result);
             }
             catch (Exception ex)
