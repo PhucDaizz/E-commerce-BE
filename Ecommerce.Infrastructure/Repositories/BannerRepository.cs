@@ -19,6 +19,15 @@ namespace Ecommerce.Infrastructure.Repositories
             return newBanner.Entity;
         }
 
+        public async Task<bool> ChangeStatusAsync(int id)
+        {
+            return await _dbContext.Banners.Where(b => b.Id == id)
+                .ExecuteUpdateAsync(b => b
+                    .SetProperty(b => b.IsActive, b => !b.IsActive)
+                    .SetProperty(b => b.UpdatedAt, b => DateTime.UtcNow)
+                ) > 0;
+        }
+
         public async Task<bool> DeleteAsync(int id)
         {
             var banner = await _dbContext.Banners.FirstOrDefaultAsync(x => x.Id == id);
@@ -48,10 +57,9 @@ namespace Ecommerce.Infrastructure.Repositories
                 .FirstOrDefaultAsync(b => b.Id == id);
         }
 
-        public async Task<bool> UpdateAsync(Banners banner)
+        public void Update(Banners banner)
         {
             _dbContext.Banners.Update(banner);
-            return await _dbContext.SaveChangesAsync() > 0;
         }
     }
 }

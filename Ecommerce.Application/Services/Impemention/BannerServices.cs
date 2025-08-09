@@ -66,5 +66,53 @@ namespace Ecommerce.Application.Services.Impemention
             await _unitOfWork.Banners.DeleteAsync(bannerId);
             return await _unitOfWork.SaveChangesAsync() > 0;
         }
+
+        public async Task<Banners?> UpdateBannerAsync(UpdateBannerCommand command, Stream? fileStream = null)
+        {
+            var existingBanner = await _unitOfWork.Banners.GetByIdAsync(command.Banner.Id);
+            if (existingBanner == null)
+            {
+                throw new ArgumentException("Banner not found.");
+            }
+
+            if (fileStream != null && !string.IsNullOrEmpty(command.FileName))
+            {
+                if (!string.IsNullOrEmpty(existingBanner.ImageUrl))
+                {
+                    var oldStorageType = existingBanner.ImageUrl.Contains("cloudinary.com") ? StorageType.Cloudinary : StorageType.Local;
+                    var oldStorageService = _storageServiceFactory.GetService(oldStorageType);
+                    await oldStorageService.DeleteFileAsync(existingBanner.ImageUrl);
+                }
+
+                string uniqueFileName = Guid.NewGuid().ToString(); 
+                var storageType = command.UseCloudStorage ? StorageType.Cloudinary : StorageType.Local;
+                var storageService = _storageServiceFactory.GetService(storageType);
+
+                var newImageUrl = await storageService.SaveFileAsync(
+                    fileStream,
+                    command.FileName,
+                    "banners", 
+                    uniqueFileName
+                );
+
+                existingBanner.ImageUrl = newImageUrl;
+            }
+
+            existingBanner.Title = command.Banner.Title;
+            existingBanner.Description = command.Banner.Description;
+            existingBanner.RedirectUrl = command.Banner.RedirectUrl;
+            existingBanner.IsActive = command.Banner.IsActive;
+            existingBanner.DisplayOrder = command.Banner.DisplayOrder;
+            existingBanner.StartDate = command.Banner.StartDate;
+            existingBanner.EndDate = command.Banner.EndDate;
+
+            _unitOfWork.Banners.Update(existingBanner);
+
+            await _unitOfWork.SaveChangesAsync();
+
+            return existingBanner;
+        }
+
+
     }
 }

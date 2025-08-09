@@ -124,8 +124,74 @@ namespace ECommerce.API.Controllers
             }
         }
 
+        [HttpPost("change-status")]
+        [Authorize(Roles = "Admin, SuperAdmin")]
+        public async Task<IActionResult> ChangeStatusBanner(int id)
+        {
+            try
+            {
+                var result = await _bannerRepository.ChangeStatusAsync(id);
+                if (result)
+                {
+                    return Ok("Banner status changed successfully.");
+                }
+                return NotFound("Banner not found.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error changing banner status: {ex.Message}");
+            }
+        }
 
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin, SuperAdmin")]
+        public async Task<IActionResult> UpdateBanner([FromRoute]int id,[FromForm]BannerFormModel model)
+        {
+            if (!ModelState.IsValid || model.ImageFile == null)
+            {
+                return BadRequest("Invalid input or image file is required.");
+            }
 
+            string[] allowedFileExtensions = [".jpg", ".jpeg", ".png"];
+            var ext = Path.GetExtension(model.ImageFile.FileName).ToLowerInvariant();
+            if (!allowedFileExtensions.Contains(ext))
+            {
+                return BadRequest($"Only {string.Join(", ", allowedFileExtensions)} are allowed.");
+            }
+            try
+            {
+                var command = new UpdateBannerCommand
+                {
+                    Banner = new Banners
+                    {
+                        Id = id,
+                        Title = model.Title,
+                        Description = model.Description,
+                        ImageUrl = model.ImageUrl,
+                        RedirectUrl = model.RedirectUrl,
+                        IsActive = model.IsActive,
+                        DisplayOrder = model.DisplayOrder,
+                        StartDate = model.StartDate,
+                        EndDate = model.EndDate,
+                        UpdatedAt = DateTime.UtcNow
+                    },
+                    FileName = model.ImageFile.FileName,
+                    UseCloudStorage = model.UseCloudStorage
+                };
+
+                using var stream = model.ImageFile.OpenReadStream();
+                var result = await _bannerServices.UpdateBannerAsync(command, stream);
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred while creating the banner.");
+            }
+        }
 
     }
 }
