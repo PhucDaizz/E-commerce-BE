@@ -1,6 +1,7 @@
 ﻿using Ecommerce.Application.DTOS.Common;
 using Ecommerce.Application.Repositories.Interfaces;
 using Ecommerce.Domain.Entities;
+using Ecommerce.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ecommerce.Infrastructure.Repositories
@@ -139,11 +140,9 @@ namespace Ecommerce.Infrastructure.Repositories
             {
                 return null;
             }
-            if (status >= 0 && status <= 4 && status != 1)
+            if (status >= 0 && status <= 4)
             {
                 existing.Status = status;
-                _dbContext.Entry(existing).CurrentValues.SetValues(existing);
-                await _dbContext.SaveChangesAsync();
                 return existing;
             }
             return null;

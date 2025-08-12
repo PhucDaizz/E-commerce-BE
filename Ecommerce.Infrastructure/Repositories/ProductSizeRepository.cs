@@ -191,5 +191,19 @@ namespace Ecommerce.Infrastructure.Repositories
             // BƯỚC 5: Lưu tất cả các thay đổi (cả UPDATE và INSERT) trong một giao dịch duy nhất
             return await _dbContext.SaveChangesAsync() > 0;
         }
+
+        public async Task<bool> ReturnStockOnCancel(Dictionary<int, int> productSize)
+        {
+            foreach (var item in productSize)
+            {
+                var existing = await _dbContext.ProductSizes.FirstOrDefaultAsync(x => x.ProductSizeID == item.Key);
+                if (existing != null)
+                {
+                    existing.Stock += item.Value;
+                    existing.UpdatedAt = DateTime.Now;
+                }
+            }
+            return true;
+        }
     }
 }

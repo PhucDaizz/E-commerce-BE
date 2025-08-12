@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Ecommerce.Application.DTOS.Order;
 using Ecommerce.Application.Repositories.Interfaces;
+using Ecommerce.Application.Services.Interfaces;
 using Ecommerce.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,11 +15,13 @@ namespace ECommerce.API.Controllers
     {
         private readonly IOrderRepository _orderRepository;
         private readonly IMapper _mapper;
+        private readonly IOrderServices _orderServices;
 
-        public OrderController(IOrderRepository orderRepository, IMapper mapper)
+        public OrderController(IOrderRepository orderRepository, IMapper mapper, IOrderServices orderServices)
         {
             _orderRepository = orderRepository;
             _mapper = mapper;
+            _orderServices = orderServices;
         }
 
         [HttpPost]
@@ -91,6 +94,41 @@ namespace ECommerce.API.Controllers
             var orders = await _orderRepository.GetAllAsync(userId, sortBy, isDESC,page,itemInPage);
             return Ok(orders);
 
+        }
+
+        [Authorize]
+        [HttpPut("CancelOrder/{orderId}")]
+        public async Task<IActionResult> CancelOrder([FromRoute] string orderId)
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized("User not authenticated.");
+
+                var isAdmin = User.IsInRole("Admin") || User.IsInRole("SuperAdmin");
+                var result = await _orderServices.CanncelOrderAsync(orderId, userId, isAdmin);
+
+                return result
+                    ? Ok("Order cancelled successfully.")
+                    : BadRequest("Order cancellation failed.");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred. Please try again later.");
+            }
         }
     }
 }

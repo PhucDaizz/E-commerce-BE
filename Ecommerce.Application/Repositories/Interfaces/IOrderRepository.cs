@@ -1,10 +1,6 @@
 ﻿using Ecommerce.Application.DTOS.Common;
 using Ecommerce.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Ecommerce.Domain.Enums;
 
 namespace Ecommerce.Application.Repositories.Interfaces
 {

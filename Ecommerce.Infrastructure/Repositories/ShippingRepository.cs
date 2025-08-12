@@ -33,8 +33,6 @@ namespace Ecommerce.Infrastructure.Repositories
             existingShipping.ActualDeliveryDate = shipping.ActualDeliveryDate ?? existingShipping.ActualDeliveryDate;
             existingShipping.UpdatedAt = DateTime.Now;
 
-            dbContext.Entry(existingShipping).CurrentValues.SetValues(existingShipping);
-            await dbContext.SaveChangesAsync();
             return existingShipping;
 
         }

@@ -118,7 +118,7 @@ builder.Services.AddScoped<IShippingServices, ShippingServices>();
 builder.Services.AddScoped<IEmailServices, EmailServices>();
 builder.Services.AddScoped<IExternalAuthService, ExternalAuthService>();
 builder.Services.AddScoped<IBannerServices, BannerServices>();
-
+builder.Services.AddScoped<IOrderServices, OrderServices>();
 
 
 builder.Services.AddCors(options =>
