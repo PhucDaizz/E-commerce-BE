@@ -4,6 +4,7 @@ using Ecommerce.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Ecommerce.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250813082900_AddTableTag")]
+    partial class AddTableTag
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -524,9 +527,6 @@ namespace Ecommerce.Infrastructure.Migrations
                     b.Property<int>("TagID")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
                     b.HasKey("ProductID", "TagID");
 
                     b.HasIndex("TagID");
@@ -722,15 +722,15 @@ namespace Ecommerce.Infrastructure.Migrations
                         {
                             Id = "808e47f5-a733-42ab-8e31-b6af349bfd90",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "cf0c2932-e057-44f2-bfb5-1c9766de30b0",
+                            ConcurrencyStamp = "f457c1db-cfc7-4e7b-9c0a-b388a465ea18",
                             Email = "superadmin@ecommerce.com",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "SUPERADMIN@ECOMMERCE.COM",
                             NormalizedUserName = "SUPERADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEADhZyEAh/nHMvEdJ53zUdJb59dokczpBrnjH5RWGvXJv+JHrslGnaU5DhZYQQAOzg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEAWSkd8dEL6t1epL9s6Eo+QIs2cV/3ZGEP8qu6NruX73lQuy9jczLKJ9aJJ+HZLZUw==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "8bd5aa50-7bf6-4c4a-a673-f959f8c3b30b",
+                            SecurityStamp = "900bbf8b-6bf8-4f34-bba5-dffe06db66f5",
                             TwoFactorEnabled = false,
                             UserName = "superadmin"
                         });

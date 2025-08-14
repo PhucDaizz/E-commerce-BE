@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Ecommerce.Application.Common.Utils;
 using Ecommerce.Application.DTOS.Common;
 using Ecommerce.Application.DTOS.Product;
 using Ecommerce.Application.Repositories.Interfaces;
@@ -23,7 +24,7 @@ namespace Ecommerce.Infrastructure.Repositories
         {
             try
             {
-                products.ProductNameUnsigned = RemoveDiacritics(products.ProductName);
+                products.ProductNameUnsigned = StringUtils.Slugify(products.ProductName);
                 await _dbContext.Products.AddAsync(products);
                 await _dbContext.SaveChangesAsync();
                 return products;
@@ -47,22 +48,33 @@ namespace Ecommerce.Infrastructure.Repositories
             return existing;
         }
 
-        public async Task<PagedResult<ListProductDTO>> GetAllAsync(string? productName, bool isDESC = false, int page = 1, int itemInPage = 20, string sortBy = "CreatedAt", int? categoryId = null)
+        public async Task<PagedResult<ListProductDTO>> GetAllAsync(string? productName, bool isDESC = false, int page = 1, int itemInPage = 20, string sortBy = "CreatedAt", int? categoryId = null, int minPrice = 0, int maxPrice = int.MaxValue)
         {
-            var query = _dbContext.Products.AsQueryable();
+            var query = _dbContext.Products
+                            .Include(x => x.ProductTags)
+                                .ThenInclude(x => x.Tags)
+                            .AsQueryable();
             if (!string.IsNullOrEmpty(productName))
             {
-                var unsignedKeyword = RemoveDiacritics(productName.ToLower());
+                var keywordSlug = StringUtils.Slugify(productName);
+                var keywordParts = keywordSlug.Split('-', StringSplitOptions.RemoveEmptyEntries);
+
+                var unsignedKeyword = StringUtils.Slugify(productName.ToLower());
 
                 query = query.Where(p =>
-                    p.ProductName.ToLower().Contains(productName.ToLower()) ||
-                    p.ProductNameUnsigned.ToLower().Contains(unsignedKeyword));
+                    keywordParts.All(k =>
+                        p.ProductNameUnsigned.Contains(k) || 
+                        p.ProductTags.Any(pt => pt.Tags.Slug.Contains(k))
+                    )
+                );
             }
 
             if (categoryId.HasValue)
             {
                 query = query.Where(p => p.CategoryID == categoryId.Value);
             }
+
+            query = query.Where(p => p.Price >= minPrice && p.Price <= maxPrice);
 
             if (!string.IsNullOrEmpty(sortBy))
             {
@@ -135,7 +147,7 @@ namespace Ecommerce.Infrastructure.Repositories
 
             if (!string.IsNullOrEmpty(productName))
             {
-                var unsignedKeyword = RemoveDiacritics(productName.ToLower());
+                var unsignedKeyword = StringUtils.Slugify(productName.ToLower());
 
                 query = query.Where(p =>
                     p.ProductName.ToLower().Contains(productName.ToLower()) ||
@@ -201,16 +213,40 @@ namespace Ecommerce.Infrastructure.Repositories
             return product;
         }
 
-        private string RemoveDiacritics(string productName)
+        public async Task<PagedResult<ListProductDTO>> GetRecommendedByTagsAsync(int productId, List<int> tagIds, int pageIndex, int pageSize)
         {
-            var normalized = productName.Normalize(NormalizationForm.FormD);
-            var sb = new StringBuilder();
-            foreach (var c in normalized)
+            var baseQuery = _dbContext.Products
+                .Where(p => p.IsPublic && p.ProductID != productId);
+
+            var relatedQuery = baseQuery
+                .Select(p => new
+                {
+                    Product = p,
+                    MatchCount = p.ProductTags.Count(pt => tagIds.Contains(pt.TagID))
+                })
+                .OrderByDescending(x => x.MatchCount)   
+                .ThenByDescending(x => x.Product.CreatedAt);
+
+            var totalCount = await relatedQuery.CountAsync();
+
+            var products = await relatedQuery
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .Select(x => x.Product)
+                .Include(p => p.ProductImages)
+                .ToListAsync();
+
+            int totalPages = totalCount % pageSize != 0 ? totalCount / pageSize + 1 : totalCount / pageSize;
+
+            var productDtos = _mapper.Map<List<ListProductDTO>>(products);
+
+            return new PagedResult<ListProductDTO>
             {
-                if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
-                    sb.Append(c);
-            }
-            return sb.ToString().Normalize(NormalizationForm.FormC).ToLower();
+                Items = productDtos,
+                TotalCount = totalCount,
+                Page = pageIndex,
+                PageSize = totalPages
+            };
         }
     }
 }

@@ -35,13 +35,18 @@ namespace Ecommerce.Application.Services.Impemention
 
             int timesReview = await _productReviewRepository.GetReviewCountByUserAsync(productReviews.UserID, productReviews.ProductID);
 
+            if(timesBuy == 0)
+            {
+                throw new Exception("You can't review this product because you haven't bought it yet");
+            }
+
             if (timesReview < timesBuy)
             {
                 await _productReviewRepository.CreateAsync(productReviews);
                 return productReviews;
             }
 
-            throw new Exception("You can't review this product");
+            throw new Exception("You have reviewed this product");
         }
     }
 }

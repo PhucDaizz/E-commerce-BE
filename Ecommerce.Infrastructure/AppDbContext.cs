@@ -1,13 +1,14 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Ecommerce.Domain.Entities;
+using Ecommerce.Infrastructure.Identity;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
-using Ecommerce.Domain.Entities;
-using Ecommerce.Infrastructure.Identity;
-using Microsoft.AspNetCore.Identity;
 
 namespace Ecommerce.Infrastructure
 {
@@ -37,6 +38,8 @@ namespace Ecommerce.Infrastructure
         public DbSet<Conversations> Conversations { get; set; }
         public DbSet<ChatMessage> ChatMessage { get; set; }
         public DbSet<Banners> Banners { get; set; }
+        public DbSet<Tags> Tags { get; set; }
+        public DbSet<ProductTags> ProductTags { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -207,6 +210,19 @@ namespace Ecommerce.Infrastructure
                       .HasForeignKey(cm => cm.SenderUserId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
+
+            builder.Entity<ProductTags>()
+                .HasKey(pt => new { pt.ProductID, pt.TagID }); 
+
+            builder.Entity<ProductTags>()
+                .HasOne(pt => pt.Products)
+                .WithMany(p => p.ProductTags)
+                .HasForeignKey(pt => pt.ProductID);
+
+            builder.Entity<ProductTags>()
+                .HasOne(pt => pt.Tags)
+                .WithMany(t => t.ProductTags)
+                .HasForeignKey(pt => pt.TagID);
         }
     }
 }

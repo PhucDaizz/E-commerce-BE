@@ -26,7 +26,7 @@ namespace ECommerce.API.Controllers
         [Authorize(Roles = "Admin, SuperAdmin")]
         [HttpPost]
         [Route("Add")]
-        public async Task<IActionResult> Create([FromBody]CreateProductDTO productDTO)
+        public async Task<IActionResult> Create([FromBody] CreateProductDTO productDTO)
         {
             var product = _mapper.Map<Products>(productDTO);
             product.CreatedAt = DateTime.Now;
@@ -49,16 +49,24 @@ namespace ECommerce.API.Controllers
 
         [HttpGet]
         [Route("GetAll")]
-        public async Task<IActionResult> GetAll([FromQuery] string? productName, [FromQuery] bool isDESC = false, [FromQuery] int page = 1, [FromQuery] int itemInPage = 20, [FromQuery] string sortBy = "CreatedAt", [FromQuery] int? categoryId = null)
+        public async Task<IActionResult> GetAll(
+            [FromQuery] string? productName,
+            [FromQuery] bool isDESC = false,
+            [FromQuery] int page = 1,
+            [FromQuery] int itemInPage = 20,
+            [FromQuery] string sortBy = "CreatedAt",
+            [FromQuery] int? categoryId = null,
+            [FromQuery] int minPrice = 0,
+            [FromQuery] int maxPrice = int.MaxValue)
         {
-            var products = await _productRepository.GetAllAsync(productName, isDESC, page, itemInPage, sortBy, categoryId);
+            var products = await _productRepository.GetAllAsync(productName, isDESC, page, itemInPage, sortBy, categoryId, minPrice, maxPrice);
             return Ok(products);
         }
 
         [Authorize(Roles = "Admin, SuperAdmin")]
         [HttpPut]
         [Route("edit/{id:int}")]
-        public async Task<IActionResult> Edit([FromRoute] int id, [FromBody]EditProductDTO productDTO)
+        public async Task<IActionResult> Edit([FromRoute] int id, [FromBody] EditProductDTO productDTO)
         {
             var product = _mapper.Map<Products>(productDTO);
             product.ProductID = id;
@@ -133,6 +141,17 @@ namespace ECommerce.API.Controllers
                 return BadRequest("Id is not existing!");
             }
             return Ok("Product is paused");
+        }
+
+        [HttpGet]
+        [Route("{productId:int}/recommend")]
+        public async Task<IActionResult> GetRecommendedProducts(
+            [FromRoute] int productId,
+            [FromQuery] int pageIndex = 1,
+            [FromQuery] int pageSize = 10)
+        {
+            var recommendedProducts = await _productServices.GetRecommendAsync(productId, pageIndex, pageSize);
+            return Ok(recommendedProducts);
         }
     }
 }

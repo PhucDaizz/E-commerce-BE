@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Ecommerce.Application.DTOS.Category;
+using Ecommerce.Application.DTOS.Common;
 using Ecommerce.Application.DTOS.Product;
 using Ecommerce.Application.DTOS.ProductColor;
 using Ecommerce.Application.DTOS.ProductImage;
@@ -17,22 +18,22 @@ namespace Ecommerce.Application.Services.Impemention
     public class ProductServices: IProductServices
     {
         private readonly IMapper _mapper;
-        private readonly IOrderRepository _orderRepository;
         private readonly IOrderDetailRepository _orderDetailRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IProductImageServices _productImageServices;
+        private readonly ITagRepository _tagRepository;
 
         public ProductServices(IMapper mapper, 
                 IUnitOfWork unitOfWork,
-                IOrderRepository orderRepository,
                 IOrderDetailRepository orderDetailRepository,
-                IProductImageServices productImageServices)
+                IProductImageServices productImageServices,
+                ITagRepository tagRepository)
         {
             _mapper = mapper;
-            _orderRepository = orderRepository;
             _orderDetailRepository = orderDetailRepository;
             _unitOfWork = unitOfWork;
             _productImageServices = productImageServices;
+            _tagRepository = tagRepository;
         }
 
         public async Task<bool> PauseSalesAsync(int id)
@@ -128,6 +129,19 @@ namespace Ecommerce.Application.Services.Impemention
             await _unitOfWork.SaveChangesAsync();
 
             return true;
+        }
+
+        public async Task<PagedResult<ListProductDTO>> GetRecommendAsync(int productId, int pageIndex, int pageSize)
+        {
+            var tagsInProduct = await _tagRepository.GetTagsByProductAsync(productId);
+            List<int> tagIds = tagsInProduct.Select(x => x.TagID).ToList();
+
+            if (!tagIds.Any())
+            {
+                return await _unitOfWork.Products.GetRecommendedByTagsAsync(productId, new List<int>(), pageIndex, pageSize);
+            }
+
+            return await _unitOfWork.Products.GetRecommendedByTagsAsync(productId, tagIds, pageIndex, pageSize);
         }
     }
 }

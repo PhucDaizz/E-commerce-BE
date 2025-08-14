@@ -16,9 +16,10 @@ namespace Ecommerce.Application.Repositories.Interfaces
         Task<Products?> DeleteAsync(int id);
         Task<Products?> GetByIdAsync(int id);
         Task<Products?> GetDetailAsync(int id);
-        Task<PagedResult<ListProductDTO>> GetAllAsync(string? productName, bool isDESC = false, int page = 1, int itemInPage = 20, string sortBy = "CreatedAt", int? categoryId = null);
+        Task<PagedResult<ListProductDTO>> GetAllAsync(string? productName, bool isDESC = false, int page = 1, int itemInPage = 20, string sortBy = "CreatedAt", int? categoryId = null, int minPrice = 0, int maxPrice = int.MaxValue);
         Task<bool> ExistsAsync(int id);
         Task<PagedResult<ListProductAdminDTO>> GetAllAdminAsync(string? productName, bool isDESC = false, int page = 1, int itemInPage = 20, string sortBy = "CreatedAt", int? categoryId = null);
         Task<bool> ToPublicAync(int id);
+        Task<PagedResult<ListProductDTO>> GetRecommendedByTagsAsync(int productId, List<int> tagIds, int pageIndex, int pageSize);
     }
 }

@@ -14,6 +14,7 @@ using Ecommerce.Application.DTOS.ProductImage;
 using Ecommerce.Application.DTOS.ProductReview;
 using Ecommerce.Application.DTOS.ProductSize;
 using Ecommerce.Application.DTOS.Shipping;
+using Ecommerce.Application.DTOS.Tag;
 using Ecommerce.Domain.Entities;
 
 namespace Ecommerce.Application.Common.Mappings
@@ -117,6 +118,8 @@ namespace Ecommerce.Application.Common.Mappings
             CreateMap<ChatMessage, ChatMessageDTO>()
                 .ForMember(dest => dest.SenderName, opt => opt.Ignore());
 
+            // Tag
+            CreateMap<CreateTagDTO, Tags>().ReverseMap();
         }
     }
 }

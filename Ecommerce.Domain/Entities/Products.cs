@@ -28,5 +28,6 @@ namespace Ecommerce.Domain.Entities
         public ICollection<ProductImages> ProductImages { get; set; }
         public ICollection<ProductReviews> ProductReviews { get; set; }
         public ICollection<CartItems> CartItems { get; set; }
+        public ICollection<ProductTags> ProductTags { get; set; }
     }
 }
