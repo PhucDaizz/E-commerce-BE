@@ -15,19 +15,21 @@ namespace Ecommerce.Application.Services.Impemention
         private readonly ICartItemRepository _cartItemRepository;
         private readonly IDiscountServices _discountServices;
         private readonly IMapper _mapper;
+        private readonly IInventoryReservationService _inventoryReservationService;
         private readonly IAuthRepository _authRepository;
         private readonly IUnitOfWork _unitOfWork;
 
         public PaymentServices(IPaymentRepository paymentRepository,
                             ICartItemRepository cartItemRepository, 
                             IDiscountServices discountServices, 
-                            IMapper mapper,
+                            IMapper mapper, IInventoryReservationService inventoryReservationService,
                             IAuthRepository authRepository, IUnitOfWork unitOfWork)
         {
             _paymentRepository = paymentRepository;
             _cartItemRepository = cartItemRepository;
             _discountServices = discountServices;
             _mapper = mapper;
+            _inventoryReservationService = inventoryReservationService;
             _authRepository = authRepository;
             _unitOfWork = unitOfWork;
         }
@@ -118,7 +120,7 @@ namespace Ecommerce.Application.Services.Impemention
             var amount = cartItems.Sum(item => item.Quantity * item.Products.Price);
             var amountFix = amount;
 
-            var isExisting = await _paymentRepository.ExistsByTransactionIdAsync(paymentResult.VnpayTransactionId.ToString());
+            var isExisting = await _paymentRepository.ExistsByTransactionIdAsync(paymentResult.VnpayTransactionId.ToString());  
             if (isExisting)
                 return new PaymentProcessResult { IsSuccess = false, Message = "Transaction already exists" };
             
@@ -136,12 +138,13 @@ namespace Ecommerce.Application.Services.Impemention
                     amountFix = discountAmount;
                 }
 
-                // Kiểm tra và cập nhật tồn kho
-                var isStockUpdated = await _unitOfWork.ProductSizes.UpdateRangeAsync(cartItems);
-                if (!isStockUpdated)
+                // Xác nhận reservation (chuyển từ reservation sang stock thực tế)
+                //var reservationConfirmed = await _inventoryReservationService.ConfirmReservationAsync(userID, paymentResult.VnpayTransactionId.ToString());
+                var reservationConfirmed = await _inventoryReservationService.ConfirmReservationAsync(userID, paymentResult.PaymentId.ToString());
+                if (!reservationConfirmed)
                 {
-                    await _unitOfWork.RollbackAsync(); // Rollback giao dịch nếu lỗi tồn kho
-                    return new PaymentProcessResult { IsSuccess = false, Message = "Not found for one or more products" };
+                    await _unitOfWork.RollbackAsync();
+                    return new PaymentProcessResult { IsSuccess = false, Message = "Unable to confirm inventory reservation. Products may no longer be available." };
                 }
 
 
@@ -300,16 +303,21 @@ namespace Ecommerce.Application.Services.Impemention
                     amountFix = discountAmount;
                 }
 
-                // Kiểm tra và cập nhật tồn kho
-                var isStockUpdated = await _unitOfWork.ProductSizes.UpdateRangeAsync(cartItems);
-                if (!isStockUpdated)
+                // Kiểm tra và reserve inventory
+                var reservationSuccess = await _inventoryReservationService.ReserveInventoryAsync(userID, cartItems);
+                if (!reservationSuccess)
                 {
-                    await _unitOfWork.RollbackAsync(); // Rollback giao dịch nếu lỗi tồn kho
-                    return new PaymentProcessResult
-                    {
-                        IsSuccess = false,
-                        Message = "Not found for one or more products"
-                    };
+                    await _unitOfWork.RollbackAsync();
+                    return new PaymentProcessResult { IsSuccess = false, Message = "Not enough inventory available" };
+                }
+
+                // Xác nhận reservation
+                var confirmationSuccess = await _inventoryReservationService.ConfirmReservationAsync(userID);
+                if (!confirmationSuccess)
+                {
+                    await _inventoryReservationService.ReleaseReservationAsync(userID);
+                    await _unitOfWork.RollbackAsync();
+                    return new PaymentProcessResult { IsSuccess = false, Message = "Unable to secure inventory" };
                 }
 
 

@@ -205,5 +205,17 @@ namespace Ecommerce.Infrastructure.Repositories
             }
             return true;
         }
+
+        public async Task<IEnumerable<ProductSizes>> GetByIdsAsync(List<int> productSizeIds)
+        {
+            if (productSizeIds == null || !productSizeIds.Any())
+            {
+                return new List<ProductSizes>();
+            }
+
+            return await _dbContext.ProductSizes
+                .Where(ps => productSizeIds.Contains(ps.ProductSizeID))
+                .ToListAsync();
+        }
     }
 }

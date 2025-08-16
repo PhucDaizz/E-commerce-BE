@@ -18,6 +18,7 @@ namespace Ecommerce.Application.Repositories.Persistence
         IOrderDetailRepository OrderDetails { get; }
         IPaymentRepository Payment { get; }
         IBannerRepository Banners { get; }
+        IInventoryReservationRepository InventoryReservations { get; }
         Task BeginTransactionAsync();
         Task CommitAsync();
         Task RollbackAsync();

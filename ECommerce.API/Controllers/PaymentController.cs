@@ -1,4 +1,5 @@
 ﻿using Ecommerce.Application.Repositories.Interfaces;
+using Ecommerce.Application.Services.Impemention;
 using Ecommerce.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,14 +22,16 @@ namespace ECommerce.API.Controllers
 
         private readonly IVnpay _vnpay;
         private readonly IPaymentServices _paymentServices;
+        private readonly IInventoryReservationService _inventoryReservationService;
 
-        public PaymentController(IVnpay vnpay, IConfiguration configuration, IPaymentServices paymentServices)
+        public PaymentController(IVnpay vnpay, IConfiguration configuration, IPaymentServices paymentServices, IInventoryReservationService inventoryReservationService)
         {
             _tmnCode = configuration["Vnpay:TmnCode"];
             _hashSecret = configuration["Vnpay:HashSecret"];
             _baseUrl = configuration["Vnpay:BaseUrl"];
             _callbackUrl = configuration["Vnpay:ReturnUrl"];
             _paymentServices = paymentServices;
+            _inventoryReservationService = inventoryReservationService;
             _vnpay = vnpay;
             _vnpay.Initialize(_tmnCode, _hashSecret, _baseUrl, _callbackUrl);
         }
@@ -57,9 +60,11 @@ namespace ECommerce.API.Controllers
                     return BadRequest(checkAmount.Message);
                 }
 
+                var transactionId = DateTime.Now.Ticks;
+
                 var request = new PaymentRequest
                 {
-                    PaymentId = DateTime.Now.Ticks,
+                    PaymentId = transactionId,
                     Money = checkAmount.FinalAmount,
                     Description = $"{description}|{userId}|{discountId}",
                     IpAddress = ipAddress,
@@ -69,9 +74,14 @@ namespace ECommerce.API.Controllers
                     Language = DisplayLanguage.Vietnamese // Tùy chọn. Mặc định là tiếng Việt
                 };
 
+                var assigned = await _inventoryReservationService.AssignTransactionIdAsync(userId, transactionId.ToString());
+                if (!assigned)
+                {
+                    return BadRequest("No active inventory reservation found. Please try again.");
+                }
 
                 var descriptionParts = request.Description.Split('|');
-
+                
                 var paymentUrl = _vnpay.GetPaymentUrl(request);         
                     
                return Created(paymentUrl, paymentUrl);
@@ -108,15 +118,29 @@ namespace ECommerce.API.Controllers
                             discountId = int.Parse(descriptionParts[2]);
                         }
 
-                            // Lưu thông tin thanh toán vào cơ sở dữ liệu
-                            await _paymentServices.processPayment(paymentResult, userId, 1, discountId);
+                        // Lưu thông tin thanh toán vào cơ sở dữ liệu
+                        var result = await _paymentServices.processPayment(paymentResult, userId, 1, discountId);
 
-                        // Thực hiện hành động nếu thanh toán thành công tại đây. Ví dụ: Cập nhật trạng thái đơn hàng trong cơ sở dữ liệu.
-
-                        return Ok();
+                        if (result.IsSuccess)
+                        {
+                            return Ok();
+                        }
+                        else
+                        {
+                            // Release reservation if payment processing failed
+                            await _inventoryReservationService.ReleaseReservationAsync(userId, paymentResult.VnpayTransactionId.ToString());
+                            return BadRequest(result.Message);
+                        }
                     }
 
-                    // Thực hiện hành động nếu thanh toán thất bại tại đây. Ví dụ: Hủy đơn hàng.
+                    // Payment failed - need to release any reservations
+                    var descriptionParts2 = paymentResult.Description.Split('|');
+                    if (descriptionParts2.Length >= 2)
+                    {
+                        var userId = Guid.Parse(descriptionParts2[1]);
+                        await _inventoryReservationService.ReleaseReservationAsync(userId, paymentResult.VnpayTransactionId.ToString());
+                    }
+
                     return BadRequest("Thanh toán thất bại");
                 }
                 catch (Exception ex)

@@ -1,9 +1,4 @@
 ﻿using Ecommerce.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ecommerce.Application.Repositories.Interfaces
 {
@@ -21,5 +16,6 @@ namespace Ecommerce.Application.Repositories.Interfaces
         Task<bool> UpdateRangeAsync(IEnumerable<CartItems> cartItems);
         Task<bool> UpsertRangeAsync(IEnumerable<ProductSizes> productSizesToUpsert);
         Task<bool> ReturnStockOnCancel(Dictionary<int, int> productSize);
+        Task<IEnumerable<ProductSizes>> GetByIdsAsync(List<int> productSizeIds);
     }
 }

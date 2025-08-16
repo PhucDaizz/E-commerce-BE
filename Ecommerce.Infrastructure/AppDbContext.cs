@@ -40,6 +40,7 @@ namespace Ecommerce.Infrastructure
         public DbSet<Banners> Banners { get; set; }
         public DbSet<Tags> Tags { get; set; }
         public DbSet<ProductTags> ProductTags { get; set; }
+        public DbSet<InventoryReservations> InventoryReservations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

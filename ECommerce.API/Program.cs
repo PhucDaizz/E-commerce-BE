@@ -92,6 +92,7 @@ builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
 builder.Services.AddScoped<IBannerRepository, BannerRepository>();
 builder.Services.AddScoped<ITagRepository, TagRepository>();
+builder.Services.AddScoped<IInventoryReservationRepository, InventoryReservationRepository>();
 
 
 // services 
@@ -120,6 +121,7 @@ builder.Services.AddScoped<IEmailServices, EmailServices>();
 builder.Services.AddScoped<IExternalAuthService, ExternalAuthService>();
 builder.Services.AddScoped<IBannerServices, BannerServices>();
 builder.Services.AddScoped<IOrderServices, OrderServices>();
+builder.Services.AddScoped<IInventoryReservationService, InventoryReservationService>();
 
 
 builder.Services.AddCors(options =>
@@ -266,6 +268,7 @@ builder.Services.AddAuthentication(options =>
     });
 
 builder.Services.AddHostedService<ChatCleanupService>();
+builder.Services.AddHostedService<ReservationCleanupService>();
 
 var app = builder.Build();
 
