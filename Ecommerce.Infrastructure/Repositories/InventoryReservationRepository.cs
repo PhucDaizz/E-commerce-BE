@@ -61,6 +61,24 @@ namespace Ecommerce.Infrastructure.Repositories
             return await query.ToListAsync();
         }
 
+        public async Task<Dictionary<int, int>> GetActiveReservedQuantitiesAsync(IEnumerable<int> productSizeIds)
+        {
+            if (productSizeIds == null || !productSizeIds.Any())
+            {
+                return new Dictionary<int, int>();
+            }
+
+            var now = DateTime.UtcNow;
+            return await _dbContext.InventoryReservations
+                .Where(r => productSizeIds.Contains(r.ProductSizeID) && r.ExpirationTime > now && !r.IsExpired)
+                .GroupBy(r => r.ProductSizeID)
+                .Select(g => new {
+                    ProductSizeId = g.Key,
+                    TotalReserved = g.Sum(r => r.ReservedQuantity)
+                })
+                .ToDictionaryAsync(x => x.ProductSizeId, x => x.TotalReserved);
+        }
+
         public async Task<int> GetActiveReservedQuantityAsync(int productSizeId)
         {
             var now = DateTime.UtcNow;

@@ -1,4 +1,8 @@
-﻿using Ecommerce.Application.Repositories.Persistence;
+﻿using AutoMapper;
+using Ecommerce.Application.Common;
+using Ecommerce.Application.DTOS.CartItem;
+using Ecommerce.Application.DTOS.Inventory;
+using Ecommerce.Application.Repositories.Persistence;
 using Ecommerce.Application.Services.Interfaces;
 using Ecommerce.Domain.Entities;
 using Microsoft.Extensions.Logging;
@@ -9,12 +13,14 @@ namespace Ecommerce.Application.Services.Impemention
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<InventoryReservationService> _logger;
+        private readonly IMapper _mapper;
         private const int RESERVATION_MINUTES = 15;
 
-        public InventoryReservationService(IUnitOfWork unitOfWork,ILogger<InventoryReservationService> logger)
+        public InventoryReservationService(IUnitOfWork unitOfWork,ILogger<InventoryReservationService> logger, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
+            _mapper = mapper;
         }
 
         /// <summary>
@@ -101,7 +107,7 @@ namespace Ecommerce.Application.Services.Impemention
         }
 
         /// <summary>
-        /// Giải phóng hết lượng lần đạt trước của người dung, thêm đặt chỗ cho người dùng vào kho ảo
+        /// Giải phóng hết lượng lần đặt trước của người dùng, thêm đặt chỗ cho người dùng vào kho ảo
         /// </summary>
         /// <param name="userId"></param>
         /// <param name="cartItems"></param>
@@ -133,6 +139,7 @@ namespace Ecommerce.Application.Services.Impemention
                 }).ToList();
 
                 await _unitOfWork.InventoryReservations.AddRangeAsync(reservations);
+                await _unitOfWork.SaveChangesAsync();
                 return true;
             }
             catch (Exception)
@@ -199,6 +206,7 @@ namespace Ecommerce.Application.Services.Impemention
                 _logger.LogInformation("Releasing {Count} existing reservations for User {UserId}", userReservations.Count, userId);
 
                 await _unitOfWork.InventoryReservations.DeleteRangeAsync(userReservations);
+                await _unitOfWork.SaveChangesAsync();
 
                 _logger.LogInformation("Successfully released reservations for User {UserId}", userId);
                 return true;
@@ -242,6 +250,72 @@ namespace Ecommerce.Application.Services.Impemention
                 await _unitOfWork.RollbackAsync();
                 return false;
             }
+        }
+
+        public async Task<CartValidationResultDTO> CheckAndSuggestCartInventoryAsync(IEnumerable<CartItems> currentCartItems)
+        {
+            var result = new CartValidationResultDTO();
+            if (currentCartItems == null || !currentCartItems.Any())
+            {
+                return result;
+            }
+            var productSizeIds = currentCartItems.Select(ci => ci.ProductSizeID).Distinct().ToList();
+            var productSizes = await _unitOfWork.ProductSizes.GetByIdsAsync(productSizeIds);
+            var productSizeMap = productSizes.ToDictionary(ps => ps.ProductSizeID);
+            var reservedQuantitiesMap = await _unitOfWork.InventoryReservations.GetActiveReservedQuantitiesAsync(productSizeIds);
+
+            foreach (var item in currentCartItems)
+            {
+                int originalQuantity = item.Quantity;
+                int adjustedQuantity = originalQuantity;
+                int availableStock = 0;
+
+                string productName = item.Products?.ProductName ?? "Sản phẩm không xác định";
+                string productSizeName = item.ProductSizes?.Size ?? "N/A";
+
+                if (productSizeMap.TryGetValue(item.ProductSizeID, out var productSize))
+                {
+                    reservedQuantitiesMap.TryGetValue(item.ProductSizeID, out int reservedQuantity);
+                    availableStock = productSize.Stock - reservedQuantity;
+
+                    if (originalQuantity > availableStock)
+                    {
+                        result.WasAdjusted = true;
+                        adjustedQuantity = Math.Max(0, availableStock);
+
+                        if (adjustedQuantity > 0)
+                        {
+                            result.Messages.Add($"Số lượng cho '{productName} - Size {productSizeName}' đã giảm còn {adjustedQuantity} do không đủ hàng.");
+                        }
+                        else
+                        {
+                            result.Messages.Add($"Sản phẩm '{productName} - Size {productSizeName}' đã hết hàng.");
+                        }
+                    }
+                }
+                else
+                {
+                    result.WasAdjusted = true;
+                    adjustedQuantity = 0;
+                    result.Messages.Add($"Sản phẩm '{productName}' không còn tồn tại.");
+                }
+
+                result.ValidatedItems.Add(new ValidatedCartItemDTO
+                {
+                    CartItemID = item.CartItemID,
+                    ProductID = item.ProductID,
+                    ProductName = item.Products.ProductName, 
+                    ImageUrl = item.Products.ProductImages?.FirstOrDefault()?.ImageURL, 
+                    ProductSizeID = item.ProductSizeID,
+                    Size = item.ProductSizes.Size, 
+                    Price = item.Products.Price,
+                    OriginalQuantity = item.Quantity,
+                    AvailableStock = availableStock,
+                    AdjustedQuantity = adjustedQuantity
+                });
+            }
+
+            return result;
         }
     }
 }

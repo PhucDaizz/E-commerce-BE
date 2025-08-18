@@ -304,12 +304,12 @@ namespace Ecommerce.Application.Services.Impemention
                 }
 
                 // Kiểm tra và reserve inventory
-                var reservationSuccess = await _inventoryReservationService.ReserveInventoryAsync(userID, cartItems);
-                if (!reservationSuccess)
-                {
-                    await _unitOfWork.RollbackAsync();
-                    return new PaymentProcessResult { IsSuccess = false, Message = "Not enough inventory available" };
-                }
+                //var reservationSuccess = await _inventoryReservationService.ReserveInventoryAsync(userID, cartItems);
+                //if (!reservationSuccess)
+                //{
+                //    await _unitOfWork.RollbackAsync();
+                //    return new PaymentProcessResult { IsSuccess = false, Message = "Not enough inventory available" };
+                //}
 
                 // Xác nhận reservation
                 var confirmationSuccess = await _inventoryReservationService.ConfirmReservationAsync(userID);

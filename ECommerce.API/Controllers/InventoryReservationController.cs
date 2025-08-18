@@ -1,5 +1,6 @@
 ﻿using Ecommerce.Application.Repositories.Interfaces;
 using Ecommerce.Application.Services.Interfaces;
+using Ecommerce.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -100,7 +101,7 @@ namespace ECommerce.API.Controllers
                 }
                 var userId = Guid.Parse(userIdClaim.Value);
 
-                var released = await _inventoryReservationService.ReleaseReservationAsync(userId);
+                var released = await _inventoryReservationService.ReleaseAllUserReservationsAsync(userId);
 
                 if (released)
                 {
@@ -114,5 +115,19 @@ namespace ECommerce.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPost("validate-cart")]
+        [Authorize]
+        public async Task<IActionResult> ValidateCartInventory()
+        {
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+            var currentCartItems = await _cartItemRepository.GetAllAsync(userId);
+
+            var validationResult = await _inventoryReservationService.CheckAndSuggestCartInventoryAsync(currentCartItems);
+
+            return Ok(validationResult);
+        }
+
     }
 }

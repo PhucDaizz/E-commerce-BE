@@ -34,6 +34,9 @@ namespace Ecommerce.Application.Services.Impemention
             if (order.Status == (int)OrderStatus.Cancelled)
                 throw new InvalidOperationException("Order already cancelled.");
 
+            if(order.PaymentMethodID == (int)PaymentMethod.VNPAY)
+                throw new InvalidOperationException("The order is non-refundable as payment has been processed.");
+
             if (!isAdmin && order.UserID.ToString() != userId)
                 throw new UnauthorizedAccessException("Not order owner.");
 

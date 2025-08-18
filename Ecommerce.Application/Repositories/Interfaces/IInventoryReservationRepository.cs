@@ -20,5 +20,6 @@ namespace Ecommerce.Application.Repositories.Interfaces
         void UpdateRange(IEnumerable<InventoryReservations> reservations);
         Task<bool> DeleteAsync(int reservationID);
         Task DeleteRangeAsync(IEnumerable<InventoryReservations> reservations);
+        Task<Dictionary<int, int>> GetActiveReservedQuantitiesAsync(IEnumerable<int> productSizeIds);
     }
 }

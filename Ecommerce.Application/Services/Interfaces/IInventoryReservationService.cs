@@ -1,4 +1,5 @@
-﻿using Ecommerce.Domain.Entities;
+﻿using Ecommerce.Application.DTOS.Inventory;
+using Ecommerce.Domain.Entities;
 
 namespace Ecommerce.Application.Services.Interfaces
 {
@@ -13,5 +14,6 @@ namespace Ecommerce.Application.Services.Interfaces
         Task<int> DeleteExpiredReservationsAsync();
         Task<bool> ReleaseAllUserReservationsAsync(Guid userId);
         Task<bool> CreateReservationForCheckoutAsync(Guid userId, IEnumerable<CartItems> cartItems);
+        Task<CartValidationResultDTO> CheckAndSuggestCartInventoryAsync(IEnumerable<CartItems> currentCartItems);
     }
 }
