@@ -145,19 +145,23 @@ namespace ECommerce.API.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin, SuperAdmin")]
-        public async Task<IActionResult> UpdateBanner([FromRoute]int id,[FromForm]BannerFormModel model)
+        public async Task<IActionResult> UpdateBanner([FromRoute]int id,[FromForm]UpdateBannerFormModel model)
         {
-            if (!ModelState.IsValid || model.ImageFile == null)
+            if (!ModelState.IsValid)
             {
-                return BadRequest("Invalid input or image file is required.");
+                return BadRequest("Invalid input.");
             }
 
-            string[] allowedFileExtensions = [".jpg", ".jpeg", ".png"];
-            var ext = Path.GetExtension(model.ImageFile.FileName).ToLowerInvariant();
-            if (!allowedFileExtensions.Contains(ext))
+            if (model.ImageFile != null)
             {
-                return BadRequest($"Only {string.Join(", ", allowedFileExtensions)} are allowed.");
+                string[] allowedFileExtensions = [".jpg", ".jpeg", ".png"];
+                var ext = Path.GetExtension(model.ImageFile.FileName).ToLowerInvariant();
+                if (!allowedFileExtensions.Contains(ext))
+                {
+                    return BadRequest($"Only {string.Join(", ", allowedFileExtensions)} are allowed.");
+                }
             }
+
             try
             {
                 var command = new UpdateBannerCommand
@@ -175,11 +179,12 @@ namespace ECommerce.API.Controllers
                         EndDate = model.EndDate,
                         UpdatedAt = DateTime.UtcNow
                     },
-                    FileName = model.ImageFile.FileName,
-                    UseCloudStorage = model.UseCloudStorage
+                    FileName = model.ImageFile?.FileName,
+                    UseCloudStorage = model.UseCloudStorage,
+                    HasNewImage = model.ImageFile != null
                 };
 
-                using var stream = model.ImageFile.OpenReadStream();
+                using var stream = model.ImageFile?.OpenReadStream();
                 var result = await _bannerServices.UpdateBannerAsync(command, stream);
                 return Ok(result);
             }

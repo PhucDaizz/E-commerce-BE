@@ -113,6 +113,10 @@ namespace Ecommerce.Application.Common.Mappings
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.ClientUserName));
             CreateMap<PendingConversationInfo, ListConversationsDTO>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.ClientUserName));
+            CreateMap<Conversations, ListConversationsDTO>()
+                .ForMember(dest => dest.UserName, opt => opt.Ignore())
+                .ForMember(dest => dest.InitialMessage,
+                    opt => opt.MapFrom(src => src.ChatMessages.OrderBy(m => m.SentTimeUtc).Select(x => x.MessageContent).FirstOrDefault()));
 
             //ChatMessage
             CreateMap<ChatMessage, ChatMessageDTO>()

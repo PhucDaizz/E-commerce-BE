@@ -1,6 +1,7 @@
 ﻿using Ecommerce.Application.DTOS.Dashboard;
 using Ecommerce.Application.DTOS.ProductImage;
 using Ecommerce.Application.Repositories.Interfaces;
+using Ecommerce.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ecommerce.Infrastructure.Repositories
@@ -28,18 +29,17 @@ namespace Ecommerce.Infrastructure.Repositories
 
         public async Task<ReportOrderDTO> GetReportOrderAsync()
         {
-            var totalOrder = await _dbContext.Orders.CountAsync();
             var now = DateTime.UtcNow;
             var startOfThisMonth = new DateTime(now.Year, now.Month, 1);
-            var endOfThisMonth = startOfThisMonth.AddMonths(1).AddDays(-1);
             var startOfLastMonth = startOfThisMonth.AddMonths(-1);
-            var endOfLastMonth = startOfThisMonth.AddDays(-1);
 
-            var totalOrderThisMonth = (float)await _dbContext.Orders
-                .CountAsync(o => o.CreatedAt >= startOfThisMonth && o.CreatedAt <= endOfThisMonth);
+            var relevantOrders = await _dbContext.Orders
+                .Where(o => o.Status == (int)OrderStatus.Confirmed && o.CreatedAt >= startOfLastMonth)
+                .ToListAsync();
 
-            var totalOrderLastMonth = (float)await _dbContext.Orders
-                .CountAsync(o => o.CreatedAt >= startOfLastMonth && o.CreatedAt <= endOfLastMonth);
+            var totalOrder = relevantOrders.Count;
+            var totalOrderThisMonth = (float)relevantOrders.Count(o => o.CreatedAt >= startOfThisMonth);
+            var totalOrderLastMonth = (float)relevantOrders.Count(o => o.CreatedAt >= startOfLastMonth && o.CreatedAt < startOfThisMonth);
 
             var orderChangePercentage = totalOrderLastMonth == 0 ? 100 : ((totalOrderThisMonth - totalOrderLastMonth) / totalOrderLastMonth) * 100;
 
@@ -76,20 +76,23 @@ namespace Ecommerce.Infrastructure.Repositories
 
         public async Task<SalesRevenueDTO> GetSalesRevenueAsync()
         {
-            var totalRevenue = await _dbContext.Orders.SumAsync(o => o.TotalAmount);
             var now = DateTime.UtcNow;
             var startOfThisMonth = new DateTime(now.Year, now.Month, 1);
-            var endOfThisMonth = startOfThisMonth.AddMonths(1).AddDays(-1);
             var startOfLastMonth = startOfThisMonth.AddMonths(-1);
-            var endOfLastMonth = startOfThisMonth.AddDays(-1);
 
-            var totalRevenueThisMonth = await _dbContext.Orders
-                .Where(o => o.CreatedAt >= startOfThisMonth && o.CreatedAt <= endOfThisMonth)
-                .SumAsync(o => o.TotalAmount);
+            var relevantOrders = await _dbContext.Orders
+                .Where(o => o.Status == (int)OrderStatus.Confirmed || o.Status == (int)OrderStatus.Completed)
+                .ToListAsync();
 
-            var totalRevenueLastMonth = await _dbContext.Orders
-                .Where(o => o.CreatedAt >= startOfLastMonth && o.CreatedAt <= endOfLastMonth)
-                .SumAsync(o => o.TotalAmount);
+            var totalRevenue = relevantOrders.Sum(o => o.TotalAmount);
+
+            var totalRevenueThisMonth = relevantOrders
+                .Where(o => o.CreatedAt >= startOfThisMonth)
+                .Sum(o => o.TotalAmount);
+
+            var totalRevenueLastMonth = relevantOrders
+                .Where(o => o.CreatedAt >= startOfLastMonth && o.CreatedAt < startOfThisMonth)
+                .Sum(o => o.TotalAmount);
 
             var revenueChangePercentage = totalRevenueLastMonth == 0 ? 100 : ((totalRevenueThisMonth - totalRevenueLastMonth) / totalRevenueLastMonth) * 100;
 
@@ -117,13 +120,11 @@ namespace Ecommerce.Infrastructure.Repositories
 
             var topProductIds = topProductsInfo.Select(p => p.ProductID).ToList();
 
-            // Bước 2: Lấy thông tin chi tiết và ảnh của các sản phẩm đó
             var products = await _dbContext.Products
                 .Where(p => topProductIds.Contains(p.ProductID))
-                .Include(p => p.ProductImages) // Dùng Include hiệu quả hơn
+                .Include(p => p.ProductImages) 
                 .ToListAsync();
 
-            // Bước 3: Kết hợp lại trong bộ nhớ
             var result = (from info in topProductsInfo
                           join product in products on info.ProductID equals product.ProductID
                           select new ReportTopSellingProductDTO
@@ -142,7 +143,7 @@ namespace Ecommerce.Infrastructure.Repositories
                               }).ToList()
                           }).ToList();
 
-            return result.OrderByDescending(r => r.TotalSelling).ToList(); // Sắp xếp lại vì Join có thể làm thay đổi thứ tự
+            return result.OrderByDescending(r => r.TotalSelling).ToList(); 
         }
     }
 }

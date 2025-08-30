@@ -16,12 +16,14 @@ using Ecommerce.Infrastructure.Services;
 using Ecommerce.Infrastructure.Settings;
 using ECommerce.API.BackgroundServices;
 using ECommerce.API.Hubs;
+using ECommerce.API.Middleware;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using StackExchange.Redis;
 using System.Security.Claims;
 using System.Text;
 using VNPAY.NET;
@@ -94,6 +96,7 @@ builder.Services.AddScoped<IBannerRepository, BannerRepository>();
 builder.Services.AddScoped<ITagRepository, TagRepository>();
 builder.Services.AddScoped<IInventoryReservationRepository, InventoryReservationRepository>();
 
+//builder.Services.AddScoped<ITokenBlacklistService, RedisTokenBlacklistService>();
 
 // services 
 builder.Services.AddScoped<LocalFileStorageService>(provider =>
@@ -122,6 +125,9 @@ builder.Services.AddScoped<IExternalAuthService, ExternalAuthService>();
 builder.Services.AddScoped<IBannerServices, BannerServices>();
 builder.Services.AddScoped<IOrderServices, OrderServices>();
 builder.Services.AddScoped<IInventoryReservationService, InventoryReservationService>();
+
+//builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+//    ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis")));
 
 
 builder.Services.AddCors(options =>
@@ -271,6 +277,8 @@ builder.Services.AddHostedService<ChatCleanupService>();
 builder.Services.AddHostedService<ReservationCleanupService>();
 
 var app = builder.Build();
+
+//app.UseMiddleware<BlacklistMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

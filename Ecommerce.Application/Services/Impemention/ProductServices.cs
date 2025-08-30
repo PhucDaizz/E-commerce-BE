@@ -7,11 +7,6 @@ using Ecommerce.Application.DTOS.ProductImage;
 using Ecommerce.Application.Repositories.Interfaces;
 using Ecommerce.Application.Repositories.Persistence;
 using Ecommerce.Application.Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ecommerce.Application.Services.Impemention
 {
@@ -101,10 +96,9 @@ namespace Ecommerce.Application.Services.Impemention
             {
                 await _unitOfWork.CartItems.ClearAllByProductIDAsync(id);
                 await _unitOfWork.ProductColors.DeleteProductColorSizeAsync(id);
-                await _unitOfWork.Products.DeleteAsync(id);
                 await _productImageServices.DeleteProductImagesAsync(id);
+                await _unitOfWork.Products.DeleteAsync(id);
                 /*await productImageRepository.DeleteProductImagesAsync(id);*/
-
                 await _unitOfWork.CommitAsync();
                 return true;
             }

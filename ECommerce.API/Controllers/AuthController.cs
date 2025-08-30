@@ -18,17 +18,20 @@ namespace ECommerce.API.Controllers
         private readonly IAuthRepository authRepository;
         private readonly IConfiguration _configuration;
         private readonly IAuthService _authService;
+        private readonly ITokenBlacklistService _redisService;
 
         public AuthController(
             UserManager<ExtendedIdentityUser> userManager, 
             IAuthRepository authRepository, 
             IConfiguration configuration,
             IAuthService authService)
+            //ITokenBlacklistService redisService)
         {
             this.userManager = userManager;
             this.authRepository = authRepository;
             _configuration = configuration;
             _authService = authService;
+            //_redisService = redisService;
         }
 
         [HttpPost]
@@ -48,6 +51,33 @@ namespace ECommerce.API.Controllers
             }
             return Ok(result);
         }
+
+        //[HttpPost("Logout")]
+        //public async Task<IActionResult> Logout()
+        //{
+        //    try
+        //    {
+        //        var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+        //        if (string.IsNullOrEmpty(token))
+        //        {
+        //            return BadRequest("Token not found");
+        //        }
+
+        //        var success = await _redisService.AddToBlacklistAsync(token, TimeSpan.FromHours(1));
+
+        //        if (success)
+        //        {
+        //            return Ok(new { message = "Logout successful" });
+        //        }
+
+        //        return StatusCode(500, "Failed to logout");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, "Internal server error");
+        //    }
+        //}
 
         [HttpGet("google-login")]
         public IActionResult GoogleLogin()

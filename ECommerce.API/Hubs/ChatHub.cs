@@ -2,12 +2,14 @@
 using Ecommerce.Application.DTOS.ChatMessage;
 using Ecommerce.Application.DTOS.Conversation;
 using Ecommerce.Application.Repositories.Interfaces;
+using Ecommerce.Application.Services.Interfaces;
 using Ecommerce.Domain.Entities;
 using Ecommerce.Domain.Enums;
 using Ecommerce.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
+using System.Security.Claims;
 
 namespace ECommerce.API.Hubs
 {
@@ -17,15 +19,22 @@ namespace ECommerce.API.Hubs
         private readonly IMapper _mapper;
         private readonly IChatMessageRepository _chatMessageRepository;
         private readonly IAuthRepository _authRepository;
+        private readonly IAuthService _authService;
         private readonly ILogger<ChatHub> _logger;
         private static readonly ConcurrentDictionary<string, string> OnlineAdmins = new ConcurrentDictionary<string, string>();  // Key: AdminUserId, Value: ConnectionId
 
-        public ChatHub(IConversationRepository conversationRepository, IMapper mapper, IChatMessageRepository chatMessageRepository, ILogger<ChatHub> logger, IAuthRepository authRepository)
+        public ChatHub(IConversationRepository conversationRepository, 
+                        IMapper mapper, 
+                        IChatMessageRepository chatMessageRepository, 
+                        ILogger<ChatHub> logger, 
+                        IAuthRepository authRepository,
+                        IAuthService authService)
         {
             _conversationRepository = conversationRepository;
             _mapper = mapper;
             _chatMessageRepository = chatMessageRepository;
             _authRepository = authRepository;
+            _authService = authService;
             _logger = logger;
         }
 
@@ -254,10 +263,22 @@ namespace ECommerce.API.Hubs
 
             await Groups.AddToGroupAsync(Context.ConnectionId, conversationId.ToString());
             await Clients.Caller.SendAsync("ChatRequestSent", conversationId);
+            var userInfo = await _authService.GetInforAsync(clientUserId);
 
             var conversationDto = _mapper.Map<ListConversationsDTO>(conversationToProcess);
+            conversationDto.UserName = userInfo.UserName;
             conversationDto.InitialMessage = initialMessage;
 
+            _logger.LogInformation("ClientRequestChat: Sending NewChatRequest to AdminsGroup. ConversationDto: {@ConversationDto}", conversationDto);
+            _logger.LogInformation("ClientRequestChat: AdminsGroup members count: {Count}", OnlineAdmins.Count);
+            if (OnlineAdmins.IsEmpty)
+            {
+                _logger.LogWarning("ClientRequestChat: No admins online to receive NewChatRequest for conversation {ConversationId}", conversationId);
+            }
+            else
+            {
+                _logger.LogInformation("ClientRequestChat: Online admins: {AdminIds}", string.Join(", ", OnlineAdmins.Keys));
+            }
             await Clients.Group("AdminsGroup").SendAsync("NewChatRequest", conversationDto);
         }
 
