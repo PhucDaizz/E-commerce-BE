@@ -1,7 +1,10 @@
 ﻿using Ecommerce.Application.Repositories.Interfaces;
+using Ecommerce.Application.Services.Interfaces;
 using Ecommerce.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace ECommerce.API.Controllers
 {
@@ -9,13 +12,13 @@ namespace ECommerce.API.Controllers
     [ApiController]
     public class DashboardController : ControllerBase
     {
-        private readonly AppDbContext dbContext;
         private readonly IDashboardRepository _dashboardRepository;
+        private readonly IDashboardService _dashboardService;
 
-        public DashboardController(AppDbContext dbContext, IDashboardRepository dashboardRepository)
+        public DashboardController(IDashboardRepository dashboardRepository, IDashboardService dashboardService)
         {
-            this.dbContext = dbContext;
             _dashboardRepository = dashboardRepository;
+            _dashboardService = dashboardService;
         }
 
         [Authorize(Roles = "SuperAdmin, Admin")]
@@ -105,6 +108,64 @@ namespace ECommerce.API.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, ex);
+            }
+        }
+
+        [Authorize(Roles = "SuperAdmin, Admin")]
+        [HttpGet("daily")]
+        public async Task<IActionResult> GetDailyRevenue()
+        {
+            try
+            {
+                var result = await _dashboardService.GetDailyRevenue();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Lỗi khi lấy dữ liệu doanh thu ngày: {ex.Message}");
+            }
+        }
+
+        [Authorize(Roles = "SuperAdmin, Admin")]
+        [HttpGet("monthly")]
+        public async Task<IActionResult> GetMonthlyRevenue()
+        {
+            try
+            {
+                var result = await _dashboardService.GetMonthlyRevenue();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Lỗi khi lấy dữ liệu doanh thu tháng: {ex.Message}");
+            }
+        }
+
+        [HttpGet("top-locations")]
+        public async Task<IActionResult> GetTopLocations([FromQuery] int topN = 10)
+        {
+            try
+            {
+                var result = await _dashboardService.GetLocationAnalysisAsync(topN);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Lỗi khi phân tích vị trí khách hàng: {ex.Message}");
+            }
+        }
+
+        [HttpGet("province/{province}")]
+        public async Task<IActionResult> GetLocationByProvince(string province)
+        {
+            try
+            {
+                var result = await _dashboardRepository.GetCustomerLocationsByProvinceAsync(province);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Lỗi khi lấy dữ liệu tỉnh: {ex.Message}");
             }
         }
     }

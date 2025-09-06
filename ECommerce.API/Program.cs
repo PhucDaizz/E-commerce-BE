@@ -125,6 +125,7 @@ builder.Services.AddScoped<IExternalAuthService, ExternalAuthService>();
 builder.Services.AddScoped<IBannerServices, BannerServices>();
 builder.Services.AddScoped<IOrderServices, OrderServices>();
 builder.Services.AddScoped<IInventoryReservationService, InventoryReservationService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 //builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 //    ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis")));

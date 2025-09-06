@@ -1,6 +1,5 @@
 ﻿using Ecommerce.Application.DTOS.Common;
 using Ecommerce.Domain.Entities;
-using Ecommerce.Domain.Enums;
 
 namespace Ecommerce.Application.Repositories.Interfaces
 {

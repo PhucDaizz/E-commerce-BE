@@ -15,5 +15,10 @@ namespace Ecommerce.Application.Repositories.Interfaces
         Task<ReportUserDTO> GetReportUserAsync();
         Task<SalesRevenueDTO> GetSalesRevenueAsync();
         Task<List<ReportTopSellingProductDTO>> TopSellingProductsAsync(int items);
+        Task<List<DailyRevenueDTO>> FindDailyRevenue(DateTime startDate, DateTime endDate);
+        Task<List<MonthlyRevenueDTO>> FindMonthlyRevenue(int startYear, int startMonth, int endYear, int endMonth);
+        Task<List<CustomerLocationDTO>> GetTopCustomerLocationsAsync(int topN = 10);
+        Task<List<CustomerLocationDTO>> GetCustomerLocationsByProvinceAsync(string province);
+
     }
 }
