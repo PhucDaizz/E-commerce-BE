@@ -30,7 +30,6 @@ namespace Ecommerce.Infrastructure.Repositories
             else
             {
                 _dbContext.Categories.Remove(existing);
-                await _dbContext.SaveChangesAsync();
                 return existing;
             }
         }
@@ -58,9 +57,10 @@ namespace Ecommerce.Infrastructure.Repositories
             {
                 categories.CreatedAt = existing.CreatedAt;
                 categories.UpdatedAt = DateTime.UtcNow;
+
                 _dbContext.Entry(existing).CurrentValues.SetValues(categories);
-                await _dbContext.SaveChangesAsync();
-                return existing;
+
+                return existing; 
             }
             else
             {
