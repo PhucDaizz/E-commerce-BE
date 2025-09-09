@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using Ecommerce.Application.DTOS.CartItem;
 using Ecommerce.Application.Repositories.Interfaces;
+using Ecommerce.Application.Repositories.Persistence;
 using Ecommerce.Application.Services.Interfaces;
 using Ecommerce.Domain.Entities;
 using System;
@@ -13,16 +15,14 @@ namespace Ecommerce.Application.Services.Impemention
     public class CartItemServices : ICartItemServices
     {
         private readonly ICartItemRepository _cartItemRepository;
-        private readonly IMapper _mapper;
-        private readonly IProductSizeRepository _productSizeRepository;
         private readonly IProductColorRepository _productColorRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CartItemServices(ICartItemRepository cartItemRepository, IMapper mapper, IProductSizeRepository productSizeRepository, IProductColorRepository productColorRepository)
+        public CartItemServices(ICartItemRepository cartItemRepository, IProductColorRepository productColorRepository, IUnitOfWork unitOfWork)
         {
             _cartItemRepository = cartItemRepository;
-            _mapper = mapper;
-            _productSizeRepository = productSizeRepository;
             _productColorRepository = productColorRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<CartItems?> AddAsync(CartItems cartItems)
@@ -105,6 +105,63 @@ namespace Ecommerce.Application.Services.Impemention
                 .Any(ps => ps.ProductSizeID == productSizeId);
 
             return isValid;
+        }
+
+        public async Task<bool> MergeCartAsync(Guid userId, List<CreateCartItemDTO> localCartItems)
+        {
+            if (localCartItems == null || !localCartItems.Any())
+                return true;
+
+            await _unitOfWork.BeginTransactionAsync();
+
+            try
+            {
+                var existingCart = (await _unitOfWork.CartItems.GetAllAsync(userId)).ToList();
+
+                var existingItemsDict = existingCart
+                    .GroupBy(x => new { x.ProductID, x.ProductSizeID })
+                    .ToDictionary(g => g.Key, g => g.First());
+
+                foreach (var localItem in localCartItems)
+                {
+                    if (!await IsValidProductSizeAsync(localItem.ProductID, localItem.ProductSizeID))
+                        continue;
+
+                    if (localItem.Quantity <= 0)
+                        continue;
+
+                    var key = new { localItem.ProductID, localItem.ProductSizeID };
+
+                    if (existingItemsDict.TryGetValue(key, out var existingItem))
+                    {
+                        existingItem.Quantity += localItem.Quantity;
+                        existingItem.UpdatedAt = DateTime.Now;
+                        await _unitOfWork.CartItems.UpdateAsync(existingItem); 
+                    }
+                    else
+                    {
+                        var newCartItem = new CartItems
+                        {
+                            UserID = userId,
+                            ProductID = localItem.ProductID,
+                            Quantity = localItem.Quantity,
+                            ProductSizeID = localItem.ProductSizeID,
+                            CreatedAt = DateTime.Now,
+                            UpdatedAt = DateTime.Now
+                        };
+
+                        await _unitOfWork.CartItems.CreateAsync(newCartItem);
+                    }
+                }
+
+                await _unitOfWork.CommitAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
         }
     }
 }

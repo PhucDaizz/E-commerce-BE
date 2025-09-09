@@ -1,4 +1,5 @@
-﻿using Ecommerce.Domain.Entities;
+﻿using Ecommerce.Application.DTOS.CartItem;
+using Ecommerce.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,5 +15,7 @@ namespace Ecommerce.Application.Services.Interfaces
         Task<CartItems?> UpdateAsync(CartItems cartItems);
 
         Task<bool> IsValidProductSizeAsync(int productId, int productSizeId);
+
+        Task<bool> MergeCartAsync(Guid userId, List<CreateCartItemDTO> localCartItems);
     }
 }

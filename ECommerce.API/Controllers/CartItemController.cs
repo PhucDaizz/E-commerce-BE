@@ -120,6 +120,39 @@ namespace ECommerce.API.Controllers
             }
             return Ok("All items have been removed from your cart.");
         }
-        
+
+
+        [HttpPost]
+        [Authorize(Roles = "User")]
+        [Route("MergeCart")]
+        public async Task<IActionResult> MergeCart([FromBody] MergeCartRequestDTO mergeRequest)
+        {
+            var userIdClaim = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized("Please login again.");
+            }
+
+            try
+            {
+                var userId = Guid.Parse(userIdClaim.Value);
+                var result = await _cartItemServices.MergeCartAsync(userId, mergeRequest.Items);
+
+                return Ok(new
+                {
+                    Success = true,
+                    Message = "Cart merged successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = $"Error merging cart: {ex.Message}"
+                });
+            }
+        }
+
     }
 }
