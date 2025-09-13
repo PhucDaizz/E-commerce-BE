@@ -1,5 +1,6 @@
 ﻿using Ecommerce.Application.Repositories.Interfaces;
 using Ecommerce.Application.Repositories.Persistence;
+using Ecommerce.Application.Services.Contracts.Infrastructure;
 using Ecommerce.Application.Services.Interfaces;
 using Ecommerce.Domain.Enums;
 

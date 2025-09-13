@@ -120,6 +120,7 @@ namespace Ecommerce.Infrastructure.Repositories
             var existing = await _dbContext.Orders
                             .Include(x => x.Payments)
                             .Include(x => x.Shippings)
+                            .Include(x => x.PaymentMethods)
                             .Include(x => x.OrderDetails)
                                 .ThenInclude(x => x.ProductSizes)
                                     .ThenInclude(x => x.ProductColors)

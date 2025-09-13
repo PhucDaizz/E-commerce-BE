@@ -1,11 +1,13 @@
 ﻿using AutoMapper;
 using Ecommerce.Application.DTOS.Order;
 using Ecommerce.Application.Repositories.Interfaces;
+using Ecommerce.Application.Services.Contracts.Infrastructure;
 using Ecommerce.Application.Services.Interfaces;
 using Ecommerce.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using System.Text;
 
 namespace ECommerce.API.Controllers
 {
@@ -16,12 +18,18 @@ namespace ECommerce.API.Controllers
         private readonly IOrderRepository _orderRepository;
         private readonly IMapper _mapper;
         private readonly IOrderServices _orderServices;
+        private readonly IAuthRepository _authRepository;
+        private readonly IInvoiceGenerator _invoiceGenerator;
+        private readonly IDiscountRepository _discountRepository;
 
-        public OrderController(IOrderRepository orderRepository, IMapper mapper, IOrderServices orderServices)
+        public OrderController(IOrderRepository orderRepository, IMapper mapper, IOrderServices orderServices, IAuthRepository authRepository, IInvoiceGenerator invoiceGenerator, IDiscountRepository discountRepository)
         {
             _orderRepository = orderRepository;
             _mapper = mapper;
             _orderServices = orderServices;
+            _authRepository = authRepository;
+            _invoiceGenerator = invoiceGenerator;
+            _discountRepository = discountRepository;
         }
 
         [HttpPost]
@@ -124,6 +132,37 @@ namespace ECommerce.API.Controllers
             catch (InvalidOperationException ex)
             {
                 return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred. Please try again later.");
+            }
+        }
+
+        [HttpGet("{orderId}/html")]
+        public async Task<IActionResult> GetInvoiceHtml(Guid orderId)
+        {
+            try
+            {
+                var order = await _orderRepository.GetByIdAdminAsync(orderId);
+                if (order == null)
+                    return NotFound($"Order with ID {orderId} not found.");
+
+                var userInfo = await _authRepository.GetInforAsync(order.UserID.ToString());
+                if (userInfo == null)
+                    return NotFound($"User information not found for order {orderId}");
+
+                Discounts? discount = null;
+                if (order.DiscountID != null)
+                {
+                    discount = await _discountRepository.GetByIdAsync(order.DiscountID.Value);
+                }
+
+                var htmlContent = _invoiceGenerator.GenerateInvoiceHtml(order, userInfo, discount);
+
+                byte[] bytes = Encoding.UTF8.GetBytes(htmlContent);
+                return Content(htmlContent, "text/html; charset=utf-8");
+                //return File(bytes, "text/html", $"HoaDon_{orderId}.html");
             }
             catch (Exception ex)
             {
