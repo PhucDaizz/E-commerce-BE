@@ -23,6 +23,13 @@ namespace Ecommerce.Infrastructure.Repositories
             return order;
         }
 
+        public async Task<Orders?> GetByTransactionRefAsync(string transactionRef)
+        {
+            if (string.IsNullOrEmpty(transactionRef))
+                return null;
+            return await _dbContext.Orders.FirstOrDefaultAsync(x => x.TransactionRef == transactionRef);
+        }
+
         public async Task<Orders?> DeleteAsync(Guid id)
         {
             var existing = await _dbContext.Orders.FirstOrDefaultAsync(x => x.OrderID == id);

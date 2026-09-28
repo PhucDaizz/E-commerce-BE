@@ -1,5 +1,7 @@
 ﻿using Ecommerce.Application.Repositories.Interfaces;
 using Ecommerce.Application.Repositories.Persistence;
+using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace Ecommerce.Infrastructure.Contracts.Persistence
 {
@@ -64,6 +66,13 @@ namespace Ecommerce.Infrastructure.Contracts.Persistence
         public async Task BeginTransactionAsync()
         {
             await _dbContext.Database.BeginTransactionAsync();
+        }
+
+        public Task BeginTransactionAsync(IsolationLevel isolationLevel)
+        {
+            // EF Core không có overload async nhận IsolationLevel: mở sync vì thao tác ngắn
+            _dbContext.Database.BeginTransaction(isolationLevel);
+            return Task.CompletedTask;
         }
 
         public async Task CommitAsync()

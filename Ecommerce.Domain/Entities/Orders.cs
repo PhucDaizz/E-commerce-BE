@@ -22,6 +22,9 @@ namespace Ecommerce.Domain.Entities
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
 
+        // Mã giao dịch ngân hàng (vnp_TxnRef) gắn với đơn chờ thanh toán, null với đơn COD / đơn tạo tay
+        public string? TransactionRef { get; set; }
+
         // Navigation Properties
         public ICollection<OrderDetails> OrderDetails { get; set; }
         public ICollection<Shippings> Shippings { get; set; }

@@ -35,11 +35,26 @@ namespace Ecommerce.Application.Services.Impemention
             if (order.Status == (int)OrderStatus.Cancelled)
                 throw new InvalidOperationException("Order already cancelled.");
 
-            if(order.PaymentMethodID == (int)PaymentMethod.VNPAY)
-                throw new InvalidOperationException("The order is non-refundable as payment has been processed.");
-
             if (!isAdmin && order.UserID.ToString() != userId)
                 throw new UnauthorizedAccessException("Not order owner.");
+
+            // Đơn nháp banking chưa trả tiền: chỉ cancel + giải phóng hold theo mã giao dịch.
+            // Kho chưa trừ nên KHÔNG hoàn kho (tránh double stock).
+            if (order.Status == (int)OrderStatus.Pending && order.PaymentMethodID == (int)PaymentMethod.VNPAY)
+            {
+                await _unitOfWork.Orders.UpdateOrderStatus(orderGuid, (int)OrderStatus.Cancelled);
+                if (!string.IsNullOrEmpty(order.TransactionRef))
+                {
+                    var holds = await _unitOfWork.InventoryReservations.GetByTransactionIdAsync(order.TransactionRef);
+                    if (holds.Any())
+                        await _unitOfWork.InventoryReservations.DeleteRangeAsync(holds);
+                }
+                await _unitOfWork.SaveChangesAsync();
+                return true;
+            }
+
+            if(order.PaymentMethodID == (int)PaymentMethod.VNPAY)
+                throw new InvalidOperationException("The order is non-refundable as payment has been processed.");
 
             await _unitOfWork.Orders.UpdateOrderStatus(orderGuid, (int)OrderStatus.Cancelled);
 

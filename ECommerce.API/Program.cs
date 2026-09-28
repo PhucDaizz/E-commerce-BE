@@ -48,6 +48,9 @@ builder.Services.Configure<GoogleSettings>(
 builder.Services.Configure<FrontendSettings>(
     builder.Configuration.GetSection(FrontendSettings.SectionName)
 );
+builder.Services.Configure<VnpaySettings>(
+    builder.Configuration.GetSection(VnpaySettings.SectionName)
+);
 // Add services to the container.
 
 builder.Services.AddControllers();

@@ -15,6 +15,7 @@ namespace Ecommerce.Application.Repositories.Interfaces
         Task<List<InventoryReservations>> GetAllReservationsByUserIdAsync(Guid userId);
 
         Task<List<InventoryReservations>> GetExpiredReservationsAsync();
+        Task<List<InventoryReservations>> GetByTransactionIdAsync(string transactionId);
         Task<int> AssignTransactionIdToUserReservationsAsync(Guid userId, string transactionId);
 
         void UpdateRange(IEnumerable<InventoryReservations> reservations);

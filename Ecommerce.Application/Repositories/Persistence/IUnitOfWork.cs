@@ -1,4 +1,5 @@
 ﻿using Ecommerce.Application.Repositories.Interfaces;
+using System.Data;
 
 namespace Ecommerce.Application.Repositories.Persistence
 {
@@ -20,6 +21,7 @@ namespace Ecommerce.Application.Repositories.Persistence
         IBannerRepository Banners { get; }
         IInventoryReservationRepository InventoryReservations { get; }
         Task BeginTransactionAsync();
+        Task BeginTransactionAsync(IsolationLevel isolationLevel);
         Task CommitAsync();
         Task RollbackAsync();
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

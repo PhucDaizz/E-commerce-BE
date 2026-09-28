@@ -4,6 +4,7 @@ using Ecommerce.Application.DTOS.Inventory;
 using Ecommerce.Application.Repositories.Persistence;
 using Ecommerce.Application.Services.Interfaces;
 using Ecommerce.Domain.Entities;
+using Ecommerce.Domain.Enums;
 using Microsoft.Extensions.Logging;
 
 namespace Ecommerce.Application.Services.Impemention
@@ -41,9 +42,14 @@ namespace Ecommerce.Application.Services.Impemention
         /// <param name="userId"></param>
         /// <param name="transactionId"></param>
         /// <returns></returns>
-        public async Task<bool> ConfirmReservationAsync(Guid userId, string? transactionId = null)
+        public async Task<bool> ConfirmReservationAsync(Guid userId, string? transactionId = null, bool unboundOnly = false)
         {
             var userReservations = await _unitOfWork.InventoryReservations.GetActiveReservationsByUserAsync(userId, transactionId);
+            if (unboundOnly)
+            {
+                // COD chỉ được ăn hold chưa gắn giao dịch ngân hàng, không được đụng hold VNPay đang bay
+                userReservations = userReservations.Where(r => r.TransactionID == null).ToList();
+            }
             if (!userReservations.Any()) return false;
 
             var productSizeIds = userReservations.Select(r => r.ProductSizeID).ToList();
@@ -146,22 +152,59 @@ namespace Ecommerce.Application.Services.Impemention
         }
 
         /// <summary>
-        /// Don dẹp các đặt chỗ đã hết hạn
+        /// Giải phóng hold theo đúng mã giao dịch (dùng khi thanh toán thất bại / hủy đơn nháp).
+        /// Không đụng tới hold của giao dịch khác.
         /// </summary>
-        /// <returns></returns>
+        public async Task<bool> ReleaseByTransactionAsync(string transactionId)
+        {
+            var reservations = await _unitOfWork.InventoryReservations.GetByTransactionIdAsync(transactionId);
+            if (!reservations.Any()) return true;
+
+            await _unitOfWork.InventoryReservations.DeleteRangeAsync(reservations);
+            await _unitOfWork.SaveChangesAsync();
+            return true;
+        }
+
+        /// <summary>
+        /// Don dẹp các đặt chỗ đã hết hạn (2 tầng):
+        /// - Hold chưa gắn giao dịch: hết hạn là xóa.
+        /// - Hold đã gắn giao dịch ngân hàng: giữ thêm grace period cho IPN trễ,
+        ///   quá grace thì xóa + cancel đơn nháp Pending tương ứng.
+        /// </summary>
         public async Task<int> DeleteExpiredReservationsAsync()
         {
             await _unitOfWork.BeginTransactionAsync();
             try
             {
-                var currentTime = DateTime.Now;
+                var now = DateTime.UtcNow;
                 var expiredReservations = await _unitOfWork.InventoryReservations.GetExpiredReservationsAsync();
 
                 var deletedCount = 0;
+                var staleTransactionIds = new HashSet<string>();
                 foreach (var reservation in expiredReservations)
                 {
+                    if (!string.IsNullOrEmpty(reservation.TransactionID)
+                        && reservation.ExpirationTime.AddMinutes(RESERVATION_MINUTES) > now)
+                    {
+                        // Trong grace period: ngân hàng có thể callback trễ, giữ lại
+                        continue;
+                    }
+                    if (!string.IsNullOrEmpty(reservation.TransactionID))
+                    {
+                        staleTransactionIds.Add(reservation.TransactionID);
+                    }
                     await _unitOfWork.InventoryReservations.DeleteAsync(reservation.ReservationID);
                     deletedCount++;
+                }
+
+                // Cancel các đơn nháp Pending mà hold đã quá grace (tiền chưa về)
+                foreach (var txnId in staleTransactionIds)
+                {
+                    var order = await _unitOfWork.Orders.GetByTransactionRefAsync(txnId);
+                    if (order != null && order.Status == (int)OrderStatus.Pending)
+                    {
+                        await _unitOfWork.Orders.UpdateOrderStatus(order.OrderID, (int)OrderStatus.Cancelled);
+                    }
                 }
 
                 if (deletedCount > 0)
@@ -184,28 +227,28 @@ namespace Ecommerce.Application.Services.Impemention
         }
 
         /// <summary>
-        /// Xóa TẤT CẢ reservation của user (bao gồm cả chưa hết hạn)
+        /// Xóa các reservation CHƯA GẮN giao dịch của user (dùng khi reserve lại cho COD).
+        /// Không đụng tới hold đã gắn mã giao dịch ngân hàng đang bay.
         /// </summary>
-        /// <param name="userId"></param>
-        /// <returns></returns>
         public async Task<bool> ReleaseAllUserReservationsAsync(Guid userId)
         {
             try
             {
                 var userReservations = await _unitOfWork.InventoryReservations.GetAllReservationsByUserIdAsync(userId);
+                var unbound = userReservations.Where(r => r.TransactionID == null).ToList();
 
-                if (!userReservations.Any())
+                if (!unbound.Any())
                 {
-                    _logger.LogDebug("No existing reservations found for User {UserId}", userId);
+                    _logger.LogDebug("No unbound reservations found for User {UserId}", userId);
                     return true;
                 }
 
-                _logger.LogInformation("Releasing {Count} existing reservations for User {UserId}", userReservations.Count, userId);
+                _logger.LogInformation("Releasing {Count} unbound reservations for User {UserId}", unbound.Count, userId);
 
-                await _unitOfWork.InventoryReservations.DeleteRangeAsync(userReservations);
+                await _unitOfWork.InventoryReservations.DeleteRangeAsync(unbound);
                 await _unitOfWork.SaveChangesAsync();
 
-                _logger.LogInformation("Successfully released reservations for User {UserId}", userId);
+                _logger.LogInformation("Successfully released unbound reservations for User {UserId}", userId);
                 return true;
             }
             catch (Exception ex)

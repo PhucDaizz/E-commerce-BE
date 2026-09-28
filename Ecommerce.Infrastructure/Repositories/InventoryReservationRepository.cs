@@ -102,6 +102,15 @@ namespace Ecommerce.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<List<InventoryReservations>> GetByTransactionIdAsync(string transactionId)
+        {
+            if (string.IsNullOrEmpty(transactionId))
+                return new List<InventoryReservations>();
+            return await _dbContext.InventoryReservations
+                .Where(r => r.TransactionID == transactionId)
+                .ToListAsync();
+        }
+
         public void UpdateRange(IEnumerable<InventoryReservations> reservations)
         {
             _dbContext.InventoryReservations.UpdateRange(reservations);

@@ -10,9 +10,10 @@ namespace Ecommerce.Application.Services.Interfaces
 {
     public interface IPaymentServices
     {
-        Task<PaymentProcessResult> processPayment(PaymentResult paymentResult, Guid userID, int PaymentMethodId, int? discountId);
-        Task<PaymentProcessResult> processPaymentTWO(PaymentResult paymentResult, Guid userID, int PaymentMethodId, int? discountId);
+        Task<PrepareBankingPaymentResult> PrepareBankingPaymentAsync(Guid userId, string? note, int? discountId, string ipAddress);
+        Task<PaymentProcessResult> ConfirmBankingPaymentAsync(PaymentResult paymentResult);
+        Task HandleFailedBankingPaymentAsync(string txnRef);
+        Task<BankingPaymentStatusDTO?> GetBankingPaymentStatusAsync(string txnRef, Guid callerUserId);
         Task<PaymentProcessResult> processPaymentCOD(Guid userID, int? discountId, int PaymentMethodId = 2);
-        Task<PaymentAmountDTO> checkAmount(Guid userId, int? discountId);
     }
 }

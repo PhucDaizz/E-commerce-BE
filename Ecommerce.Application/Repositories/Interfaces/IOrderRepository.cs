@@ -12,6 +12,7 @@ namespace Ecommerce.Application.Repositories.Interfaces
         Task<IEnumerable<Orders>?> GetAllByUserIdAsync(Guid userId);
         Task<PagedResult<Orders>> GetAllAsync(Guid? userId, string? sortBy, bool isDESC = true, int page = 1, int itemInPage = 10);
         Task<Orders?> GetByIdAdminAsync(Guid id);
+        Task<Orders?> GetByTransactionRefAsync(string transactionRef);
         Task<Orders?> UpdateOrderStatus(Guid id, int status);
         Task<int> GetPurchaseCountAsync(Guid userId, int productId);
     }

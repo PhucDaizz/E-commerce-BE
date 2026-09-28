@@ -182,6 +182,10 @@ namespace Ecommerce.Infrastructure
                 .HasForeignKey<Payments>(p => p.OrderID)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // Tra cứu đơn nháp theo mã giao dịch ngân hàng (poll trạng thái, IPN, cleanup)
+            builder.Entity<Orders>()
+                .HasIndex(o => o.TransactionRef);
+
             builder.Entity<Conversations>(entity =>
             {
                 entity.HasOne<ExtendedIdentityUser>()

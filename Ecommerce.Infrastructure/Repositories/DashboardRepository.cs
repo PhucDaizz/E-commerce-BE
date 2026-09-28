@@ -61,6 +61,7 @@ namespace Ecommerce.Infrastructure.Repositories
                     COUNT(o.OrderID) AS TotalOrders
                 FROM Orders o
                 JOIN AspNetUsers u ON o.UserID = u.Id
+                WHERE o.Status IN (2, 4)
                 GROUP BY u.Gender")
             .ToListAsync();
         }
@@ -106,8 +107,10 @@ namespace Ecommerce.Infrastructure.Repositories
 
         public async Task<List<ReportTopSellingProductDTO>> TopSellingProductsAsync(int items)
         {
-            // Bước 1: Lấy top sản phẩm bán chạy
+            // Bước 1: Lấy top sản phẩm bán chạy (chỉ tính đơn đã thanh toán/xác nhận, loại đơn nháp Pending)
             var topProductsInfo = await _dbContext.OrderDetails
+                .Where(od => od.Orders.Status == (int)OrderStatus.Confirmed
+                    || od.Orders.Status == (int)OrderStatus.Completed)
                 .GroupBy(od => od.ProductID)
                 .Select(group => new
                 {
