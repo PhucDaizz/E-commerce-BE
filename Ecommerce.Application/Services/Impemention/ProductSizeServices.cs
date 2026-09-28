@@ -27,6 +27,12 @@ namespace Ecommerce.Application.Services.Impemention
                 return new ProductSizeResponse { message = "Invalid data!" };
             }
 
+            // Kho không được âm (DB cũng có CHECK constraint chốt sàn)
+            if (productSizesDTO.ProductSizes.Values.Any(sizes => sizes.Values.Any(stock => stock < 0)))
+            {
+                return new ProductSizeResponse { message = "Invalid data!" };
+            }
+
             var productSizesToUpsert = new List<ProductSizes>();
             var now = DateTime.UtcNow;
 

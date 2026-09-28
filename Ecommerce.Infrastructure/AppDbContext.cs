@@ -176,6 +176,10 @@ namespace Ecommerce.Infrastructure
                 .HasForeignKey(ps => ps.ProductColorID)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // Chốt sàn: kho không bao giờ được âm, kể cả can thiệp tay vào DB
+            builder.Entity<ProductSizes>()
+                .ToTable(t => t.HasCheckConstraint("CK_ProductSizes_Stock_NonNegative", "[Stock] >= 0"));
+
             builder.Entity<Orders>()
                 .HasOne(o => o.Payments)
                 .WithOne(p => p.Orders)

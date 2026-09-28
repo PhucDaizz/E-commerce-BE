@@ -122,16 +122,30 @@ namespace Ecommerce.Infrastructure.Repositories
 
         public async Task<bool> UpdateRangeAsync(IEnumerable<CartItems> cartItems)
         {
-            List<ProductSizes> productSizesUpdate = new List<ProductSizes>();
-            foreach (var item in cartItems)
+            var items = cartItems.ToList();
+            var productSizesUpdate = new List<ProductSizes>();
+            foreach (var item in items)
             {
                 var productSize = await _dbContext.ProductSizes.FirstOrDefaultAsync(x => x.ProductSizeID == item.ProductSizeID);
                 if (productSize == null)
                 {
                     return false;
                 }
-                productSize.Stock -= item.Quantity;
                 productSizesUpdate.Add(productSize);
+            }
+            // Kiểm tra hết trước khi trừ để không bao giờ đẩy kho xuống âm
+            foreach (var item in items)
+            {
+                var productSize = productSizesUpdate.First(x => x.ProductSizeID == item.ProductSizeID);
+                if (productSize.Stock < item.Quantity)
+                {
+                    return false;
+                }
+            }
+            foreach (var item in items)
+            {
+                var productSize = productSizesUpdate.First(x => x.ProductSizeID == item.ProductSizeID);
+                productSize.Stock -= item.Quantity;
             }
             _dbContext.ProductSizes.UpdateRange(productSizesUpdate);
             return true;

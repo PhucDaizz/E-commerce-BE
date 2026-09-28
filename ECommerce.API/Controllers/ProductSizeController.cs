@@ -24,6 +24,10 @@ namespace ECommerce.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody]CreateProductSizeDTO productSizeDTO)
         {
+            if (productSizeDTO.Stock < 0)
+            {
+                return BadRequest("Stock cannot be negative.");
+            }
             var productSize = productSizeDTO.ToEntity();
             productSize.CreatedAt = DateTime.Now;
             productSize.UpdatedAt = DateTime.Now;  
@@ -94,6 +98,10 @@ namespace ECommerce.API.Controllers
         [Route("{id:int}")]
         public async Task<IActionResult> Edit([FromRoute]int id, [FromBody]EditProductSizeDTO productSizeDTO)
         {
+            if (productSizeDTO.Stock < 0)
+            {
+                return BadRequest("Stock cannot be negative.");
+            }
             var productSize = productSizeDTO.ToEntity();
             productSize.ProductSizeID = id;
             var existing = await _productSizeRepository.UpdateAsync(productSize);

@@ -53,15 +53,28 @@ namespace Ecommerce.Application.Services.Impemention
             if (!userReservations.Any()) return false;
 
             var productSizeIds = userReservations.Select(r => r.ProductSizeID).ToList();
-            var productSizes = await _unitOfWork.ProductSizes.GetByIdsAsync(productSizeIds); 
+            var productSizes = await _unitOfWork.ProductSizes.GetByIdsAsync(productSizeIds);
             var productSizeMap = productSizes.ToDictionary(ps => ps.ProductSizeID);
 
+            // Pass 1: kiểm tra TẤT CẢ trước khi trừ — thiếu 1 dòng là hủy cả lượt,
+            // không để kho âm và không để sót entity đã trừ dở trong DbContext
             foreach (var reservation in userReservations)
             {
-                if (productSizeMap.TryGetValue(reservation.ProductSizeID, out var productSize))
+                if (!productSizeMap.TryGetValue(reservation.ProductSizeID, out var productSize)
+                    || productSize.Stock < reservation.ReservedQuantity)
                 {
-                    productSize.Stock -= reservation.ReservedQuantity;
+                    _logger.LogWarning("Confirm blocked: ProductSize {SizeId} stock {Stock} < reserved {Reserved}",
+                        reservation.ProductSizeID,
+                        productSizeMap.TryGetValue(reservation.ProductSizeID, out var ps) ? ps.Stock : -1,
+                        reservation.ReservedQuantity);
+                    return false;
                 }
+            }
+
+            // Pass 2: đủ hàng mới trừ thật
+            foreach (var reservation in userReservations)
+            {
+                productSizeMap[reservation.ProductSizeID].Stock -= reservation.ReservedQuantity;
                 await _unitOfWork.InventoryReservations.DeleteAsync(reservation.ReservationID);
             }
 
