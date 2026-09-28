@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using Ecommerce.Application.Common.Mappings;
 using Ecommerce.Application.DTOS.Order;
 using Ecommerce.Application.Repositories.Interfaces;
 using Ecommerce.Application.Services.Contracts.Infrastructure;
@@ -16,16 +16,14 @@ namespace ECommerce.API.Controllers
     public class OrderController : ControllerBase
     {
         private readonly IOrderRepository _orderRepository;
-        private readonly IMapper _mapper;
         private readonly IOrderServices _orderServices;
         private readonly IAuthRepository _authRepository;
         private readonly IInvoiceGenerator _invoiceGenerator;
         private readonly IDiscountRepository _discountRepository;
 
-        public OrderController(IOrderRepository orderRepository, IMapper mapper, IOrderServices orderServices, IAuthRepository authRepository, IInvoiceGenerator invoiceGenerator, IDiscountRepository discountRepository)
+        public OrderController(IOrderRepository orderRepository, IOrderServices orderServices, IAuthRepository authRepository, IInvoiceGenerator invoiceGenerator, IDiscountRepository discountRepository)
         {
             _orderRepository = orderRepository;
-            _mapper = mapper;
             _orderServices = orderServices;
             _authRepository = authRepository;
             _invoiceGenerator = invoiceGenerator;
@@ -36,10 +34,10 @@ namespace ECommerce.API.Controllers
         [Authorize(Roles = "Admin,SuperAdmin")]
         public async Task<IActionResult> Create([FromBody]CreateOrderDTO createOrderDTO)
         {
-            var order = _mapper.Map<Orders>(createOrderDTO);
+            var order = createOrderDTO.ToEntity();
             
             order = await _orderRepository.CreateAsync(order);
-            return Ok(_mapper.Map<OrderDetailDTO>(order));
+            return Ok(order.ToOrderDetailDTO());
         }
 
         [HttpGet]
@@ -58,7 +56,7 @@ namespace ECommerce.API.Controllers
             {
                 return NotFound("OrderId is not existing");
             }
-            var resut = _mapper.Map<OrderDetailDTO>(order);
+            var resut = order.ToOrderDetailDTO();
             return Ok(resut);
         }
 
@@ -78,7 +76,7 @@ namespace ECommerce.API.Controllers
             {
                 return Ok("Your order is empty");
             }
-            return Ok(_mapper.Map<IEnumerable<OrderDTO>>(listOrders));
+            return Ok(listOrders.Select(x => x.ToOrderDTO()));
         }
 
         [HttpGet]
@@ -91,7 +89,7 @@ namespace ECommerce.API.Controllers
             {
                 return NotFound("OrderId is not existing");
             }
-            var resut = _mapper.Map<GetDetailOrderDTO>(order);
+            var resut = order.ToGetDetailOrderDTO();
             return Ok(resut);
         }
 

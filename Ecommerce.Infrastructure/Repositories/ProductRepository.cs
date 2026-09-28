@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using Ecommerce.Application.Common.Mappings;
 using Ecommerce.Application.Common.Utils;
 using Ecommerce.Application.DTOS.Common;
 using Ecommerce.Application.DTOS.Product;
@@ -13,12 +13,10 @@ namespace Ecommerce.Infrastructure.Repositories
     public class ProductRepository : IProductRepository
     {
         private readonly AppDbContext _dbContext;
-        private readonly IMapper _mapper;
 
-        public ProductRepository(AppDbContext dbContext, IMapper mapper)
+        public ProductRepository(AppDbContext dbContext)
         {
             _dbContext = dbContext;
-            _mapper = mapper;
         }
         public async Task<Products> CreateAsync(Products products)
         {
@@ -97,7 +95,7 @@ namespace Ecommerce.Infrastructure.Repositories
             var products = await query.Skip((page - 1) * itemInPage).Take(itemInPage).Include(x => x.ProductImages).ToListAsync();
             int pageSize = totalCounts % itemInPage != 0 ? totalCounts / itemInPage + 1 : totalCounts / itemInPage;
 
-            var productsDTO = _mapper.Map<List<ListProductDTO>>(products);
+            var productsDTO = products.Select(x => x.ToListProductDTO()).ToList();
 
             return new PagedResult<ListProductDTO>
             {
@@ -179,7 +177,7 @@ namespace Ecommerce.Infrastructure.Repositories
             var products = await query.Skip((page - 1) * itemInPage).Take(itemInPage).Include(x => x.ProductImages).ToListAsync();
             int pageSize = totalCounts % itemInPage != 0 ? totalCounts / itemInPage + 1 : totalCounts / itemInPage;
 
-            var productsDTO = _mapper.Map<List<ListProductAdminDTO>>(products);
+            var productsDTO = products.Select(x => x.ToListProductAdminDTO()).ToList();
 
             return new PagedResult<ListProductAdminDTO>
             {
@@ -238,7 +236,7 @@ namespace Ecommerce.Infrastructure.Repositories
 
             int totalPages = totalCount % pageSize != 0 ? totalCount / pageSize + 1 : totalCount / pageSize;
 
-            var productDtos = _mapper.Map<List<ListProductDTO>>(products);
+            var productDtos = products.Select(x => x.ToListProductDTO()).ToList();
 
             return new PagedResult<ListProductDTO>
             {

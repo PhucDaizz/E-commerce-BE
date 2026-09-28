@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using Ecommerce.Application.Common.Mappings;
 using Ecommerce.Application.DTOS.OrderDetail;
 using Ecommerce.Application.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -10,12 +10,10 @@ namespace ECommerce.API.Controllers
     [ApiController]
     public class OrderDetailController : ControllerBase
     {
-        private readonly IMapper mapper;
         private readonly IOrderDetailRepository orderDetailRepository;
 
-        public OrderDetailController(IMapper mapper, IOrderDetailRepository orderDetailRepository)
+        public OrderDetailController(IOrderDetailRepository orderDetailRepository)
         {
-            this.mapper = mapper;
             this.orderDetailRepository = orderDetailRepository;
         }
 
@@ -28,7 +26,7 @@ namespace ECommerce.API.Controllers
             {
                 return NotFound("OrderId is not existing!");
             }
-            return Ok(mapper.Map<IEnumerable<GetOrderDetailDTO>>(orderDetails));
+            return Ok(orderDetails.Select(x => x.ToGetOrderDetailDTO()));
         }
 
     }

@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Ecommerce.Application.DTOS.Banner;
+﻿using Ecommerce.Application.DTOS.Banner;
 using Ecommerce.Application.Repositories.Persistence;
 using Ecommerce.Application.Services.Contracts.Infrastructure;
 using Ecommerce.Application.Services.Interfaces;
@@ -12,13 +11,11 @@ namespace Ecommerce.Application.Services.Impemention
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IStorageServiceFactory _storageServiceFactory;
-        private readonly IMapper _mapper;
 
-        public BannerServices(IUnitOfWork unitOfWork, IStorageServiceFactory storageServiceFactory, IMapper mapper)
+        public BannerServices(IUnitOfWork unitOfWork, IStorageServiceFactory storageServiceFactory)
         {   
             _unitOfWork = unitOfWork;
             _storageServiceFactory = storageServiceFactory;
-            _mapper = mapper;
         }
 
         public async Task<Banners> CreateBannerAsync(AddBannerImageCommand command, Stream fileStream)

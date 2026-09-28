@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using Ecommerce.Application.Common.Mappings;
 using Ecommerce.Application.DTOS.ProductReview;
 using Ecommerce.Application.Repositories.Interfaces;
 using Ecommerce.Application.Services.Interfaces;
@@ -13,13 +13,11 @@ namespace ECommerce.API.Controllers
     [ApiController]
     public class ProductReviewController : ControllerBase
     {
-        private readonly IMapper _mapper;
         private readonly IProductReviewServices _productReviewServices;
         private readonly IProductReviewRepository _productReviewRepository;
 
-        public ProductReviewController(IMapper mapper, IProductReviewServices productReviewServices, IProductReviewRepository productReviewRepository)
+        public ProductReviewController(IProductReviewServices productReviewServices, IProductReviewRepository productReviewRepository)
         {
-            _mapper = mapper;
             _productReviewServices = productReviewServices;
             _productReviewRepository = productReviewRepository;
         }
@@ -41,14 +39,14 @@ namespace ECommerce.API.Controllers
                     return Unauthorized("Please login again!.");
                 }
 
-                var productReview = _mapper.Map<ProductReviews>(createProductReviewDTO);
+                var productReview = createProductReviewDTO.ToEntity();
                 productReview.CreatedAt = DateTime.Now;
                 productReview.UpdatedAt = DateTime.Now;
                 productReview.UserID = Guid.Parse(useridClaim.Value);
                 
                 var productReviewResult = await _productReviewServices.CreateAsync(productReview);
 
-                return Ok(_mapper.Map<ProductReviewDTO>(productReviewResult));
+                return Ok(productReviewResult.ToProductReviewDTO());
             }
 
             catch (Exception ex)
@@ -85,7 +83,7 @@ namespace ECommerce.API.Controllers
                 {
                     return NotFound("Can't find this review");
                 }
-                return Ok(_mapper.Map<ProductReviewDTO>(productReviews));
+                return Ok(productReviews.ToProductReviewDTO());
             }
             catch (Exception ex)
             {

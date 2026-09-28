@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using Ecommerce.Application.Common.Mappings;
 using Ecommerce.Application.DTOS.Discount;
 using Ecommerce.Application.Repositories.Interfaces;
 using Ecommerce.Domain.Entities;
@@ -9,12 +9,10 @@ namespace Ecommerce.Infrastructure.Repositories
     public class DiscountRepository : IDiscountRepository
     {
         private readonly AppDbContext _dbContext;
-        private readonly IMapper _mapper;
 
-        public DiscountRepository(AppDbContext dbContext, IMapper mapper)
+        public DiscountRepository(AppDbContext dbContext)
         {
             _dbContext = dbContext;
-            _mapper = mapper;
         }
 
         public async Task<Discounts?> ActiveAsync(int discountId)
@@ -97,7 +95,7 @@ namespace Ecommerce.Infrastructure.Repositories
 
             return new ListDiscountDTO
             {
-                Discounts = _mapper.Map<IEnumerable<DiscountDTO>>(itemList),
+                Discounts = itemList.Select(x => x.ToDiscountDTO()),
                 TotalCount = totalCounts,
                 Page = page,
                 PageSize = totalPages

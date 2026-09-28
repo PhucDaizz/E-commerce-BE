@@ -1,8 +1,7 @@
-﻿using AutoMapper;
+﻿using Ecommerce.Application.Common.Mappings;
 using Ecommerce.Application.DTOS.ProductSize;
 using Ecommerce.Application.Repositories.Interfaces;
 using Ecommerce.Application.Services.Interfaces;
-using Ecommerce.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,13 +12,11 @@ namespace ECommerce.API.Controllers
     public class ProductSizeController : ControllerBase
     {
         private readonly IProductSizeRepository _productSizeRepository;
-        private readonly IMapper _mapper;
         private readonly IProductSizeServices _productSizeServices;
 
-        public ProductSizeController(IProductSizeRepository productSizeRepository, IMapper mapper, IProductSizeServices productSizeServices)
+        public ProductSizeController(IProductSizeRepository productSizeRepository, IProductSizeServices productSizeServices)
         {
             _productSizeRepository = productSizeRepository;
-            _mapper = mapper;
             _productSizeServices = productSizeServices;
         }
 
@@ -27,11 +24,11 @@ namespace ECommerce.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody]CreateProductSizeDTO productSizeDTO)
         {
-            var productSize = _mapper.Map<ProductSizes>(productSizeDTO);
+            var productSize = productSizeDTO.ToEntity();
             productSize.CreatedAt = DateTime.Now;
             productSize.UpdatedAt = DateTime.Now;  
             var createProductSize = await _productSizeRepository.CreateAsync(productSize);
-            var result = _mapper.Map<ProductSizeDTO>(createProductSize);
+            var result = createProductSize.ToProductSizeDTO();
             return Ok(result);
         }
 
@@ -59,7 +56,7 @@ namespace ECommerce.API.Controllers
             {
                 return NotFound("ID is not existing!");
             }
-            var result = _mapper.Map<ProductSizeDTO>(existing);
+            var result = existing.ToProductSizeDTO();
             return Ok(result);
         }
 
@@ -73,7 +70,7 @@ namespace ECommerce.API.Controllers
             {
                 return NotFound("ID is not existing!");
             }
-            var result = _mapper.Map<ProductSizeDTO>(existing);
+            var result = existing.ToProductSizeDTO();
             return Ok(result);
         }
 
@@ -87,7 +84,7 @@ namespace ECommerce.API.Controllers
             {
                 return NotFound("ID is not existing!");
             }
-            var result = _mapper.Map<ProductSizeDTO>(existing);
+            var result = existing.ToProductSizeDTO();
             return Ok(result);
         }
 
@@ -97,14 +94,14 @@ namespace ECommerce.API.Controllers
         [Route("{id:int}")]
         public async Task<IActionResult> Edit([FromRoute]int id, [FromBody]EditProductSizeDTO productSizeDTO)
         {
-            var productSize = _mapper.Map<ProductSizes>(productSizeDTO);
+            var productSize = productSizeDTO.ToEntity();
             productSize.ProductSizeID = id;
             var existing = await _productSizeRepository.UpdateAsync(productSize);
             if (existing == null)
             {
                 return NotFound("ID is not existing!");
             }
-            var result = _mapper.Map<ProductSizeDTO>(existing);
+            var result = existing.ToProductSizeDTO();
             return Ok(result);
         }
 
@@ -117,7 +114,7 @@ namespace ECommerce.API.Controllers
             {
                 return NotFound("ID is not existing!");
             }
-            var result = _mapper.Map<IEnumerable<ProductSizeDTO>>(existing);
+            var result = existing.Select(x => x.ToProductSizeDTO());
             return Ok(result);
         }
     }

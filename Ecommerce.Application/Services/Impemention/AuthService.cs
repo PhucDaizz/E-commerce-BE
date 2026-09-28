@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Ecommerce.Application.Common;
+﻿using Ecommerce.Application.Common;
 using Ecommerce.Application.DTOS.User;
 using Ecommerce.Application.Repositories.Interfaces;
 using Ecommerce.Application.Repositories.Persistence;
@@ -22,18 +21,16 @@ namespace Ecommerce.Application.Services.Impemention
         private readonly IAuthRepository _authRepository;
         private readonly ITokenGenerator _tokenGenerator;
         private readonly IEmailServices _emailServices;
-        private readonly IMapper _mapper;
         private readonly IOptions<FrontendSettings> _configuration;
         private readonly IUnitOfWork _unitOfWork;
 
         public AuthService(IAuthRepository authRepository, ITokenGenerator tokenGenerator, 
-                            IEmailServices emailServices, IMapper mapper, IOptions<FrontendSettings> configuration,
+                            IEmailServices emailServices, IOptions<FrontendSettings> configuration,
                             IUnitOfWork unitOfWork)
         {
             _authRepository = authRepository;
             _tokenGenerator = tokenGenerator;
             _emailServices = emailServices;
-            _mapper = mapper;
             _configuration = configuration;
             _unitOfWork = unitOfWork;
         }

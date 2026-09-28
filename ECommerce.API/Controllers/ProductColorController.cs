@@ -1,8 +1,7 @@
-﻿using AutoMapper;
+﻿using Ecommerce.Application.Common.Mappings;
 using Ecommerce.Application.DTOS.ProductColor;
 using Ecommerce.Application.Repositories.Interfaces;
 using Ecommerce.Application.Services.Interfaces;
-using Ecommerce.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,13 +11,11 @@ namespace ECommerce.API.Controllers
     [ApiController]
     public class ProductColorController : ControllerBase
     {
-        private readonly IMapper _mapper;
         private readonly IProductColorRepository _productColorRepository;
         private readonly IProductColorServices _productColorServices;
 
-        public ProductColorController(IMapper mapper, IProductColorRepository productColorRepository, IProductColorServices productColorServices)
+        public ProductColorController(IProductColorRepository productColorRepository, IProductColorServices productColorServices)
         {
-            _mapper = mapper;
             _productColorRepository = productColorRepository;
             _productColorServices = productColorServices;
         }
@@ -27,11 +24,11 @@ namespace ECommerce.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody]CreateProductColorDTO productColorDTO)
         {
-            var productColor = _mapper.Map<ProductColors>(productColorDTO);
+            var productColor = productColorDTO.ToEntity();
             productColor.CreatedAt = DateTime.Now;
             productColor.UpdatedAt = DateTime.Now;
             var createdProductColor = await _productColorRepository.CreateAsync(productColor);
-            var result = _mapper.Map<ProductColorDTO>(createdProductColor);
+            var result = createdProductColor.ToProductColorDTO();
             return Ok(result);
         }
 
@@ -49,7 +46,7 @@ namespace ECommerce.API.Controllers
                 }
             }
 
-            var productColors = _mapper.Map<IEnumerable<ProductColors>>(createProductColorDTOs);
+            var productColors = createProductColorDTOs.Select(x => x.ToEntity()).ToList();
             
             foreach (var productColor in productColors)
             {
@@ -57,7 +54,7 @@ namespace ECommerce.API.Controllers
                 productColor.UpdatedAt = DateTime.Now;
             }
             var createProductColors = await _productColorRepository.CreateRangeAsync(productColors);
-            var result = _mapper.Map<IEnumerable<ProductColorDTO>>(createProductColors);
+            var result = createProductColors.Select(x => x.ToProductColorDTO());
             return Ok(result);
         }
 
@@ -70,7 +67,7 @@ namespace ECommerce.API.Controllers
             {
                 return NotFound("ID is not existing!");
             }
-            var result =  _mapper.Map<ProductColorDTO>(existing);
+            var result =  existing.ToProductColorDTO();
             return Ok(result);
         }
 
@@ -78,7 +75,7 @@ namespace ECommerce.API.Controllers
         public async Task<IActionResult> GetAll()
         {
             var productColors= await _productColorRepository.GetAllAsync();
-            var result = _mapper.Map<IEnumerable<ProductColorDTO>>(productColors);
+            var result = productColors.Select(x => x.ToProductColorDTO());
             return Ok(result);
         }
 
@@ -101,7 +98,7 @@ namespace ECommerce.API.Controllers
         [Route("{id:int}")]
         public async Task<IActionResult> Edit([FromRoute]int id, [FromBody]EditProductColorDTO productColorDTO)
         {
-            var productColor = _mapper.Map<ProductColors>(productColorDTO);
+            var productColor = productColorDTO.ToEntity();
             productColor.ProductColorID = id;
             productColor.UpdatedAt = DateTime.Now;
             var existing = await _productColorRepository.UpdateAsync(productColor);
@@ -109,7 +106,7 @@ namespace ECommerce.API.Controllers
             {
                 return NotFound("Id is not existing");
             }
-            var result = _mapper.Map<ProductColorDTO>(existing);
+            var result = existing.ToProductColorDTO();
             return Ok(result);
         }
 
@@ -122,7 +119,7 @@ namespace ECommerce.API.Controllers
             {
                 return NotFound("Product not found or does not have any colors.");
             }
-            var result = _mapper.Map<IEnumerable<ProductColorDTO>>(existing);
+            var result = existing.Select(x => x.ToProductColorDTO());
             return Ok(result);
         }
     }

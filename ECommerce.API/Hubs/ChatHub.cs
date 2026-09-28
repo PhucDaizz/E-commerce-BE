@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using Ecommerce.Application.Common.Mappings;
 using Ecommerce.Application.DTOS.ChatMessage;
 using Ecommerce.Application.DTOS.Conversation;
 using Ecommerce.Application.Repositories.Interfaces;
@@ -16,7 +16,6 @@ namespace ECommerce.API.Hubs
     public class ChatHub : Hub
     {
         private readonly IConversationRepository _conversationRepository;
-        private readonly IMapper _mapper;
         private readonly IChatMessageRepository _chatMessageRepository;
         private readonly IAuthRepository _authRepository;
         private readonly IAuthService _authService;
@@ -24,14 +23,12 @@ namespace ECommerce.API.Hubs
         private static readonly ConcurrentDictionary<string, string> OnlineAdmins = new ConcurrentDictionary<string, string>();  // Key: AdminUserId, Value: ConnectionId
 
         public ChatHub(IConversationRepository conversationRepository, 
-                        IMapper mapper, 
                         IChatMessageRepository chatMessageRepository, 
                         ILogger<ChatHub> logger, 
                         IAuthRepository authRepository,
                         IAuthService authService)
         {
             _conversationRepository = conversationRepository;
-            _mapper = mapper;
             _chatMessageRepository = chatMessageRepository;
             _authRepository = authRepository;
             _authService = authService;
@@ -61,7 +58,7 @@ namespace ECommerce.API.Hubs
 
                 // Gửi danh sách cuộc hội thoại đang chờ cho admin
                 var pendingConversations = await _conversationRepository.GetPendingConversationsForAdminAsync();
-                var pendingConversationsDto = _mapper.Map<IEnumerable<ListConversationsDTO>>(pendingConversations);
+                var pendingConversationsDto = pendingConversations.Select(x => x.ToListConversationsDTO());
                 await Clients.Caller.SendAsync("ReceivePendingConversations", pendingConversationsDto);
 
                 // Tải lịch sử chat cho các cuộc hội thoại đang hoạt động
@@ -101,7 +98,7 @@ namespace ECommerce.API.Hubs
                     await Groups.AddToGroupAsync(Context.ConnectionId, openConversation.ConversationId.ToString());
 
                     var historyChat = await _chatMessageRepository.GetChatHistoryAsync(openConversation.ConversationId);
-                    var historyChatDto = _mapper.Map<IEnumerable<ChatMessageDTO>>(historyChat);
+                    var historyChatDto = historyChat.Select(x => x.ToChatMessageDTO());
                     await Clients.Caller.SendAsync("LoadChatHistory", openConversation.ConversationId, historyChatDto);
 
 
@@ -203,7 +200,7 @@ namespace ECommerce.API.Hubs
                 {
                     await Groups.AddToGroupAsync(Context.ConnectionId, conversationId.ToString());
                     var history = await _chatMessageRepository.GetChatHistoryAsync(conversationId);
-                    await Clients.Caller.SendAsync("LoadChatHistory", conversationId, _mapper.Map<IEnumerable<ChatMessageDTO>>(history));
+                    await Clients.Caller.SendAsync("LoadChatHistory", conversationId, history.Select(x => x.ToChatMessageDTO()));
                 
                     var adminUserName = "Admin";
                     await Clients.Caller.SendAsync("AdminJoined", conversationId, adminUserName ?? "Admin", existingConversation.AdminUserId);
@@ -224,7 +221,7 @@ namespace ECommerce.API.Hubs
 
                     // Load lại lịch sử chat pending cho client
                     var history = await _chatMessageRepository.GetChatHistoryAsync(conversationId);
-                    await Clients.Caller.SendAsync("LoadChatHistory", conversationId, _mapper.Map<IEnumerable<ChatMessageDTO>>(history));
+                    await Clients.Caller.SendAsync("LoadChatHistory", conversationId, history.Select(x => x.ToChatMessageDTO()));
                     await Clients.Caller.SendAsync("ChatStillPending", conversationId);
                     return; 
                 }
@@ -265,7 +262,7 @@ namespace ECommerce.API.Hubs
             await Clients.Caller.SendAsync("ChatRequestSent", conversationId);
             var userInfo = await _authService.GetInforAsync(clientUserId);
 
-            var conversationDto = _mapper.Map<ListConversationsDTO>(conversationToProcess);
+            var conversationDto = conversationToProcess.ToListConversationsDTO();
             conversationDto.UserName = userInfo.UserName;
             conversationDto.InitialMessage = initialMessage;
 
@@ -326,7 +323,7 @@ namespace ECommerce.API.Hubs
 
             // Lấy lịch sử chat và gửi về cho admin
             var history = await _chatMessageRepository.GetChatHistoryAsync(conversationId);
-            var mappedHistory = _mapper.Map<IEnumerable<ChatMessageDTO>>(history);
+            var mappedHistory = history.Select(x => x.ToChatMessageDTO());
 /*            await Clients.Caller.SendAsync("LoadChatHistory", conversationId, mappedHistory);
 */            await Clients.Group(conversationId.ToString()).SendAsync("LoadChatHistory", conversationId, mappedHistory);
 
@@ -364,7 +361,7 @@ namespace ECommerce.API.Hubs
             }
 
             var history = await _chatMessageRepository.GetChatHistoryAsync(conversationId);
-            var historyDto = _mapper.Map<IEnumerable<ChatMessageDTO>>(history);
+            var historyDto = history.Select(x => x.ToChatMessageDTO());
             await Clients.Caller.SendAsync("LoadChatHistory", conversationId, historyDto);
             _logger.LogInformation("Admin {AdminId} requested and received history for conversation {ConversationId}", adminUserId, conversationId);
 
@@ -431,7 +428,7 @@ namespace ECommerce.API.Hubs
             await _chatMessageRepository.AddAsync(message);
             await _conversationRepository.UpdateLastActivityTimeAsync(conversationId);
 
-            var messageDto = _mapper.Map<ChatMessageDTO>(message);
+            var messageDto = message.ToChatMessageDTO();
             messageDto.SenderName = senderInfor?.UserName ?? "User";
 
             await Clients.Group(conversationId.ToString()).SendAsync("ReceiveMessage", messageDto);

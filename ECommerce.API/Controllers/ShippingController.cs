@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using Ecommerce.Application.Common.Mappings;
 using Ecommerce.Application.DTOS.Shipping;
 using Ecommerce.Application.Repositories.Interfaces;
 using Ecommerce.Application.Services.Interfaces;
@@ -15,14 +15,12 @@ namespace ECommerce.API.Controllers
     {
         private readonly AppDbContext dbContext;
         private readonly IShippingRepository _shippingRepository;
-        private readonly IMapper _mapper;
         private readonly IShippingServices _shippingServices;
 
-        public ShippingController(IShippingRepository shippingRepository, IMapper mapper, AppDbContext dbContext, IShippingServices shippingServices)
+        public ShippingController(IShippingRepository shippingRepository, AppDbContext dbContext, IShippingServices shippingServices)
         {
             this.dbContext = dbContext;
             _shippingRepository = shippingRepository;
-            _mapper = mapper;
             _shippingServices = shippingServices;
         }
 
@@ -37,14 +35,14 @@ namespace ECommerce.API.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var shipping = _mapper.Map<Shippings>(createShippingDTO);
+                var shipping = createShippingDTO.ToEntity();
 
                 // call api delivery services in here
 
 
                 var shippingResult = await _shippingRepository.CreateAsync(shipping);
 
-                return Ok(_mapper.Map<ShippingDTO>(shippingResult));
+                return Ok(shippingResult.ToShippingDTO());
 
 
             }catch(Exception ex)
@@ -63,7 +61,7 @@ namespace ECommerce.API.Controllers
             {
                 return NotFound("OrderId is not existing");
             }
-            return Ok(_mapper.Map<ShippingDTO>(shipping));
+            return Ok(shipping.ToShippingDTO());
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using Ecommerce.Application.Common.Mappings;
 using Ecommerce.Application.Common.Utils;
 using Ecommerce.Application.DTOS.ProductImage;
 using Ecommerce.Application.Repositories.Interfaces;
@@ -14,13 +14,11 @@ namespace Ecommerce.Application.Services.Impemention
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IStorageServiceFactory _storageFactory;
-        private readonly IMapper _mapper;
 
-        public ProductImageServices(IUnitOfWork unitOfWork, IStorageServiceFactory storageFactory, IMapper mapper)
+        public ProductImageServices(IUnitOfWork unitOfWork, IStorageServiceFactory storageFactory)
         {
             _unitOfWork = unitOfWork;
             _storageFactory = storageFactory;
-            _mapper = mapper;
         }
 
         public async Task<List<ProductImageDTO>> AddImagesToProductAsync(AddImagesCommand command)
@@ -61,7 +59,7 @@ namespace Ecommerce.Application.Services.Impemention
             }
 
             await _unitOfWork.SaveChangesAsync();
-            return _mapper.Map<List<ProductImageDTO>>(addedImages);
+            return addedImages.Select(x => x.ToProductImageDTO()).ToList();
         }
 
         public async Task<bool> DeleteImageAsync(int imageId)
@@ -100,7 +98,7 @@ namespace Ecommerce.Application.Services.Impemention
             if (!productExists) throw new KeyNotFoundException("Product not found.");
 
             var images = await _unitOfWork.ProductImages.GetAllByProductIDAsync(productId);
-            return _mapper.Map<List<ProductImageDTO>>(images.OrderBy(x =>  x.IsPrimary).ThenBy(x =>  x.CreatedAt));
+            return images.OrderBy(x =>  x.IsPrimary).ThenBy(x =>  x.CreatedAt).Select(x => x.ToProductImageDTO()).ToList();
         }
 
         public async Task<bool> retainProductFeaturedImage(int productId)

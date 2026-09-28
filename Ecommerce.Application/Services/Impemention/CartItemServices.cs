@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Ecommerce.Application.DTOS.CartItem;
+﻿using Ecommerce.Application.DTOS.CartItem;
 using Ecommerce.Application.Repositories.Interfaces;
 using Ecommerce.Application.Repositories.Persistence;
 using Ecommerce.Application.Services.Interfaces;

@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using Ecommerce.Application.Common.Mappings;
 using Ecommerce.Application.DTOS.Banner;
 using Ecommerce.Application.DTOS.Category;
 using Ecommerce.Application.Repositories.Interfaces;
@@ -14,13 +14,11 @@ namespace ECommerce.API.Controllers
     [Route("api/[controller]")]
     public class CategoryController : ControllerBase
     {
-        private readonly IMapper _mapper;
         private readonly ICategoryRepository _categoryRepository;
         private readonly ICategoryService _categoryService;
 
-        public CategoryController(IMapper mapper, ICategoryRepository categoryRepository, ICategoryService categoryService)
+        public CategoryController(ICategoryRepository categoryRepository, ICategoryService categoryService)
         {
-            _mapper = mapper;
             _categoryRepository = categoryRepository;
             _categoryService = categoryService;
         }
@@ -29,7 +27,7 @@ namespace ECommerce.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody]CreateCategoryDTO categoryDTO)
         {
-            var category = _mapper.Map<Categories>(categoryDTO);
+            var category = categoryDTO.ToEntity();
             category.CreatedAt = DateTime.Now;
             category.UpdatedAt = DateTime.Now;
             category =  await _categoryRepository.CreateAsync(category);
@@ -41,14 +39,14 @@ namespace ECommerce.API.Controllers
         [Route("{id:int}")]
         public async Task<IActionResult> Edit([FromRoute]int id,[FromBody]EditCategoryDTO categoryDTO)
         {
-            var category = _mapper.Map<Categories>(categoryDTO);
+            var category = categoryDTO.ToEntity();
             category.CategoryID = id;
             var existing = await _categoryRepository.UpdateAsync(category);
             if(existing == null)
             {
                 return NotFound("Id is not existing!");
             }
-            var result = _mapper.Map<CategoryDTO>(existing);
+            var result = existing.ToCategoryDTO();
             return Ok(result);
         }*/
 
@@ -61,7 +59,7 @@ namespace ECommerce.API.Controllers
             {
                 return BadRequest("Id is not existing!");
             }
-            var result = _mapper.Map<CategoryDTO>(categories);
+            var result = categories.ToCategoryDTO();
             return Ok(result);
         }
 

@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using Ecommerce.Application.Common.Mappings;
 using Ecommerce.Application.DTOS.Tag;
 using Ecommerce.Application.Repositories.Interfaces;
 using Ecommerce.Domain.Entities;
@@ -12,12 +12,10 @@ namespace ECommerce.API.Controllers
     public class TagController : ControllerBase
     {
         private readonly ITagRepository _tagRepository;
-        private readonly IMapper _mapper;
 
-        public TagController(ITagRepository tagRepository, IMapper mapper)
+        public TagController(ITagRepository tagRepository)
         {
             _tagRepository = tagRepository;
-            _mapper = mapper;
         }
 
         [Authorize(Roles = "Admin,SuperAdmin")]
@@ -51,7 +49,7 @@ namespace ECommerce.API.Controllers
             }
             try
             {
-                var tag = _mapper.Map<Tags>(tagDTO);
+                var tag = tagDTO.ToEntity();
                 var result = await _tagRepository.AddAsync(tag);
                 return Ok(result);
             }
@@ -72,7 +70,7 @@ namespace ECommerce.API.Controllers
             }
             try
             {
-                var tag = _mapper.Map<Tags>(tagDTO);
+                var tag = tagDTO.ToEntity();
                 tag.TagID = id;
                 var tagUpdate  = await _tagRepository.UpdateAsync(tag);
                 return Ok(tagUpdate);

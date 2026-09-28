@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using Ecommerce.Application.Common.Mappings;
 using Ecommerce.Application.DTOS.Category;
 using Ecommerce.Application.DTOS.Common;
 using Ecommerce.Application.DTOS.Product;
@@ -12,19 +12,17 @@ namespace Ecommerce.Application.Services.Impemention
 {
     public class ProductServices: IProductServices
     {
-        private readonly IMapper _mapper;
         private readonly IOrderDetailRepository _orderDetailRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IProductImageServices _productImageServices;
         private readonly ITagRepository _tagRepository;
 
-        public ProductServices(IMapper mapper, 
+        public ProductServices(
                 IUnitOfWork unitOfWork,
                 IOrderDetailRepository orderDetailRepository,
                 IProductImageServices productImageServices,
                 ITagRepository tagRepository)
         {
-            _mapper = mapper;
             _orderDetailRepository = orderDetailRepository;
             _unitOfWork = unitOfWork;
             _productImageServices = productImageServices;
@@ -63,10 +61,10 @@ namespace Ecommerce.Application.Services.Impemention
             var color = await _unitOfWork.ProductColors.GetProductColorSizeAsync(id);
             var image = await _unitOfWork.ProductImages.GetAllByProductIDAsync(product.ProductID);
 
-            var productMap = _mapper.Map<ProductDTO>(product);
-            var categoryMap = _mapper.Map<CategoryDTO>(category);
-            var imageMap = _mapper.Map<IEnumerable<ProductImageDTO>>(image);
-            var colorMap = _mapper.Map<IEnumerable<ProductColorDTO>>(color);
+            var productMap = product.ToProductDTO();
+            var categoryMap = category.ToCategoryDTO();
+            var imageMap = image.Select(x => x.ToProductImageDTO());
+            var colorMap = color.Select(x => x.ToProductColorDTO());
 
             return new DetailProductDTO
             {

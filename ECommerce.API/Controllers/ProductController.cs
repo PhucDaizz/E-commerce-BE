@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using Ecommerce.Application.Common.Mappings;
 using Ecommerce.Application.DTOS.Product;
 using Ecommerce.Application.Repositories.Interfaces;
 using Ecommerce.Application.Services.Interfaces;
@@ -13,13 +13,11 @@ namespace ECommerce.API.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IProductRepository _productRepository;
-        private readonly IMapper _mapper;
         private readonly IProductServices _productServices;
 
-        public ProductController(IProductRepository productRepository, IMapper mapper, IProductServices productServices)
+        public ProductController(IProductRepository productRepository, IProductServices productServices)
         {
             _productRepository = productRepository;
-            _mapper = mapper;
             _productServices = productServices;
         }
 
@@ -28,7 +26,7 @@ namespace ECommerce.API.Controllers
         [Route("Add")]
         public async Task<IActionResult> Create([FromBody] CreateProductDTO productDTO)
         {
-            var product = _mapper.Map<Products>(productDTO);
+            var product = productDTO.ToEntity();
             product.CreatedAt = DateTime.Now;
             product.UpdatedAt = DateTime.Now;
             product = await _productRepository.CreateAsync(product);
@@ -68,7 +66,7 @@ namespace ECommerce.API.Controllers
         [Route("edit/{id:int}")]
         public async Task<IActionResult> Edit([FromRoute] int id, [FromBody] EditProductDTO productDTO)
         {
-            var product = _mapper.Map<Products>(productDTO);
+            var product = productDTO.ToEntity();
             product.ProductID = id;
             product.UpdatedAt = DateTime.Now;
             var existing = await _productRepository.UpdateAsync(product);

@@ -1,0 +1,32 @@
+# Loại bỏ các thư mục output của build
+**/bin/
+**/obj/
+
+# Loại bỏ các thư mục/file của IDE và công cụ
+**/.vs/
+**/.vscode/
+.vscode/
+*.swp
+*.user
+*.suo
+.idea/
+
+# Loại bỏ các thư mục/file của Git
+.git/
+.gitignore
+.gitattributes
+.github/
+
+# Loại bỏ các file gỡ lỗi
+*.pdb
+*.generated.cs
+
+# Loại bỏ thư mục chứa các gói NuGet đã tải về
+packages/
+**/packages.config
+
+# Bỏ qua các file runtime của Docker
+Dockerfile
+.dockerignore
+
+**/.env

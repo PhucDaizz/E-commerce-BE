@@ -1,0 +1,79 @@
+version: '3.8'
+
+volumes:
+  sqlserver_data:
+
+services:
+  # 1. Dịch vụ SQL Server
+  sql-server-service:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: mssql_server
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${DB_PASSWORD} 
+    ports:
+      - "1433:1433" 
+    volumes:
+      - sqlserver_data:/var/opt/mssql 
+    # --- PHẦN MỚI BẮT ĐẦU ---
+    # Healthcheck dạy Docker cách kiểm tra xem SQL đã sẵn sàng chưa
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P '${DB_PASSWORD}' -Q 'SELECT 1' || exit 1"]
+      interval: 10s   # Kiểm tra mỗi 10 giây
+      timeout: 5s     # Chờ tối đa 5 giây
+      retries: 10     # Thử lại 10 lần nếu thất bại
+      start_period: 15s # Chờ 15 giây sau khi container chạy rồi mới bắt đầu kiểm tra
+    # --- PHẦN MỚI KẾT THÚC ---
+
+  # 2. Dịch vụ Redis 
+  redis-service:
+    image: redis:alpine
+    container_name: redis_cache
+    ports:
+      - "6379:6379"
+    # Thêm healthcheck cho Redis (optional nhưng tốt)
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 3. Dịch vụ ECommerce API 
+  my-ecommerce-api:
+    container_name: ecommerce_api
+    build: .
+    ports:
+      - "7295:7295" 
+    # --- PHẦN SỬA ĐỔI BẮT ĐẦU ---
+    # depends_on bây giờ sẽ chờ healthcheck
+    depends_on:
+      sql-server-service:
+        condition: service_healthy  # Chỉ chạy khi SQL báo "khỏe"
+      redis-service:
+        condition: service_healthy  # Chỉ chạy khi Redis báo "khỏe"
+    # --- PHẦN SỬA ĐỔI KẾT THÚC ---
+    
+    environment:
+      - ConnectionStrings__ECommerceConnectionstring=Server=sql-server-service;Database=ECommerceTest;User=sa;Password=${DB_PASSWORD};TrustServerCertificate=Yes
+      - ConnectionStrings__Redis=redis-service:6379
+
+      # ... (tất cả các environment khác của bạn) ...
+      - EmailSettings__MailServer=${EMAIL_SERVER}
+      - EmailSettings__MailPort=${EMAIL_PORT}
+      - EmailSettings__FromEmail=${EMAIL_FROM}
+      - EmailSettings__Password=${EMAIL_PASSWORD}
+
+      - Google__ClientId=${GOOGLE_CLIENT_ID}
+      - Google__ClientSecret=${GOOGLE_CLIENT_SECRET}
+
+      - Cloudinary__CloudName=${CLOUDINARY_CLOUD_NAME}
+      - Cloudinary__ApiKey=${CLOUDINARY_API_KEY}
+      - Cloudinary__ApiSecret=${CLOUDINARY_API_SECRET}
+      
+      # --- ĐÃ XÓA 2 DÒNG FRONTEND_URL THEO Ý BẠN ---
+      # (API sẽ tự động lấy từ appsettings.json)
+      
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:7295
+      - AllowedHosts=*
+

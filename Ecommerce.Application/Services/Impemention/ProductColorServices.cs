@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using Ecommerce.Application.Common.Mappings;
 using Ecommerce.Application.DTOS.ProductColor;
 using Ecommerce.Application.Repositories.Interfaces;
 using Ecommerce.Application.Services.Interfaces;
@@ -14,13 +14,11 @@ namespace Ecommerce.Application.Services.Impemention
     {
         private readonly IProductColorRepository _productColorRepository;
         private readonly IProductSizeRepository _productSizeRepository;
-        private readonly IMapper _mapper;
 
-        public ProductColorServices(IProductColorRepository productColorRepository, IProductSizeRepository productSizeRepository, IMapper mapper)
+        public ProductColorServices(IProductColorRepository productColorRepository, IProductSizeRepository productSizeRepository)
         {
             _productColorRepository = productColorRepository;
             _productSizeRepository = productSizeRepository;
-            _mapper = mapper;
         }
 
         public async Task<ProductColorDTO?> DeleteColorAsync(int colorID)
@@ -31,7 +29,7 @@ namespace Ecommerce.Application.Services.Impemention
             {
                 return null;
             }
-            var result = _mapper.Map<ProductColorDTO>(productColor);
+            var result = productColor.ToProductColorDTO();
             return result;
         }
     }

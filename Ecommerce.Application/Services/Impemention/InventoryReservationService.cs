@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Ecommerce.Application.Common;
+﻿using Ecommerce.Application.Common;
 using Ecommerce.Application.DTOS.CartItem;
 using Ecommerce.Application.DTOS.Inventory;
 using Ecommerce.Application.Repositories.Persistence;
@@ -13,14 +12,12 @@ namespace Ecommerce.Application.Services.Impemention
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<InventoryReservationService> _logger;
-        private readonly IMapper _mapper;
         private const int RESERVATION_MINUTES = 15;
 
-        public InventoryReservationService(IUnitOfWork unitOfWork,ILogger<InventoryReservationService> logger, IMapper mapper)
+        public InventoryReservationService(IUnitOfWork unitOfWork,ILogger<InventoryReservationService> logger)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
-            _mapper = mapper;
         }
 
         /// <summary>

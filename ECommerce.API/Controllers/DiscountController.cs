@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using Ecommerce.Application.Common.Mappings;
 using Ecommerce.Application.DTOS.Discount;
 using Ecommerce.Application.Repositories.Interfaces;
 using Ecommerce.Application.Services.Interfaces;
@@ -13,13 +13,11 @@ namespace ECommerce.API.Controllers
     [ApiController]
     public class DiscountController : ControllerBase
     {
-        private readonly IMapper _mapper;
         private readonly IDiscountRepository _discountRepository;
         private readonly IDiscountServices _discountServices;
 
-        public DiscountController(IMapper mapper, IDiscountRepository discountRepository, IDiscountServices discountServices)
+        public DiscountController(IDiscountRepository discountRepository, IDiscountServices discountServices)
         {
-            _mapper = mapper;
             _discountRepository = discountRepository;
             _discountServices = discountServices;
         }
@@ -48,9 +46,9 @@ namespace ECommerce.API.Controllers
             {
                 return BadRequest("StartDate must be less than EndDate");
             }
-            var discounts = _mapper.Map<Discounts>(createDiscountDTO);
+            var discounts = createDiscountDTO.ToEntity();
             var result = await _discountRepository.CreateAsync(discounts);
-            return Ok(_mapper.Map<DiscountDTO>(result));
+            return Ok(result.ToDiscountDTO());
         }
 
         [HttpGet]
@@ -62,7 +60,7 @@ namespace ECommerce.API.Controllers
             {
                 return BadRequest("DiscountID is not existing");
             }
-            return Ok(_mapper.Map<DiscountDTO>(exsting));
+            return Ok(exsting.ToDiscountDTO());
         }
 
         [HttpGet]
@@ -101,14 +99,14 @@ namespace ECommerce.API.Controllers
             {
                 return BadRequest("StartDate must be less than EndDate");
             }
-            var discountUpdate = _mapper.Map<Discounts>(editDiscountDTO);
+            var discountUpdate = editDiscountDTO.ToEntity();
             discountUpdate.DiscountID = id;
             var result = await _discountRepository.UpdateAsync(discountUpdate);
             if (result == null)
             {
                 return NotFound("DiscountID is not existing");
             }
-            return Ok(_mapper.Map<DiscountDTO>(result));
+            return Ok(result.ToDiscountDTO());
         }
 
         [HttpDelete]
@@ -121,7 +119,7 @@ namespace ECommerce.API.Controllers
             {
                 return NotFound("DiscountID is not existing or has been use");
             }
-            var result = _mapper.Map<DiscountDTO>(existing);
+            var result = existing.ToDiscountDTO();
             return Ok(result);
         }
 
@@ -138,8 +136,8 @@ namespace ECommerce.API.Controllers
             {
                 return NotFound("The discount code does not exist or has already been used.");
             }
-            var result = _mapper.Map<DiscountDTO>(discount);
-            return Ok(result);
+            var result2 = discount.ToDiscountDTO();
+            return Ok(result2);
         }
 
         [HttpPut("ChangeStatus/{id:int}")]
@@ -151,7 +149,7 @@ namespace ECommerce.API.Controllers
             {
                 return NotFound("DiscountID is not existing");
             }
-            return Ok(_mapper.Map<DiscountDTO>(discount));
+            return Ok(discount.ToDiscountDTO());
         }
 
     }

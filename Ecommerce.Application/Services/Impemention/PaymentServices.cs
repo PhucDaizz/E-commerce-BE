@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using Ecommerce.Application.Common.Mappings;
 using Ecommerce.Application.DTOS.CartItem;
 using Ecommerce.Application.DTOS.Payment;
 using Ecommerce.Application.Repositories.Interfaces;
@@ -14,7 +14,6 @@ namespace Ecommerce.Application.Services.Impemention
         private readonly IPaymentRepository _paymentRepository;
         private readonly ICartItemRepository _cartItemRepository;
         private readonly IDiscountServices _discountServices;
-        private readonly IMapper _mapper;
         private readonly IInventoryReservationService _inventoryReservationService;
         private readonly IAuthRepository _authRepository;
         private readonly IUnitOfWork _unitOfWork;
@@ -22,13 +21,12 @@ namespace Ecommerce.Application.Services.Impemention
         public PaymentServices(IPaymentRepository paymentRepository,
                             ICartItemRepository cartItemRepository, 
                             IDiscountServices discountServices, 
-                            IMapper mapper, IInventoryReservationService inventoryReservationService,
+                            IInventoryReservationService inventoryReservationService,
                             IAuthRepository authRepository, IUnitOfWork unitOfWork)
         {
             _paymentRepository = paymentRepository;
             _cartItemRepository = cartItemRepository;
             _discountServices = discountServices;
-            _mapper = mapper;
             _inventoryReservationService = inventoryReservationService;
             _authRepository = authRepository;
             _unitOfWork = unitOfWork;
@@ -83,7 +81,7 @@ namespace Ecommerce.Application.Services.Impemention
                     await _unitOfWork.Orders.CreateAsync(order);
 
                     // Thêm chi tiết đơn hàng
-                    var listCart = _mapper.Map<IEnumerable<CartItemListDTO>>(cartItems);
+                    var listCart = cartItems.Select(x => x.ToCartItemListDTO());
                     await _unitOfWork.OrderDetails.CreateAsync(order.OrderID, listCart);
 
                     // Xóa giỏ hàng
@@ -196,7 +194,7 @@ namespace Ecommerce.Application.Services.Impemention
                 await _unitOfWork.shipping.CreateAsync(shipping);
 
                 // Thêm chi tiết đơn hàng
-                var listCart = _mapper.Map<IEnumerable<CartItemListDTO>>(cartItems);
+                var listCart = cartItems.Select(x => x.ToCartItemListDTO());
                 await _unitOfWork.OrderDetails.CreateAsync(order.OrderID, listCart);
 
                 // Xóa giỏ hàng
@@ -369,7 +367,7 @@ namespace Ecommerce.Application.Services.Impemention
                 await _unitOfWork.shipping.CreateAsync(shipping);
 
                 // Thêm chi tiết đơn hàng
-                var listCart = _mapper.Map<IEnumerable<CartItemListDTO>>(cartItems);
+                var listCart = cartItems.Select(x => x.ToCartItemListDTO());
                 await _unitOfWork.OrderDetails.CreateAsync(order.OrderID, listCart);
 
                 // Xóa giỏ hàng

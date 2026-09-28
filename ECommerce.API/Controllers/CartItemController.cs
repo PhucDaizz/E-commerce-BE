@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using Ecommerce.Application.Common.Mappings;
 using Ecommerce.Application.DTOS.CartItem;
 using Ecommerce.Application.Repositories.Interfaces;
 using Ecommerce.Application.Services.Interfaces;
@@ -14,13 +14,11 @@ namespace ECommerce.API.Controllers
     public class CartItemController : ControllerBase
     {
         private readonly ICartItemRepository _cartItemRepository;
-        private readonly IMapper _mapper;
         private readonly ICartItemServices _cartItemServices;
 
-        public CartItemController(ICartItemRepository cartItemRepository, IMapper mapper, ICartItemServices cartItemServices)
+        public CartItemController(ICartItemRepository cartItemRepository, ICartItemServices cartItemServices)
         {
             _cartItemRepository = cartItemRepository;
-            _mapper = mapper;
             _cartItemServices = cartItemServices;
         }
 
@@ -36,7 +34,7 @@ namespace ECommerce.API.Controllers
                 return Unauthorized("Please login again!.");
             }
 
-            var cartItem = _mapper.Map<CartItems>(cartItemDTO);
+            var cartItem = cartItemDTO.ToEntity();
 
             cartItem.CreatedAt = DateTime.Now;
             cartItem.UpdatedAt = DateTime.Now;
@@ -49,7 +47,7 @@ namespace ECommerce.API.Controllers
                 return BadRequest("Quantity must be more than 0.");
             }
 
-            var result = _mapper.Map<CartItemDTO>(itemAdd);
+            var result = itemAdd.ToCartItemDTO();
 
             return Ok(result);
         }
@@ -65,7 +63,7 @@ namespace ECommerce.API.Controllers
                 return Unauthorized("Please login again.");
             }
 
-            var cartItem = _mapper.Map<CartItems>(editCartItemDTO);
+            var cartItem = editCartItemDTO.ToEntity();
             cartItem.UserID = Guid.Parse(userIdClaim.Value);
             cartItem.UpdatedAt = DateTime.Now;
 
@@ -75,7 +73,7 @@ namespace ECommerce.API.Controllers
                 return Ok("Cart item not found or quantity must be more than 0.");
             }
 
-            var result = _mapper.Map<CartItemDTO>(itemUpdate);
+            var result = itemUpdate.ToCartItemDTO();
 
             return Ok(result);
         }
@@ -97,7 +95,7 @@ namespace ECommerce.API.Controllers
             {
                 return Ok("Your cart is empty");
             }
-            var result = _mapper.Map<IEnumerable<CartItemListDTO>>(cartList);
+            var result = cartList.Select(x => x.ToCartItemListDTO());
             return Ok(result);
         }
 
